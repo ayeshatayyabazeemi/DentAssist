@@ -1,0 +1,311 @@
+/* ====== Reset & Base ===== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #FCF9EA;
+  color: #333;
+  line-height: 1.5;
+}
+h2 {
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 1.5em;
+}
+
+/* ===== Header ===== */
+header {
+  background-color: #BADFDB;
+  padding: 20px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  animation: fadeInDown 0.6s ease-out;
+}
+
+
+.logo {
+  font-size: 1.8em;
+  font-weight: 600;
+  color: #333;
+}
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 15px;
+}
+nav ul li button {
+  background: none;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1em;
+  color: #333;
+  cursor: pointer;
+  border-radius: 25px;
+  transition: background-color 0.3s, transform 0.2s, color 0.3s;
+}
+nav ul li button:hover,
+nav ul li button.active {
+  background-color: #FFA4A4;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* ===== Main Content ===== */
+.main-content {
+  padding: 40px;
+  animation: fadeIn 0.8s ease-out;
+}
+
+/* ===== Top Row: Count + Search ===== */
+.top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+.total {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #1F7D53;
+}
+.search-bar {
+  position: relative;
+  flex-grow: 2;
+  flex-basis: 300px;
+  display: flex;
+  justify-content: center;
+}
+
+.search-bar input {
+  width: 100%;
+  max-width: 500px;
+  padding: 10px 15px 10px 40px; /* leave space for icon */
+  border-radius: 25px;
+  border: 2px solid #BADFDB;
+  background-color: #fff;
+  font-size: 1em;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  box-sizing: border-box; /* ensures padding doesn't shrink input */
+}
+
+.search-bar .search-icon {
+  position: absolute;
+  top: 50%;
+  left: 410px;
+  transform: translateY(-50%);
+  color: #999;
+  font-size: 1.1em;
+  pointer-events: none;
+}
+
+
+/* Container for autocomplete results */
+#searchResults.autocomplete-items {
+  display: none;           /* hidden initially */
+  position: absolute;      /* positioned relative to parent input */
+  top: 100%;               /* just below the input field */
+  left: 0;
+  right: 0;                /* expand to full width of parent */
+  z-index: 1000;           /* above other content */
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-top: none;        /* so it connects with input nicely */
+  max-height: 300px;       /* limit height */
+  overflow-y: auto;        /* scroll if many items */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+/* Each individual result item */
+#searchResults .autocomplete-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #333;
+  border-bottom: 1px solid #eee;
+}
+
+#searchResults .autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+/* Hover / focus state for items */
+#searchResults .autocomplete-item:hover,
+#searchResults .autocomplete-item.active {
+  background-color: #f5f5f5;
+  color: #000;
+}
+
+/* If you want each item row to show fields in a row */
+#searchResults .autocomplete-item span {
+  flex: 1 1 45%;          /* two-column layout approx */
+}
+
+/* Optional: highlight matched part (if you implement) */
+#searchResults .autocomplete-item strong {
+  font-weight: 600;
+  color: #007BFF;
+}
+
+
+/* ===== Form Section ===== */
+.form-section {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+label.required-label::after {
+  content: " *";
+  color: red;
+}
+
+/* Address spans wider */
+.address-field {
+  grid-column: span 2;
+}
+
+.form-section h2 {
+  color: #FFA4A4; /* theme color */
+  margin-bottom: 15px;
+}
+
+.schedule-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #FCF9EA; /* light cream */
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.schedule-table th {
+  background-color: #BADFDB; /* soft teal */
+  color: #333;
+  padding: 12px;
+  text-align: left;
+}
+
+.schedule-table td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.schedule-table tr:hover {
+  background-color: #FFBDBD; /* light pink */
+  transition: 0.3s;
+}
+
+input[type="time"] {
+  width: 100%;
+  padding: 8px;
+  border: 2px solid #BADFDB;
+  border-radius: 8px;
+  background-color: #fff;
+  transition: border-color 0.3s;
+}
+
+input[type="time"]:focus {
+  border-color: #FFA4A4;
+  outline: none;
+}
+
+/* For larger screens, custom layout */
+@media (min-width: 900px) {
+  .form-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Row control: using nth-child tricks */
+  .form-group:nth-child(1),
+  .form-group:nth-child(2) {
+    grid-column: span 1;
+  }
+  .address-field {
+    grid-column: span 2;
+  }
+}
+
+
+/* Optional: tighter textarea height */
+textarea#address {
+  resize: none;
+  height: 60px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  font-size: 0.95em;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 15px;
+  border: 2px solid #BADFDB;
+  border-radius: 10px;
+  background-color: #FCF9EA;
+  font-size: 1em;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #FFA4A4;
+  box-shadow: 0 0 8px rgba(255,164,164,0.4);
+  outline: none;
+}
+.submit-btn {
+  margin-top: 25px;
+  padding: 12px 30px;
+  border: none;
+  border-radius: 25px;
+  background-image: linear-gradient(135deg, #FFA4A4, #FFBDBD);
+  color: white;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+.submit-btn:hover {
+  transform: scale(1.05);
+}
+
+
+
+/* ===== Placeholder Sections ===== */
+.placeholder-section {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+.placeholder-section h2 {
+  margin-bottom: 10px;
+}
+
+/* ===== Animations ===== */
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
