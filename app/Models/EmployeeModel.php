@@ -28,7 +28,7 @@ class EmployeeModel extends Model
 
     // You can define validation rules, etc.
     protected $validationRules = [
-        'email' => 'valid_email',
+        'email' => 'permit_empty|valid_email',
         'name'  => 'required|min_length[2]|max_length[50]',
         // etc
     ];
