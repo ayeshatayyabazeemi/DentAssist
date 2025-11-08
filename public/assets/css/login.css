@@ -1,0 +1,125 @@
+/* Reset & base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #FCF9EA, #BADFDB);
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-container {
+  background: #fff;
+  padding: 40px 50px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  text-align: center;
+  width: 350px;
+  animation: fadeIn 1s ease-in-out;
+}
+
+.login-title {
+  color: #FF7B7B;
+  font-size: 26px;
+  margin-bottom: 25px;
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.input-group i {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 40px 12px 35px;
+  border: 2px solid #FFA4A4;
+  border-radius: 30px;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  background-color: #FCF9EA;
+}
+
+.input-group input:focus {
+  border-color: #FFBDBD;
+  box-shadow: 0 0 10px rgba(255,164,164,0.4);
+}
+
+.role-select {
+  margin-bottom: 20px;
+  text-align: left;
+  font-size: 14px;
+  color: #555;
+}
+
+.role-select select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 25px;
+  border: 2px solid #BADFDB;
+  background-color: #FCF9EA;
+  transition: border-color 0.3s;
+}
+
+.role-select select:focus {
+  border-color: #FFA4A4;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 30px;
+  background: linear-gradient(135deg, #FFA4A4, #FFBDBD);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s;
+}
+
+.login-btn:hover {
+  background: linear-gradient(135deg, #FFBDBD, #FFA4A4);
+  transform: scale(1.05);
+}
+
+.message {
+  margin-top: 15px;
+  display: none;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.message.error {
+  background-color: rgba(255, 100, 100, 0.2);
+  color: #ff4d4d;
+}
+
+.message.success {
+  background-color: rgba(100, 255, 100, 0.2);
+  color: #3ea43a;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,53 @@
+# Operating system / temp files
+.DS_Store
+._*
+Thumbs.db
+$RECYCLE.BIN/
+*~
+
+# Environment / Config sensitive files
+.env
+.env.*           # any env variant
+/.vagrant
+Vagrantfile
+
+# Composer / Vendor dependencies
+/vendor/
+composer.lock   # optional: you may include or ignore this
+
+# CI4 writable directories (logs, cache, session files etc.)
+/writable/cache/*
+!/writable/cache/index.html
+/writable/logs/*
+!/writable/logs/index.html
+/writable/session/*
+!/writable/session/index.html
+/writable/debugbar/*
+!/writable/debugbar/.gitkeep
+/writable/uploads/*
+!/writable/uploads/index.html
+/writable/**/*.db
+/writable/**/*.sqlite
+php_errors.log
+
+# IDE / editor settings and project files
+.idea/
+*.iml
+.vscode/
+nbproject/
+*.tmPreferences.cache
+*.sublime-workspace
+*.sublime-project
+
+# Build / test files
+/tests/coverage*
+/results/
+/build/
+/dist/
+
+/*.phpunit.xml
+
+# Other common junk
+*.log
+*.cache
+*.tmp
