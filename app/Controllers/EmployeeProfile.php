@@ -1,27 +1,48 @@
-<?php
-namespace App\Controllers;
+<?php namespace App\Controllers;
 
+use App\Controllers\BaseController;
 use App\Models\EmployeeModel;
-use CodeIgniter\Controller;
+use App\Models\DoctorScheduleModel;
 
-class PatientProfile extends Controller
+class EmployeeProfile extends BaseController
 {
+    protected $employeeModel;
+    protected $scheduleModel;
+
+    public function __construct()
+    {
+        $this->employeeModel = new EmployeeModel();
+        $this->scheduleModel = new DoctorScheduleModel();
+    }
+
+    /**
+     * Show employee profile page.
+     * @param int|null $id Employee ID (primary key)
+     */
     public function view($id = null)
     {
-        if ($id === null) {
-            // invalid request
-            return redirect()->to('/adminDashboard'); // or some safe place
+        if (empty($id)) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Employee ID required');
         }
 
-        $model = new PatientModel();
-        $patient = $model->find($id);
-
-        if (!$patient) {
-            // no patient found
-            return redirect()->to('/adminDashboard')->with('error','Patient not found');
+        // Fetch employee
+        $employee = $this->employeeModel->where('employee_id', $id)->first();
+        if (empty($employee)) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException("Employee not found: {$id}");
         }
 
-        // pass data to view or return JSON if you want
-        return view('employee/employeeprofile', ['employee' => $patient]);
+        $data = ['employee' => $employee];
+
+        // If employee is a doctor, fetch schedule
+        if (!empty($employee['is_doctor'])) {
+            $schedules = $this->scheduleModel
+                              ->where('employee_id', $employee['employee_id'])
+                              ->orderBy('day_of_week', 'ASC')
+                              ->findAll();
+            $data['schedules'] = $schedules;
+            $data['appointments'] = []; // optional for view rendering
+        }
+
+        return view('employee/employeeprofile', $data);
     }
 }

@@ -25,8 +25,6 @@ header {
   align-items: center;
   animation: fadeInDown 0.6s ease-out;
 }
-
-
 .logo {
   font-size: 1.8em;
   font-weight: 600;
@@ -81,19 +79,17 @@ nav ul li button.active {
   display: flex;
   justify-content: center;
 }
-
 .search-bar input {
   width: 100%;
   max-width: 500px;
-  padding: 10px 15px 10px 40px; /* leave space for icon */
+  padding: 10px 15px 10px 40px;
   border-radius: 25px;
   border: 2px solid #BADFDB;
   background-color: #fff;
   font-size: 1em;
   transition: border-color 0.3s, box-shadow 0.3s;
-  box-sizing: border-box; /* ensures padding doesn't shrink input */
+  box-sizing: border-box;
 }
-
 .search-bar .search-icon {
   position: absolute;
   top: 50%;
@@ -104,27 +100,24 @@ nav ul li button.active {
   pointer-events: none;
 }
 
-
-/* Container for autocomplete results */
-#searchResults.autocomplete-items {
-  display: none;           /* hidden initially */
-  position: absolute;      /* positioned relative to parent input */
-  top: 100%;               /* just below the input field */
+/* ===== Autocomplete Results ===== */
+.autocomplete-items {
+  display: none;
+  position: absolute;
+  top: 100%;
   left: 0;
-  right: 0;                /* expand to full width of parent */
-  z-index: 1000;           /* above other content */
+  right: 0;
+  z-index: 1000;
   background-color: #fff;
   border: 1px solid #ccc;
-  border-top: none;        /* so it connects with input nicely */
-  max-height: 300px;       /* limit height */
-  overflow-y: auto;        /* scroll if many items */
+  border-top: none;
+  max-height: 300px;
+  overflow-y: auto;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
 }
-
-/* Each individual result item */
-#searchResults .autocomplete-item {
+.autocomplete-items .autocomplete-item {
   padding: 10px 15px;
   cursor: pointer;
   display: flex;
@@ -134,29 +127,21 @@ nav ul li button.active {
   color: #333;
   border-bottom: 1px solid #eee;
 }
-
-#searchResults .autocomplete-item:last-child {
+.autocomplete-items .autocomplete-item:last-child {
   border-bottom: none;
 }
-
-/* Hover / focus state for items */
-#searchResults .autocomplete-item:hover,
-#searchResults .autocomplete-item.active {
+.autocomplete-items .autocomplete-item:hover,
+.autocomplete-items .autocomplete-item.active {
   background-color: #f5f5f5;
   color: #000;
 }
-
-/* If you want each item row to show fields in a row */
-#searchResults .autocomplete-item span {
-  flex: 1 1 45%;          /* two-column layout approx */
+.autocomplete-items .autocomplete-item span {
+  flex: 1 1 45%;
 }
-
-/* Optional: highlight matched part (if you implement) */
-#searchResults .autocomplete-item strong {
+.autocomplete-items .autocomplete-item strong {
   font-weight: 600;
   color: #007BFF;
 }
-
 
 /* ===== Form Section ===== */
 .form-section {
@@ -174,42 +159,34 @@ label.required-label::after {
   content: " *";
   color: red;
 }
-
-/* Address spans wider */
 .address-field {
   grid-column: span 2;
 }
-
 .form-section h2 {
-  color: #FFA4A4; /* theme color */
+  color: #FFA4A4;
   margin-bottom: 15px;
 }
-
 .schedule-table {
   width: 100%;
   border-collapse: collapse;
-  background-color: #FCF9EA; /* light cream */
+  background-color: #FCF9EA;
   border-radius: 10px;
   overflow: hidden;
 }
-
 .schedule-table th {
-  background-color: #BADFDB; /* soft teal */
+  background-color: #BADFDB;
   color: #333;
   padding: 12px;
   text-align: left;
 }
-
 .schedule-table td {
   padding: 10px;
   border-bottom: 1px solid #eee;
 }
-
 .schedule-table tr:hover {
-  background-color: #FFBDBD; /* light pink */
+  background-color: #FFBDBD;
   transition: 0.3s;
 }
-
 input[type="time"] {
   width: 100%;
   padding: 8px;
@@ -218,19 +195,16 @@ input[type="time"] {
   background-color: #fff;
   transition: border-color 0.3s;
 }
-
 input[type="time"]:focus {
   border-color: #FFA4A4;
   outline: none;
 }
 
-/* For larger screens, custom layout */
+/* Responsive */
 @media (min-width: 900px) {
   .form-grid {
     grid-template-columns: repeat(3, 1fr);
   }
-
-  /* Row control: using nth-child tricks */
   .form-group:nth-child(1),
   .form-group:nth-child(2) {
     grid-column: span 1;
@@ -239,14 +213,10 @@ input[type="time"]:focus {
     grid-column: span 2;
   }
 }
-
-
-/* Optional: tighter textarea height */
 textarea#address {
   resize: none;
   height: 60px;
 }
-
 .form-group label {
   display: block;
   margin-bottom: 6px;
@@ -287,9 +257,7 @@ textarea#address {
   transform: scale(1.05);
 }
 
-
-
-/* ===== Placeholder Sections ===== */
+/* Placeholder Sections */
 .placeholder-section {
   background-color: #fff;
   padding: 30px;
