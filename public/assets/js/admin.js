@@ -162,10 +162,10 @@ function showDropdown(data, dropdown, onSelect) {
     <strong>CNIC:</strong> ${item.cnic ?? 'none'}
   `;
   div.addEventListener('mousedown', () => {
-    window.location.href = `/patient/profile/${item.id}`;
+      onSelect(item);
+    });
+    dropdown.appendChild(div);
   });
-  dropdown.appendChild(div);
-});
 dropdown.style.display = 'block';
 }
 // --- Initialize for both ---
@@ -178,20 +178,18 @@ setupSearch({
   onSelect: (item) => window.location.href = `/patient/profile/${item.id}`
 });
 
-// Employee search
-
-
-
-
-const form = document.getElementById('employeeForm');
-  const scheduleSection = document.getElementById('scheduleSection');
-  const designation = document.getElementById('emp_designation');
 setupSearch({
   inputId: 'employeeSearch',
   dropdownId: 'employeeResults',
   apiUrl: '/api/employee/search',
   onSelect: (item) => window.location.href = `/employee/profile/${item.id}`
 });
+
+
+const form = document.getElementById('employeeForm');
+  const scheduleSection = document.getElementById('scheduleSection');
+  const designation = document.getElementById('emp_designation');
+
   // Show schedule section only if designation is doctor
   designation.addEventListener('change', () => {
     if (designation.value === 'doctor') {
@@ -218,6 +216,7 @@ setupSearch({
     const desig  = form.elements['designation'].value;
 
     // --- Validation ---
+    
     if (!name) {
       notyf.error('Name is required');
       valid = false;
@@ -243,20 +242,31 @@ setupSearch({
       valid = false;
     }
 
-    if (pwd.length < 6) {
-      notyf.error('Password must be at least 6 characters');
-      valid = false;
-    }
-
-    if (pwd !== cpwd) {
-      notyf.error('Passwords do not match');
-      valid = false;
-    }
+  
 
     if (!desig) {
       notyf.error('Please select a designation');
       valid = false;
     }
+
+    
+// Special handling for staff: password must NOT be provided
+if (desig === 'staff') {
+  if (pwd || cpwd) {
+    notyf.error('Staff accounts should not have a password.');
+    valid = false;
+  }
+} else {
+  // For non-staff roles (admin/doctor/receptionist) password is required and must match
+  if (!pwd || pwd.length < 6) {
+    notyf.error('Password must be at least 6 characters');
+    valid = false;
+  }
+  if (pwd !== cpwd) {
+    notyf.error('Passwords do not match');
+    valid = false;
+  }
+}
 
     // 🕐 Doctor schedule validation & collection
     let scheduleData = [];
@@ -284,10 +294,13 @@ setupSearch({
       email,
       cnic,
       gender,
-      password: pwd,
+   
       designation: desig,
       schedule: scheduleData
     };
+    if (desig !== 'staff' && pwd) {
+  dataObj.password = pwd;
+}
 
     // 🚀 Send API Request
     fetch('/api/employee/add', {
@@ -307,6 +320,7 @@ setupSearch({
           totalCountElem.textContent = (parseInt(totalCountElem.textContent) || 0) + 1;
         }
       } else {
+        console.log(json.message)
         notyf.error('Error: ' + (json.message || 'Something went wrong.'));
       }
     })

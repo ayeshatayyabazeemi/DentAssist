@@ -146,14 +146,13 @@
     <!-- Staffs Tab Content -->
     <section id="tab-staffs" class="tab-content" style="display:none;">
       <div class="top-row">
-        <div class="total">Total Employees: <span id="totalCount">0</span></div>
-        <div class="search-bar">
-            <i class="fa fa-search search-icon"></i>
-          <input type="text" id="employeeSearch" placeholder="Search employee..." />
-          <div id="searchResults" class="autocomplete-items"></div>
-        </div>
-        
-      </div>
+    <div class="total">Total Employees: <span id="totalEmpCount">0</span></div>
+    <div class="search-bar">
+      <i class="fa fa-search search-icon"></i>
+      <input type="text" id="employeeSearch" placeholder="Search employee..." />
+      <div id="employeeResults" class="autocomplete-items"></div>
+    </div>
+  </div>
 <div class="form-section">
     <h2>Employee / Staff Details</h2>
     <form id="employeeForm">
@@ -215,12 +214,12 @@
 
         <!-- Row 5: Password, Confirm Password -->
         <div class="form-group">
-          <label for="emp_password" class="required-label">Password</label>
-          <input type="password" id="emp_password" name="password" required />
+          <label for="emp_password" class="required-label">Password (Not for Staff)</label>
+          <input type="password" id="emp_password" name="password"  />
         </div>
         <div class="form-group">
           <label for="emp_c_password" class="required-label">Confirm Password</label>
-          <input type="password" id="emp_c_password" name="c_password" required />
+          <input type="password" id="emp_c_password" name="c_password" />
         </div>
       </div><!-- end form-grid -->
 

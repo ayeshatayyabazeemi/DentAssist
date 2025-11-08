@@ -104,27 +104,26 @@ nav ul li button.active {
   pointer-events: none;
 }
 
-
-/* Container for autocomplete results */
-#searchResults.autocomplete-items {
-  display: none;           /* hidden initially */
-  position: absolute;      /* positioned relative to parent input */
-  top: 100%;               /* just below the input field */
+/* Container for autocomplete results (shared for any dropdown) */
+.autocomplete-items {
+  display: none;
+  position: absolute;   /* positioned relative to parent .search-bar */
+  top: 100%;
   left: 0;
-  right: 0;                /* expand to full width of parent */
-  z-index: 1000;           /* above other content */
+  right: 0;
+  z-index: 1000;
   background-color: #fff;
   border: 1px solid #ccc;
-  border-top: none;        /* so it connects with input nicely */
-  max-height: 300px;       /* limit height */
-  overflow-y: auto;        /* scroll if many items */
+  border-top: none;
+  max-height: 300px;
+  overflow-y: auto;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
 }
 
 /* Each individual result item */
-#searchResults .autocomplete-item {
+.autocomplete-items .autocomplete-item {
   padding: 10px 15px;
   cursor: pointer;
   display: flex;
@@ -135,27 +134,28 @@ nav ul li button.active {
   border-bottom: 1px solid #eee;
 }
 
-#searchResults .autocomplete-item:last-child {
+.autocomplete-items .autocomplete-item:last-child {
   border-bottom: none;
 }
 
-/* Hover / focus state for items */
-#searchResults .autocomplete-item:hover,
-#searchResults .autocomplete-item.active {
+/* Hover / active */
+.autocomplete-items .autocomplete-item:hover,
+.autocomplete-items .autocomplete-item.active {
   background-color: #f5f5f5;
   color: #000;
 }
 
-/* If you want each item row to show fields in a row */
-#searchResults .autocomplete-item span {
-  flex: 1 1 45%;          /* two-column layout approx */
+/* Layout for fields inside an item */
+.autocomplete-items .autocomplete-item span {
+  flex: 1 1 45%;
 }
 
-/* Optional: highlight matched part (if you implement) */
-#searchResults .autocomplete-item strong {
+/* Highlight */
+.autocomplete-items .autocomplete-item strong {
   font-weight: 600;
   color: #007BFF;
 }
+
 
 
 /* ===== Form Section ===== */

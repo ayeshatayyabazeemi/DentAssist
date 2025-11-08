@@ -16,6 +16,7 @@ class EmployeeModel extends Model
         'email',
         'gender',
         'dob',
+        'cnic',
         'address',
         'regdate',
         'is_admin',
