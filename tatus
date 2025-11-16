@@ -1,0 +1,6 @@
+[33m0d4382f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdevelop[m[33m, [m[1;31morigin/patient-edit-feature[m[33m, [m[1;31mfriend/patient-edit-feature[m[33m, [m[1;31mfriend/develop[m[33m, [m[1;32mpatient-edit-feature[m[33m)[m Resolved merge conflicts in patientprofile.js
+[33m636956e[m[33m ([m[1;31morigin/maryam-appointment[m[33m, [m[1;31morigin/develop[m[33m, [m[1;31mfriend/maryam-appointment[m[33m, [m[1;32mmaster[m[33m)[m employee profile added
+[33m03ee577[m Added patient edit feature
+[33mb36d0e3[m[33m ([m[1;31morigin/mybranch[m[33m, [m[1;31mfriend/mybranch[m[33m)[m Apply .gitignore and stop tracking ignored files
+[33m823e816[m Add .gitignore file
+[33ma8fdcca[m work done until patient registration
