@@ -27,3 +27,18 @@ $routes->group('reception', ['filter' => 'auth:receptionist'], function($routes)
     $routes->get('dashboard', 'ReceptionDashboard::index');
 });
 
+// ---------------- APPOINTMENT ROUTES ----------------
+// Form data for a patient (doctors + existing appointments)
+$routes->get('api/appointments/form/(:num)', 'Api\AppointmentController::form/$1', ['filter' => 'auth:admin']);
+
+// Get available slots for a doctor on a date
+$routes->get('api/appointments/getSlots', 'Api\AppointmentController::getSlots', ['filter' => 'auth:admin']);
+
+// Save new appointment
+$routes->post('api/appointments/save', 'Api\AppointmentController::save', ['filter' => 'auth:admin']);
+
+
+
+// Get appointments for a patient
+$routes->get('api/patient/getAppointments/(:num)', 'Api\PatientController::getAppointments/$1', ['filter' => 'auth:admin']);
+

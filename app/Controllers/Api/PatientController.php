@@ -1,17 +1,18 @@
 <?php namespace App\Controllers\Api;
+
 use CodeIgniter\HTTP\IncomingRequest;
 use App\Controllers\BaseController;
 use App\Models\PatientModel;
+use App\Models\AppointmentModel;
 
 class PatientController extends BaseController
 {
     public function add()
     {
-         $method = $this->request->getMethod(); // returns for example "post" or "get" :contentReference[oaicite:1]{index=1}
+        $method = $this->request->getMethod(); // returns for example "post" or "get"
 
         // Accept only POST
-        if ($this->request->getMethod() !== 'POST')
-        {
+        if ($method !== 'POST') {
             return $this->response
                          ->setStatusCode(405)
                          ->setJSON(['status'=>'error','message'=>'Method not allowed']);
@@ -21,57 +22,42 @@ class PatientController extends BaseController
 
         // Get all posted fields
         $data = $this->request->getJSON(true);
-    if (empty($data)) {
-        // fallback to traditional post
-        $data = $this->request->getPost([
-            'name','mobile_no','email','gender','dob','address',
-            'occupation','regdate','guardianname','guardianphonenumber',
-            'doctorName','cnic','bloodGroup','insurance'
-        ]);
-    }
-    foreach ($data as $key => $value) {
-    if (is_string($value)) {
-        $data[$key] = trim($value);
-    }
-}
-foreach ($data as $key => $value) {
-    if (is_string($value)) {
-        $value = trim($value);
-        if ($value === '') {
-            $data[$key] = null;  // turn blank into NULL
-        } else {
-            $data[$key] = $value;
+        if (empty($data)) {
+            $data = $this->request->getPost([
+                'name','mobile_no','email','gender','dob','address',
+                'occupation','regdate','guardianname','guardianphonenumber',
+                'doctorName','cnic','bloodGroup','insurance'
+            ]);
         }
-    }
-}
 
+        foreach ($data as $key => $value) {
+            if (is_string($value)) {
+                $value = trim($value);
+                $data[$key] = $value === '' ? null : $value;
+            }
+        }
 
-
-        // Simple validation example
-        if (empty($data['name']) || empty($data['mobile_no']))
-        {
+        // Validation
+        if (empty($data['name']) || empty($data['mobile_no'])) {
             return $this->response
                          ->setStatusCode(400)
                          ->setJSON(['status'=>'error','message'=>'Name & Mobile No required']);
         }
 
         $insertID = $model->insert($data);
-        if ($insertID)
-        {
+        if ($insertID) {
             return $this->response
                          ->setStatusCode(201)
                          ->setJSON(['status'=>'success','message'=>'Patient added','id'=>$insertID]);
-        }
-        else
-        {
+        } else {
             return $this->response
                          ->setStatusCode(500)
                          ->setJSON(['status'=>'error','message'=>'Could not add patient']);
         }
     }
 
-    public function search() {
-        // Get query param
+    public function search()
+    {
         $q = trim($this->request->getGet('q'));
         if (!$q) {
             return $this->response
@@ -81,23 +67,21 @@ foreach ($data as $key => $value) {
 
         $model = new PatientModel();
 
-        // Search by id, mobile_no, email, cnic (partial match)
+        // Search by id, mobile_no, email, cnic, name
         $results = $model->groupStart()
                          ->like('patient_id', $q)
                          ->orLike('mobile_no', $q)
                          ->orLike('email', $q)
                          ->orLike('cnic', $q)
                          ->orLike('name', $q)
-
                          ->groupEnd()
                          ->select('patient_id AS id, name, mobile_no, email, cnic')
-                         ->findAll(10);  // limit 10
+                         ->findAll(10);
 
-        // Normalize null/empty values to 'none'
+        // Normalize empty values
         foreach ($results as &$r) {
-          
-            $r['email']     = $r['email']     ?: 'none';
-            $r['cnic']      = $r['cnic']      ?: 'none';
+            $r['email'] = $r['email'] ?: 'none';
+            $r['cnic']  = $r['cnic'] ?: 'none';
         }
 
         return $this->response
@@ -105,6 +89,25 @@ foreach ($data as $key => $value) {
                     ->setJSON(['status'=>'success','data'=>$results]);
     }
 
+    // --------------------------
+    // New method: Get patient appointments
+    // --------------------------
+    public function getAppointments($patientId)
+    {
+        $appointmentModel = new AppointmentModel();
 
+        $appointments = $appointmentModel
+            ->where('patient_id', $patientId)
+            ->join('employee', 'employee.employee_id = appointments.employee_id')
+            ->select('appointments.*, employee.name as doctor_name')
+            ->orderBy('appointment_date', 'ASC')
+            ->findAll();
 
+        return $this->response
+                    ->setStatusCode(200)
+                    ->setJSON([
+                        'status' => 'success',
+                        'appointments' => $appointments
+                    ]);
+    }
 }

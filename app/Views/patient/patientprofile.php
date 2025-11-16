@@ -105,7 +105,22 @@
       </tr>
     </thead>
     <tbody>
+
       <!-- existing appointments rows here -->
+       <?php if(!empty($appointments)): ?>
+    <?php foreach($appointments as $appt): ?>
+        <tr>
+            <td><?= esc($appt['appointment_date']) ?></td>
+            <td><?= date('D', strtotime($appt['appointment_date'])) ?></td>
+            <td><?= esc($appt['doctor_name']) ?></td>
+            <td><?= esc($appt['slot']) ?></td>
+        </tr>
+    <?php endforeach; ?>
+<?php else: ?>
+    <tr>
+        <td colspan="4">No appointments yet</td>
+    </tr>
+<?php endif; ?>
     </tbody>
   </table>
 </div>
@@ -121,7 +136,13 @@
       <div class="form-grid">
         <div class="form-group">
           <label for="patient_id" class="required-label">Patient ID</label>
-          <input  id="patient_id" name="patient name" required />
+          <input 
+              id="patient_id" 
+              name="patient_id" 
+              value="<?= esc($patient['patient_id'] ?? '') ?>" 
+              readonly 
+              required 
+            />
         </div>
         <div class="form-group">
           <label for="doctor_id" class="required-label">Doctor</label>
@@ -147,6 +168,9 @@
     </form>
   </div>
 </div>
+<div id="notification" class="notification"></div>
+
+
 <script src="\assets\js\patientprofile.js"></script>
 
 </body>
