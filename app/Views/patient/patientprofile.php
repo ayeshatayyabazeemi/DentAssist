@@ -62,7 +62,22 @@
       </tr>
     </thead>
     <tbody>
-      <!-- dynamic appointments here -->
+
+      <!-- existing appointments rows here -->
+       <?php if(!empty($appointments)): ?>
+    <?php foreach($appointments as $appt): ?>
+        <tr>
+            <td><?= esc($appt['appointment_date']) ?></td>
+            <td><?= date('D', strtotime($appt['appointment_date'])) ?></td>
+            <td><?= esc($appt['doctor_name']) ?></td>
+            <td><?= esc($appt['slot']) ?></td>
+        </tr>
+    <?php endforeach; ?>
+<?php else: ?>
+    <tr>
+        <td colspan="4">No appointments yet</td>
+    </tr>
+<?php endif; ?>
     </tbody>
   </table>
 </div>
@@ -77,8 +92,14 @@
     <form id="makeAppointmentForm">
       <div class="form-grid">
         <div class="form-group">
-          <label>Patient ID</label>
-          <input id="patient_id" name="patient_id" value="<?= esc($patient['patient_id']); ?>" readonly/>
+          <label for="patient_id" class="required-label">Patient ID</label>
+          <input 
+              id="patient_id" 
+              name="patient_id" 
+              value="<?= esc($patient['patient_id'] ?? '') ?>" 
+              readonly 
+              required 
+            />
         </div>
         <div class="form-group">
           <label>Doctor</label>
@@ -97,90 +118,10 @@
     </form>
   </div>
 </div>
+<div id="notification" class="notification"></div>
 
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-  const deleteBtn = document.getElementById("deletePatient");
-  const editBtn = document.querySelector('.icon.edit');
-  const editableFields = ['name','mobile_no','email','gender','dob','address','occupation','guardianname','guardianphonenumber','guardianrelation','insurance'];
 
-  // DELETE
-  if (deleteBtn) {
-    deleteBtn.addEventListener("click", function() {
-      const patientId = this.getAttribute("data-id");
-      if (confirm("Are you sure you want to delete this patient? This action cannot be undone.")) {
-        fetch(`/api/patient/${patientId}`, { method: "DELETE" })
-        .then(res=>res.json())
-        .then(data=>{
-          if(data.status==='success'){ alert("Patient deleted!"); window.location.href="/adminDashboard"; }
-          else alert(data.message);
-        }).catch(err=>{ console.error(err); alert("Error deleting patient"); });
-      }
-    });
-  }
-
-  // EDIT & SAVE
-  if(editBtn){
-    editBtn.addEventListener('click', function(){
-      editableFields.forEach(field=>{
-        const span = document.getElementById(field+'Span');
-        if(!span) return;
-
-        let input;
-        if(field==='gender' || field==='guardianrelation'){
-          input = document.createElement('select');
-          const opts = field==='gender'?['','male','female','other']:['','Parent','Spouse','Brother','Sister','Son','Daughter','Other'];
-          opts.forEach(val=>{
-            const opt=document.createElement('option'); opt.value=val; opt.textContent=val; if(span.textContent===val) opt.selected=true; input.appendChild(opt);
-          });
-        } else if(field==='dob'){ input=document.createElement('input'); input.type='date'; input.value=span.textContent==='none'?'':span.textContent; }
-        else { input=document.createElement('input'); input.type='text'; input.value=span.textContent==='none'?'':span.textContent; }
-
-        input.id=field+'Input'; span.replaceWith(input);
-      });
-
-      // SAVE button
-      let saveBtn = document.getElementById('savePatientBtn');
-      if(!saveBtn){
-        saveBtn=document.createElement('button');
-        saveBtn.id='savePatientBtn'; saveBtn.textContent='Save'; saveBtn.className='submit-btn';
-        document.querySelector('.form-section').appendChild(saveBtn);
-      }
-
-      saveBtn.onclick=function(){
-        const patientId=deleteBtn.getAttribute('data-id'); const data={};
-        editableFields.forEach(field=>{
-          const input=document.getElementById(field+'Input'); if(input) data[field]=input.value;
-        });
-
-        fetch(`/api/patient/update/${patientId}`,{
-          method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data)
-        })
-        .then(res=>res.json())
-        .then(resp=>{
-          if(resp.status==='success'){
-            alert('Patient info updated!');
-            editableFields.forEach(field=>{
-              const input=document.getElementById(field+'Input');
-              const span=document.createElement('span'); span.id=field+'Span'; span.textContent=data[field]||'none';
-              input.replaceWith(span);
-            });
-            saveBtn.remove();
-          } else alert(resp.message);
-        })
-        .catch(err=>{ console.error(err); alert('Error updating patient'); });
-      }
-    });
-  }
-
-  // Appointment modal
-  const openAppt = document.getElementById('openApptForm');
-  const closeAppt = document.getElementById('closeApptForm');
-  const modal = document.getElementById('apptModal');
-  openAppt.addEventListener('click',()=>{ modal.style.display='block'; });
-  closeAppt.addEventListener('click',()=>{ modal.style.display='none'; });
-});
-</script>
+<script src="\assets\js\patientprofile.js"></script>
 
 </body>
 </html>

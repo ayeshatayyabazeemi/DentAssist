@@ -1,14 +1,18 @@
 <?php namespace App\Controllers\Api;
 
+use CodeIgniter\HTTP\IncomingRequest;
 use App\Controllers\BaseController;
 use App\Models\PatientModel;
+use App\Models\AppointmentModel;
 
 class PatientController extends BaseController
 {
     public function add()
     {
+        $method = $this->request->getMethod(); // returns for example "post" or "get"
+
         // Accept only POST
-        if ($this->request->getMethod() !== 'POST') {
+        if ($method !== 'POST') {
             return $this->response
                          ->setStatusCode(405)
                          ->setJSON(['status'=>'error','message'=>'Method not allowed']);
@@ -26,7 +30,6 @@ class PatientController extends BaseController
             ]);
         }
 
-        // Trim strings and convert empty strings to null
         foreach ($data as $key => $value) {
             if (is_string($value)) {
                 $value = trim($value);
@@ -43,7 +46,6 @@ class PatientController extends BaseController
 
         // Insert patient
         $insertID = $model->insert($data);
-
         if ($insertID) {
             return $this->response
                          ->setStatusCode(201)
@@ -57,7 +59,6 @@ class PatientController extends BaseController
 
     public function search()
     {
-        // Get query param
         $q = trim($this->request->getGet('q'));
         if (!$q) {
             return $this->response
@@ -67,7 +68,7 @@ class PatientController extends BaseController
 
         $model = new PatientModel();
 
-        // Search by id, mobile_no, email, cnic, name (partial match)
+        // Search by id, mobile_no, email, cnic, name
         $results = $model->groupStart()
                          ->like('patient_id', $q)
                          ->orLike('mobile_no', $q)
@@ -76,9 +77,9 @@ class PatientController extends BaseController
                          ->orLike('name', $q)
                          ->groupEnd()
                          ->select('patient_id AS id, name, mobile_no, email, cnic')
-                         ->findAll(10);  // limit 10
+                         ->findAll(10);
 
-        // Normalize null/empty values to 'none'
+        // Normalize empty values
         foreach ($results as &$r) {
             $r['email'] = $r['email'] ?: 'none';
             $r['cnic']  = $r['cnic'] ?: 'none';
@@ -89,57 +90,25 @@ class PatientController extends BaseController
                     ->setJSON(['status'=>'success','data'=>$results]);
     }
 
-    public function delete($id = null)
+    // --------------------------
+    // New method: Get patient appointments
+    // --------------------------
+    public function getAppointments($patientId)
     {
-        if(!in_array($this->request->getMethod(),['DELETE','POST'])) {
-            return $this->response->setStatusCode(405)
-                                  ->setJSON(['status'=>'error','message'=>'Method not allowed']);
-        }
+        $appointmentModel = new AppointmentModel();
 
-        if(!$id) return $this->response->setStatusCode(400)
-                                       ->setJSON(['status'=>'error','message'=>'Patient ID required']);
+        $appointments = $appointmentModel
+            ->where('patient_id', $patientId)
+            ->join('employee', 'employee.employee_id = appointments.employee_id')
+            ->select('appointments.*, employee.name as doctor_name')
+            ->orderBy('appointment_date', 'ASC')
+            ->findAll();
 
-        $model = new PatientModel();
-        $patient = $model->find($id);
-
-        if(!$patient) return $this->response->setStatusCode(404)
-                                            ->setJSON(['status'=>'error','message'=>'Patient not found']);
-
-        if($model->delete($id,true)) {
-            return $this->response->setStatusCode(200)
-                                  ->setJSON(['status'=>'success','message'=>'Patient deleted successfully']);
-        }
-
-        return $this->response->setStatusCode(500)
-                              ->setJSON(['status'=>'error','message'=>'Failed to delete patient']);
-    }
-
-    public function update($id = null)
-    {
-        if($this->request->getMethod() !== 'PUT') {
-            return $this->response->setStatusCode(405)
-                                  ->setJSON(['status'=>'error','message'=>'Method not allowed']);
-        }
-
-        if(!$id) return $this->response->setStatusCode(400)
-                                       ->setJSON(['status'=>'error','message'=>'Patient ID required']);
-
-        $model = new PatientModel();
-        $patient = $model->find($id);
-        if(!$patient) return $this->response->setStatusCode(404)
-                                            ->setJSON(['status'=>'error','message'=>'Patient not found']);
-
-        $data = $this->request->getJSON(true);
-        foreach($data as $k => $v) {
-            if(is_string($v)) $data[$k] = trim($v) ?: null;
-        }
-
-        if($model->update($id,$data)) {
-            return $this->response->setStatusCode(200)
-                                  ->setJSON(['status'=>'success','message'=>'Patient updated successfully']);
-        }
-
-        return $this->response->setStatusCode(500)
-                              ->setJSON(['status'=>'error','message'=>'Failed to update patient']);
+        return $this->response
+                    ->setStatusCode(200)
+                    ->setJSON([
+                        'status' => 'success',
+                        'appointments' => $appointments
+                    ]);
     }
 }
