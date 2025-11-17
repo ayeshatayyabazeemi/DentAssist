@@ -1,0 +1,284 @@
+/* File: assets/css/patientprofile.css */
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #FCF9EA; /* rgb(252,249,234) */
+  color: #333;
+  padding: 20px;
+  animation: fadeInPage 0.6s ease-out;
+}
+
+@keyframes fadeInPage {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.profile-header {
+  background: #BADFDB; /* rgb(186,223,219) */
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.profile-header h1 {
+  margin: 0;
+  font-size: 2em;
+  font-weight: 700;
+}
+
+.profile-header .header-icons .icon {
+  cursor: pointer;
+  margin-left: 12px;
+  font-size: 1.4em;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.profile-header .header-icons .icon:hover {
+  transform: scale(1.1);
+  color: #FFA4A4; /* rgb(255,164,164) */
+}
+
+.form-section {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  margin-bottom: 40px;
+}
+
+.form-section h2 {
+  color: #FFBDBD; /* rgb(255,189,189) */
+  margin-bottom: 20px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #666;
+}
+
+label.required-label::after {
+  content: " *";
+  color: #FF0000;
+}
+
+.form-group span {
+  font-size: 1em;
+  color: #333;
+  padding: 8px 12px;
+  background: #FCF9EA; /* #FCF9EA background for value */
+  border-radius: 8px;
+  border: 1px solid #BADFDB;
+}
+
+.form-group.address-field {
+  grid-column: span 2;
+}
+
+/* Appointments section modifications */
+.appointments-section {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  position: relative;
+}
+
+.appointments-section h2 {
+  color: #FFA4A4; /* rgb(255,164,164) */
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.btn-add-appt {
+  background-image: linear-gradient(135deg, #FFA4A4, #FFBDBD);
+  border: none;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.btn-add-appt:hover {
+  transform: scale(1.05);
+}
+
+/* Modal overlay */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.35);
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  background-color: #FCF9EA;     /* rgb(252,249,234) */
+  width: 90%;
+  max-width: 560px;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  animation: popIn 0.4s ease-out;
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.modal-header .modal-close {
+  background: none;
+  border: none;
+  font-size: 1.4em;
+  cursor: pointer;
+  line-height: 1;
+  color: #999;
+  padding: 0;
+}
+
+.modal-close:hover {
+  color: #FFA4A4;              /* rgb(255,164,164) */
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;                    /* smaller gap */
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  font-weight: 500;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 2px solid #BADFDB;    /* rgb(186,223,219) */
+  border-radius: 8px;
+  background-color: #fff;
+  font-size: 0.95em;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #FFBDBD;         /* rgb(255,189,189) */
+  box-shadow: 0 0 6px rgba(255,189,189,0.4);
+  outline: none;
+}
+
+
+
+/* Adjustments for compact layout */
+.modal-content input[type="time"] {
+  padding-right: 8px;
+}
+
+
+/* Reuse your form styles */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.form-group label.required-label::after {
+  content: " *";
+  color: red;
+}
+
+/* You can reuse input, select, submit-btn etc from earlier CSS */
+
+
+.appointments-table {
+  width: 100%;
+  border-collapse: collapse;
+  animation: fadeIn 0.5s ease-out 0.3s forwards;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.appointments-table th,
+.appointments-table td {
+  padding: 12px 10px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.appointments-table th {
+  background: #BADFDB; /* rgb(186,223,219) */
+  color: #333;
+  font-weight: 600;
+}
+
+.appointments-table tr:hover {
+  background: #FFBDBD; /* rgb(255,189,189) */
+}
+
+
+/* Toast Notification */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #BADFDB;   /* matches your theme */
+  color: #333;
+  padding: 12px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  font-weight: 500;
+  z-index: 3000;
+}
+
+.notification.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.notification.error {
+  background-color: #FFA4A4;   /* red/pink tone for errors */
+  color: white;
+}
