@@ -1,24 +1,21 @@
-// assets/js/admin.js
 document.addEventListener('DOMContentLoaded', () => {
-  // Tab switching logic
   const tabButtons = document.querySelectorAll('header nav ul li button[data-tab]');
   const tabSections = document.querySelectorAll('.tab-content');
+  const dashboardLogo = document.getElementById('dashboardLogo');
 
   function showTab(tabName) {
-    // Hide all sections
     tabSections.forEach(section => {
       section.style.display = 'none';
     });
-    // Remove active from all buttons
     tabButtons.forEach(btn => {
       btn.classList.remove('active');
     });
-    // Show the target section
+
     const targetSec = document.getElementById(`tab-${tabName}`);
     if (targetSec) {
       targetSec.style.display = 'block';
     }
-    // Set the clicked button as active
+
     const clickedBtn = document.querySelector(`button[data-tab="${tabName}"]`);
     if (clickedBtn) {
       clickedBtn.classList.add('active');
@@ -32,8 +29,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Initialize - show default tab (patients)
-  showTab('patients');
+  // Clicking logo heading goes to dashboard
+  if (dashboardLogo) {
+    dashboardLogo.addEventListener('click', () => {
+      showTab('dashboard');
+    });
+  }
+
+  // Logout logic
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function() {
+      window.location.href = '/admin/logout'; // change to your logout route
+    });
+  }
+
+  // Initialize default tab
+  showTab('dashboard');
+
+
+
+ 
+
 
   // Form submission logic for Add Patient form
   const patientForm = document.getElementById('patientForm');
