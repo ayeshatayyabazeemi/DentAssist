@@ -94,6 +94,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+// --- Generate MR Number on Insurance Change ---
+const insuranceField = document.getElementById("insurance");
+const mrNumberField = document.getElementById("mr_number");
+
+if (insuranceField && mrNumberField) {
+  insuranceField.addEventListener("change", function () {
+    const insurance = this.value;
+
+    if (!insurance) {
+      mrNumberField.value = "";
+      return;
+    }
+
+    fetch("/api/patient/generate-mr?insurance=" + insurance)
+      .then(res => res.json())
+      .then(data => {
+        if (data.mr_number) {
+          mrNumberField.value = data.mr_number;
+        }
+      })
+      .catch(err => console.error('MR generation error:', err));
+  });
+}
+
+
   // --- Search Dropdown Setup ---
   function setupSearch({ inputId, dropdownId, apiUrl, onSelect }) {
     const searchInput = document.getElementById(inputId);

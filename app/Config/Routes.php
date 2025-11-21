@@ -60,3 +60,4 @@ $routes->post('api/appointments/save', 'Api\AppointmentController::save', ['filt
 // Get appointments for a patient
 $routes->get('api/patient/getAppointments/(:num)', 'Api\PatientController::getAppointments/$1', ['filter' => 'auth:admin']);
 
+$routes->get('api/patient/generate-mr', 'Api\PatientController::generateMrNumber');

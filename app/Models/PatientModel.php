@@ -27,6 +27,7 @@ class PatientModel extends Model
         'cnic',
         'bloodGroup',
         'insurance',
+        'mr_number'
     ];
 
     protected $validationRules = [
