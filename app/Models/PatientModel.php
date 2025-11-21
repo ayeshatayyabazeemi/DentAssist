@@ -27,13 +27,11 @@ class PatientModel extends Model
         'cnic',
         'bloodGroup',
         'insurance',
-        // etc
     ];
 
     protected $validationRules = [
-        'name' => 'required|min_length[2]|max_length[50]',
+        'name'  => 'required|min_length[2]|max_length[50]',
         'email' => 'permit_empty|valid_email',
-        // more rules
     ];
     protected $validationMessages = [];
     protected $skipValidation = false;

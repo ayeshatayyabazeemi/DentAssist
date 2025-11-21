@@ -36,25 +36,25 @@ class EmployeeController extends BaseController
         }
 
         // Basic validation
-        if (empty($data['name']) || empty($data['mobile_no']) ) {
+        if (empty($data['name']) || empty($data['mobile_no'])) {
             return $this->response->setStatusCode(400)
-                ->setJSON(['status' => 'error', 'message' => 'Name, Mobile No  are required']);
+                ->setJSON(['status' => 'error', 'message' => 'Name and Mobile No are required']);
         }
 
         // Password hashing
         if (isset($data['password']) && $data['password'] !== '') {
-    $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
-} else {
-    // remove the key to avoid inserting empty string
-    unset($data['password']);
-}
+            $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+        } else {
+            unset($data['password']); // avoid inserting empty string
+        }
+
         // Role flags based on designation
         $data['is_admin'] = ($data['designation'] === 'admin') ? 1 : 0;
         $data['is_doctor'] = ($data['designation'] === 'doctor') ? 1 : 0;
         $data['is_receptionist'] = ($data['designation'] === 'receptionist') ? 1 : 0;
         $data['is_staff'] = ($data['designation'] === 'staff') ? 1 : 0;
 
-        unset($data['designation']); // we’ll store only role flags
+        unset($data['designation']); // store only role flags
 
         // Insert employee
         $insertID = $employeeModel->insert($data);
@@ -84,11 +84,12 @@ class EmployeeController extends BaseController
             ]);
     }
 
+    public function search() 
+    {
+        log_message('info', 'API employee search called – query param: {q}', [
+            'q' => $this->request->getGet('q')
+        ]);
 
-     public function search() {
-         log_message('info', 'API patient search called – query param: {q}', [
-        'q' => $this->request->getGet('q')
-    ]);
         // Get query param
         $q = trim($this->request->getGet('q'));
         if (!$q) {
@@ -99,32 +100,25 @@ class EmployeeController extends BaseController
 
         $model = new EmployeeModel();
 
-        // Search by id, mobile_no, email, cnic (partial match)
+        // Search by id, mobile_no, email, cnic, name (partial match)
         $results = $model->groupStart()
                          ->like('employee_id', $q)
                          ->orLike('mobile_no', $q)
                          ->orLike('email', $q)
                          ->orLike('cnic', $q)
                          ->orLike('name', $q)
-
                          ->groupEnd()
                          ->select('employee_id AS id, name, mobile_no, email, cnic')
                          ->findAll(10);  // limit 10
 
         // Normalize null/empty values to 'none'
         foreach ($results as &$r) {
-          
-            $r['email']     = $r['email']     ?: 'none';
-            $r['cnic']      = $r['cnic']      ?: 'none';
+            $r['email'] = $r['email'] ?: 'none';
+            $r['cnic']  = $r['cnic'] ?: 'none';
         }
-        // After your foreach that normalizes email/cnic
-
 
         return $this->response
                     ->setStatusCode(200)
                     ->setJSON(['status'=>'success','data'=>$results]);
     }
-
-
-
 }
