@@ -24,33 +24,32 @@ class Database extends Config
      *
      * @var array<string, mixed>
      */
-    public array $default = [
-        'DSN'          => '',
-        'hostname'     => 'localhost',
-        'username'     => 'root',
-        'password'     => '',
-        'database'     => 'dentassist_db',
-        'DBDriver'     => 'MySQLi',
-        'DBPrefix'     => '',
-        'pConnect'     => false,
-        'DBDebug'      => true,
-        'charset'      => 'utf8mb4',
-        'DBCollat'     => 'utf8mb4_general_ci',
-        'swapPre'      => '',
-        'encrypt'      => false,
-        'compress'     => false,
-        'strictOn'     => false,
-        'failover'     => [],
-        'port'         => 3307,
-        'numberNative' => false,
-        'foundRows'    => false,
-        'dateFormat'   => [
-            'date'     => 'Y-m-d',
-            'datetime' => 'Y-m-d H:i:s',
-            'time'     => 'H:i:s',
-        ],
-    ];
-
+    
+        public array $default = [
+    'DSN'          => '',
+    'hostname'     => 'auth-db2052.hstgr.io',
+    'username'     => 'u300413761_ayeshatayyab02',
+    'password'     => 'xJt2?1/w2?N',
+    'database'     => 'u300413761_dentassist_db',
+    'DBDriver'     => 'MySQLi',
+    'DBPrefix'     => '',
+    'pConnect'     => false,
+    'DBDebug'      => true,
+    'charset'      => 'utf8mb4',
+    'DBCollat'     => 'utf8mb4_general_ci',
+    'swapPre'      => '',
+    'encrypt'      => false,
+    'compress'     => false,
+    'strictOn'     => false,
+    'failover'     => [],
+    'port'         => 3306,   // Keep this default
+    'numberNative' => false,
+    'foundRows'    => false, 'dateFormat'   => [
+        'date'     => 'Y-m-d',
+        'datetime' => 'Y-m-d H:i:s',
+        'time'     => 'H:i:s',
+    ],
+];
     //    /**
     //     * Sample database connection for SQLite3.
     //     *
@@ -169,7 +168,7 @@ class Database extends Config
         'password'    => '',
         'database'    => ':memory:',
         'DBDriver'    => 'SQLite3',
-        'DBPrefix'    => 'db_',  // Needed to ensure we're working correctly with prefixes live. DO NOT REMOVE FOR CI DEVS
+        'DBPrefix'    => 'db_',  // Needed for CI devs
         'pConnect'    => false,
         'DBDebug'     => true,
         'charset'     => 'utf8',
@@ -193,9 +192,7 @@ class Database extends Config
     {
         parent::__construct();
 
-        // Ensure that we always set the database group to 'tests' if
-        // we are currently running an automated test suite, so that
-        // we don't overwrite live data on accident.
+        // Automatically use 'tests' database when running automated test suite
         if (ENVIRONMENT === 'testing') {
             $this->defaultGroup = 'tests';
         }

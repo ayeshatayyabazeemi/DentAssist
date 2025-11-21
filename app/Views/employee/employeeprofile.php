@@ -160,7 +160,7 @@
             </tbody>
           </table>
         <?php else: ?>
-          <p>No appointments provided (controller can pass $appointments array later).</p>
+          <p>No appointments yet.</p>
         <?php endif; ?>
       </div>
     <?php endif; ?>

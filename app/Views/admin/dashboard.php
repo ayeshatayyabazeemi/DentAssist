@@ -22,7 +22,7 @@
 </header>
 
 
-  <main class="main-content">
+<main class="main-content">
 
     <!-- Dashboard / Home Tab Content -->
     <section id="tab-dashboard" class="tab-content">
@@ -295,5 +295,7 @@
   </script>
   <script src="assets/js/chart.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+<script src="assets/js/admin.js"></script>
 </body>
 </html>
