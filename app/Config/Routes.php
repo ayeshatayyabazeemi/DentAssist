@@ -19,35 +19,32 @@ $routes->post('login/auth', 'Login::auth');
 $routes->get('/adminDashboard', 'AdminDashboard::index', ['filter' => 'auth:admin']);
 
 // -------------------------
-// Patient API Routes (admin only)
+// Patient API Routes
 // -------------------------
-$routes->group('api/patient', ['filter' => 'auth:admin'], function($routes) {
-    $routes->post('add', 'Api\PatientController::add');
-    $routes->get('search', 'Api\PatientController::search');
-    $routes->put('update/(:num)', 'Api\PatientController::update/$1');
-    $routes->delete('(:num)', 'Api\PatientController::delete/$1');
-    $routes->post('delete/(:num)', 'Api\PatientController::delete/$1'); // optional POST delete
-    $routes->get('getAppointments/(:num)', 'Api\PatientController::getAppointments/$1');
-    $routes->get('generate-mr', 'Api\PatientController::getNextMrNumber');
-});
+// Grouping for admin filter is optional since we apply individually below
+$routes->post('api/patient/add', 'Api\PatientController::add', ['filter' => 'auth:admin']);
+$routes->get('api/patient/search', 'Api\PatientController::search', ['filter' => 'auth:admin']);
+$routes->put('api/patient/update/(:num)', 'Api\PatientController::update/$1', ['filter' => 'auth:admin']);
+$routes->delete('api/patient/(:num)', 'Api\PatientController::delete/$1', ['filter' => 'auth:admin']);
+$routes->post('api/patient/delete/(:num)', 'Api\PatientController::delete/$1', ['filter' => 'auth:admin']);
+$routes->get('api/patient/getAppointments/(:num)', 'Api\PatientController::getAppointments/$1', ['filter' => 'auth:admin']);
+$routes->get('api/patient/generate-mr', 'Api\PatientController::generateMrNumber', ['filter' => 'auth:admin']);
 
 // View patient profile (admin)
 $routes->get('patient/profile/(:num)', 'PatientProfile::view/$1', ['filter' => 'auth:admin']);
 
 // -------------------------
-// Employee API Routes (admin only)
+// Employee API Routes
 // -------------------------
-$routes->group('api/employee', ['filter' => 'auth:admin'], function($routes) {
-    $routes->post('add', 'Api\EmployeeController::add');
-    $routes->get('search', 'Api\EmployeeController::search');
-    $routes->put('update/(:num)', 'Api\EmployeeController::update/$1');
-    $routes->delete('(:num)', 'Api\EmployeeController::delete/$1');
-    $routes->post('delete/(:num)', 'Api\EmployeeController::delete/$1');
-    $routes->get('checkAppointments/(:num)', 'Api\EmployeeController::checkAppointments/$1');
-});
+$routes->post('api/employee/add', 'Api\EmployeeController::add', ['filter' => 'auth:admin']);
+$routes->get('api/employee/search', 'Api\EmployeeController::search', ['filter' => 'auth:admin']);
+$routes->put('api/employee/update/(:num)', 'Api\EmployeeController::update/$1', ['filter' => 'auth:admin']);
+$routes->delete('api/employee/(:num)', 'Api\EmployeeController::delete/$1', ['filter' => 'auth:admin']);
+$routes->post('api/employee/delete/(:num)', 'Api\EmployeeController::delete/$1', ['filter' => 'auth:admin']);
 
 // View employee profile (admin)
 $routes->get('employee/profile/(:num)', 'EmployeeProfile::view/$1', ['filter' => 'auth:admin']);
+$routes->get('api/employee/checkAppointments/(:num)', 'Api\EmployeeController::checkAppointments/$1', ['filter' => 'auth:admin']);
 
 // -------------------------
 // Doctor routes (auth only for doctor)
