@@ -61,6 +61,7 @@
     <div class="form-group"><label>CNIC</label><span id="cnicSpan"><?= esc($patient['cnic'] ?? 'none') ?></span></div>
     <div class="form-group"><label>Blood Group</label><span id="bloodGroupSpan"><?= esc($patient['bloodGroup'] ?? 'none') ?></span></div>
     <div class="form-group"><label>Registration Date</label><span id="regdateSpan"><?= esc($patient['regdate'] ?? 'none') ?></span></div>
+     <div class="form-group"><label>MR Number</label><span id="mr_numberSpan"><?= esc($patient['mr_number'] ?? 'none') ?></span></div>
   </div>
 </div>
 

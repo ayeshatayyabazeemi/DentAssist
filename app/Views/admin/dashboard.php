@@ -156,8 +156,34 @@
 
             <div class="form-group">
               <label for="insurance">Insurance</label>
-              <input type="text" id="insurance" name="insurance" />
+               <select id="insurance" name="insurance" required>
+                <option value="">Select Insurance</option>
+                <option value="GEN">General</option>
+                <option value="NICL">NICL</option>
+                <option value="PBC">PBC</option>
+                <option value="KE">KE</option>
+                <option value="LCDC">LCDC</option>
+                <option value="OGDC">OGDC</option>
+                <option value="PCSIR">PCSIR</option>
+                <option value="PMTF">PMTF</option>
+                <option value="NESPAK">NESPAK</option>
+                <option value="SSGC">SSGC</option>
+                <option value="SIEMENS">SIEMENS</option>
+                <option value="EFU">EFU</option>
+                <option value="PPL">PPL</option>
+                <option value="SBP">SBP</option>
+                <option value="ABBOTT LAB">ABBOTT LAB</option>
+                <option value="PTV">PTV</option>
+                <option value="KDA">KDA</option>
+                <option value="NHA">NHA</option>
+                
+              </select>
             </div>
+
+              <div class="form-group">
+                  <label for="mr_number">MR Number</label>
+                  <input type="text" id="mr_number" name="mr_number" readonly />
+              </div>
           </div>
 
           <button type="submit" class="submit-btn">Add Patient</button>
