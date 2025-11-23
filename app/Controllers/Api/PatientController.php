@@ -112,7 +112,7 @@ class PatientController extends BaseController
         $nextNumber = 1;
     }
 
-    $mr_number = $prefix . '-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+    $mr_number = $prefix . '-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
 
     return $this->response->setJSON(['mr_number' => $mr_number]);
 }
