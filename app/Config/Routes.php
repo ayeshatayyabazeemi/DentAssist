@@ -9,6 +9,8 @@ $routes->get('/', 'Landing::index');
 $routes->get('/', 'Home::index');
 $routes->get('/login', 'Login::index');
 $routes->post('login/auth', 'Login::auth');
+$routes->post('logout', 'Login::logout', ['filter' => 'auth:admin']);
+
 
 // -------------------------
 // Admin Dashboard

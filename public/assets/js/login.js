@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Redirect after 1.5 sec
         setTimeout(() => {
           window.location.href = result.redirect;
-        }, 1500);
+        }, 600);
       } else {
         // Show backend validation or wrong credentials message
         errorBox.textContent = result.message || "Invalid credentials.";

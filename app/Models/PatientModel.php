@@ -15,7 +15,7 @@ class PatientModel extends Model
         'mobile_no',
         'email',
         'gender',
-        'dob',
+        'age',
         'address',
         'occupation',
         'regdate',

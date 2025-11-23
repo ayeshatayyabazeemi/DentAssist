@@ -132,13 +132,13 @@ class PatientController extends BaseController
 
         $model = new PatientModel();
         $results = $model->groupStart()
-                         ->like('patient_id', $q)
+                         ->like('mr_number', $q)
                          ->orLike('mobile_no', $q)
                          ->orLike('email', $q)
                          ->orLike('cnic', $q)
                          ->orLike('name', $q)
                          ->groupEnd()
-                         ->select('patient_id AS id, name, mobile_no, email, cnic')
+                         ->select('mr_number AS id, name, mobile_no, email, cnic')
                          ->findAll(10);
 
         foreach ($results as &$r) {

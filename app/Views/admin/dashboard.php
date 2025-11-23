@@ -17,7 +17,9 @@
       <li><button class="tabbtn" data-tab="patients">Patients</button></li>
       <li><button class="tabbtn" data-tab="staffs">Employees</button></li>
     </ul>
-    <button id="logoutBtn" class="logout-btn">Logout</button>
+  <form id="logoutForm" action="<?= base_url('logout') ?>" method="post">
+    <button type="submit" class="logout-btn">Logout</button>
+</form>
   </nav>
 </header>
 
@@ -177,13 +179,10 @@
               <label for="guardianphonenumber">Guardian Phone</label>
               <input type="text" id="guardianphonenumber" name="guardianphonenumber" />
             </div>
-            <div class="form-group">
-              <label for="doctorName">Doctor Name</label>
-              <input type="text" id="doctorName" name="doctorName" />
-            </div>
+           
 
             <div class="form-group">
-              <label for="insurance">Insurance</label>
+              <label for="insurance" class="required-label">Insurance</label>
                <select id="insurance" name="insurance" required>
                 <option value="">Select Insurance</option>
                 <option value="GEN">General</option>
@@ -240,8 +239,8 @@
               <input type="text" id="emp_name" name="name" required />
             </div>
             <div class="form-group">
-              <label for="emp_email">Email</label>
-              <input type="email" id="emp_email" name="email" />
+              <label for="emp_email" class="required-label">Email</label>
+              <input type="email" id="emp_email" name="email" required/>
             </div>
 
             <div class="form-group">

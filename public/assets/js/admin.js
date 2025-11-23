@@ -71,19 +71,56 @@ document.addEventListener("DOMContentLoaded", function () {
   // =========================
   // ADD PATIENT FORM
   // =========================
+  let isSubmitting = false;
   const patientForm = document.getElementById('patientForm');
   if (patientForm) {
     patientForm.addEventListener('submit', e => {
       e.preventDefault();
+       if (isSubmitting) {
+      console.warn('Submission blocked: already submitting');
+      return;
+    }
+    isSubmitting = true;
+
+    // stop other submit handlers (if any) from running this same event
+    e.stopImmediatePropagation?.();
+      const submitBtn = patientForm.querySelector('button[type="submit"], input[type="submit"]');
+    if (submitBtn) submitBtn.disabled = true;
       const dataObj = {};
       new FormData(patientForm).forEach((value, key) => { dataObj[key] = value; });
+      if (dataObj.dob) {
+      const dob = new Date(dataObj.dob);
+      const today = new Date();
 
+      let age = today.getFullYear() - dob.getFullYear();
+      const monthDiff = today.getMonth() - dob.getMonth();
+
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+        age--;
+      }
+
+      dataObj.age = `${age} Years`; // store age as "35 Years"
+    }
       // Validation
       const cnicRegex = /^\d{13}$/;
       const phoneRegex = /^0\d{10}$/;
       if (dataObj.cnic && !cnicRegex.test(dataObj.cnic)) { notyf.error('CNIC must be 13 digits'); return; }
       if (dataObj.mobile_no && !phoneRegex.test(dataObj.mobile_no)) { notyf.error('Mobile must be 11 digits'); return; }
       if (dataObj.guardianphonenumber && !phoneRegex.test(dataObj.guardianphonenumber)) { notyf.error('Guardian phone invalid'); return; }
+
+
+       if (dataObj.mobile_no) {
+      dataObj.mobile_no = dataObj.mobile_no.replace(/^0/, "");
+    }
+        if (!dataObj.regdate || dataObj.regdate.trim() === "") {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      dataObj.regdate = `${year}-${month}-${day}`; // YYYY-MM-DD
+    }
+    
+
 
       fetch('/api/patient/add', {
         method: 'POST',
@@ -96,12 +133,15 @@ document.addEventListener("DOMContentLoaded", function () {
           notyf.success(`Patient added! ID: ${json.id}, MR: ${json.mr_number}`);
           patientForm.reset();
           const totalCountElem = document.getElementById('totalCount');
-          if (totalCountElem) totalCountElem.textContent = (parseInt(totalCountElem.textContent) || 0) + 1;
-        } else {
-          notyf.error('Error: ' + (json.message || 'Something went wrong.'));
         }
       })
       .catch(err => { console.error(err); notyf.error('Network error'); });
+     
+      // re-enable button and clear guard only if you want to allow retry
+      
+      if (submitBtn) submitBtn.disabled = false;
+      isSubmitting = false;
+    
     });
   }
 
