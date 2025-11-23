@@ -30,6 +30,7 @@ $routes->get('api/patient/generate-mr', 'Api\PatientController::generateMrNumber
 // View patient profile (admin)
 $routes->get('patient/profile/(:num)', 'PatientProfile::view/$1', ['filter' => 'auth:admin']);
 
+
 // -------------------------
 // Employee API Routes
 // -------------------------
