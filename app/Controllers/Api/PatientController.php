@@ -1,107 +1,120 @@
-<?php 
-namespace App\Controllers\Api;
+<?php namespace App\Controllers\Api;
 
+use CodeIgniter\HTTP\IncomingRequest;
 use App\Controllers\BaseController;
 use App\Models\PatientModel;
 use App\Models\AppointmentModel;
 
 class PatientController extends BaseController
 {
-    /* ---------------------------------------------------------
-       ADD PATIENT
-    --------------------------------------------------------- */
-    public function add()
+    public function add() 
 {
-    if ($this->request->getMethod() !== 'POST') {
+    $method = $this->request->getMethod();
+
+    // Accept only POST
+    if ($method !== 'POST') {
         return $this->response
-            ->setStatusCode(405)
-            ->setJSON(['status'=>'error','message'=>'Method not allowed']);
+                    ->setStatusCode(405)
+                    ->setJSON(['status'=>'error','message'=>'Method not allowed']);
     }
 
-    $model = new PatientModel();
+   $model = new PatientModel();
 
-   $data = $this->request->getJSON(true);
-if (empty($data)) {
-    $data = $this->request->getPost([
-        'name','mobile_no','email','gender','dob','address',
-        'occupation','regdate','guardianname','guardianphonenumber',
-        'doctorName','cnic','bloodGroup','insurance','mr_number'
-    ]);
-}
-    // Trim strings / empty to null
-foreach ($data as $k => $v) {
-    if (is_string($v)) {
-        $v = trim($v);
-        $data[$k] = $v === '' ? null : $v;
-    }
-}
-
-    // If MR number not provided (safety), generate one
-   // If MR number is empty, generate automatically
-if (empty($data['mr_number'])) {
-    $insuranceCode = strtoupper($data['insurance'] ?? 'GEN');
-    $lastPatient = $model->where('insurance', $insuranceCode)
-                         ->orderBy('patient_id', 'DESC')
-                         ->first();
-
-    if ($lastPatient && isset($lastPatient['mr_number'])) {
-        $parts = explode('-', $lastPatient['mr_number']);
-        $lastNumber = isset($parts[1]) ? (int)$parts[1] : 0;
-        $newNumber = $lastNumber + 1;
-    } else {
-        $newNumber = 1;
+    // Get incoming data (JSON or POST)
+    $data = $this->request->getJSON(true);
+    if (empty($data)) {
+        $data = $this->request->getPost([
+            'name','mobile_no','email','gender','dob','address',
+            'occupation','regdate','guardianname','guardianphonenumber',
+            'doctorName','cnic','bloodGroup','insurance','mr_number' // make sure mr_number is here
+        ]);
     }
 
-    $data['mr_number'] = sprintf("%s-%03d", $insuranceCode, $newNumber);
-}
+    // Trim all string values
+    foreach ($data as $key => $value) {
+        if (is_string($value)) {
+            $value = trim($value);
+            $data[$key] = $value === '' ? null : $value;
+        }
+    }
 
+    // Validation
+    if (empty($data['name']) || empty($data['mobile_no'])) {
+        return $this->response
+                    ->setStatusCode(400)
+                    ->setJSON(['status'=>'error','message'=>'Name & Mobile No required']);
+    }
+
+    // ---------------------------
+    // Generate MR number if not provided
+    // ---------------------------
+    if (empty($data['mr_number']) && !empty($data['insurance'])) {
+        $prefix = $data['insurance']; // use insurance as prefix
+        $db = \Config\Database::connect();
+        $query = $db->query("
+            SELECT mr_number 
+            FROM patients 
+            WHERE mr_number LIKE '{$prefix}-%' 
+            ORDER BY patient_id DESC 
+            LIMIT 1
+        ");
+        $last = $query->getRow();
+        $lastNumber = $last ? (int) explode('-', $last->mr_number)[1] : 0;
+        $data['mr_number'] = $prefix . '-' . str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
+    }
+
+    // Insert patient
     $insertID = $model->insert($data);
 
     if ($insertID) {
         return $this->response
-            ->setStatusCode(201)
-            ->setJSON([
-                'status'=>'success',
-                'message'=>'Patient added',
-                'id'=>$insertID,
-                'mr_number'=>$data['mr_number']
-            ]);
+                    ->setStatusCode(201)
+                    ->setJSON(['status'=>'success','message'=>'Patient added','id'=>$insertID, 'mr_number' => $data['mr_number']]);
+    } else {
+        return $this->response
+                    ->setStatusCode(500)
+                    ->setJSON(['status'=>'error','message'=>'Could not add patient']);
     }
-
-    return $this->response
-        ->setStatusCode(500)
-        ->setJSON(['status'=>'error','message'=>'Could not add patient']);
 }
 
-
-       
-       
     
-// mr generation 
 
-public function getNextMrNumber()
+    public function generateMrNumber()
 {
-    $insurance = strtoupper($this->request->getGet('insurance') ?? 'GEN');
-    $model = new PatientModel();
+    $insurance = $this->request->getGet('insurance'); // Get insurance from query string
 
-    $lastPatient = $model->where('insurance', $insurance)
-                         ->orderBy('patient_id', 'DESC')
-                         ->first();
-
-    if ($lastPatient && isset($lastPatient['mr_number'])) {
-        $parts = explode('-', $lastPatient['mr_number']);
-        $lastNumber = isset($parts[1]) ? (int)$parts[1] : 0;
-        $newNumber = $lastNumber + 1;
-    } else {
-        $newNumber = 1;
+    if (!$insurance) {
+        return $this->response->setJSON([
+            'status' => 'error', 
+            'message' => 'Insurance not provided'
+        ]);
     }
 
-    $mr_number = sprintf("%s-%03d", $insurance, $newNumber);
+    $db = \Config\Database::connect();
+    
+    // Prefix logic: General = GEN, else use insurance code
+    $prefix = $insurance === 'GEN' ? 'GEN' : $insurance;
 
-    return $this->response->setJSON([
-        'status' => 'success',
-        'mr_number' => $mr_number
-    ]);
+    $query = $db->query("
+        SELECT mr_number 
+        FROM patients 
+        WHERE mr_number LIKE '{$prefix}-%' 
+        ORDER BY patient_id DESC 
+        LIMIT 1
+    ");
+
+    $last = $query->getRow();
+
+    if ($last) {
+        $lastNumber = (int) explode('-', $last->mr_number)[1];
+        $nextNumber = $lastNumber + 1;
+    } else {
+        $nextNumber = 1;
+    }
+
+    $mr_number = $prefix . '-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+
+    return $this->response->setJSON(['mr_number' => $mr_number]);
 }
 
 
@@ -212,9 +225,12 @@ public function getNextMrNumber()
             ->setJSON(['status'=>'error','message'=>'Failed to update patient']);
     }
 
-    /* ---------------------------------------------------------
-       GET PATIENT APPOINTMENTS
-    --------------------------------------------------------- */
+
+
+
+    // --------------------------
+    // New method: Get patient appointments
+    // --------------------------
     public function getAppointments($patientId)
     {
         $appointmentModel = new AppointmentModel();
@@ -227,10 +243,10 @@ public function getNextMrNumber()
             ->findAll();
 
         return $this->response
-            ->setStatusCode(200)
-            ->setJSON([
-                'status' => 'success',
-                'appointments' => $appointments
-            ]);
+                    ->setStatusCode(200)
+                    ->setJSON([
+                        'status' => 'success',
+                        'appointments' => $appointments
+                    ]);
     }
 }
