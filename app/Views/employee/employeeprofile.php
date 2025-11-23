@@ -64,8 +64,10 @@ $empId = $employee['employee_id'];
         <?php endforeach; ?>
       </tbody>
     </table>
-  </div>
+           
 
+  </div>
+        
   <div class="appointments-section">
     <h2>Doctor Appointments</h2>
     <?php if (!empty($appointments)): ?>
