@@ -2,10 +2,18 @@
 
 document.addEventListener('DOMContentLoaded', function () {
   const canvas = document.getElementById('regChart');
+  canvas.height = canvas.parentElement.offsetHeight; // fill parent div height
+
   if (!canvas) {
     console.warn('regChart canvas not found!');
     return;
   }
+
+
+console.log('chartLabels:', window.chartLabels);
+console.log('chartData:', window.chartData);
+
+
 
   const ctx = canvas.getContext('2d');
 
@@ -15,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const labels = window.chartLabels || [];
   const dataPoints = window.chartData || [];
+
 
   // Create gradient for fill
   const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);

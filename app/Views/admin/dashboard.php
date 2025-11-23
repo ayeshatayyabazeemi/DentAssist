@@ -26,43 +26,62 @@
 
     <!-- Dashboard / Home Tab Content -->
     <section id="tab-dashboard" class="tab-content">
-      <div class="placeholder-section">
+      
       
    
     
   
 
-    <div class="kpi-container">
+   <div class="kpi-container">
       <div class="kpi-card border-primary">
         <h3>Total Patients (All-Time)</h3>
-        <p class="value">—</p>
+<p class="value"><?= esc(number_format($totalPatients ?? 0)) ?></p>
       </div>
+
       <div class="kpi-card border-secondary">
-        <h3>Registrations in Last Year</h3>
-        <p class="value">—</p>
-      </div>
+        <h3>Registrations in Last 12 Months</h3>
+<p class="value">
+  <?= esc(number_format($last12 ?? 0)) ?>
+</p>      </div>
+
       <div class="kpi-card border-warm">
         <h3>Avg. Monthly Reg.</h3>
-        <p class="value">—</p>
+        <?php 
+          // average monthly = last12 / 12
+          $avgMonthly = round($last12 / 12);   // rounds to nearest integer
+
+        ?>
+        <p class="value"><?= esc(number_format($avgMonthly ?? 0, 1)) ?></p>
       </div>
+
       <div class="kpi-card border-success">
         <h3>Growth YoY</h3>
-        <p class="value">—</p>
+        <p class="value">
+          <?= $growthPercent !== null 
+              ? esc($growthPercent) . '%' 
+              : 'N/A' ?>
+        </p>
       </div>
     </div>
 
+    <!-- Chart Section -->
     <div class="chart-container">
-      <h2>Registration Trend</h2>
-        <canvas id="regChart" style="width:100%; height:400px;"></canvas>
-
+      <h2>Registration Trend (Last 24 Months)</h2>
+      <div class="chart-wrapper" style="position: relative; height: 350px; width: 100%;">
+        <canvas id="regChart"></canvas>
+      </div>
     </div>
 
-    <div class="insight-box">
+    <!-- Insight / Note -->
+    <!-- <div class="insight-box">
       <p>
-        💡 Use this dashboard to monitor your hospital’s patient growth, identify trends, and make data-driven decisions.
+        💡 Use this dashboard to monitor your hospital’s patient growth, identify trends, and make
+        data‑driven decisions.
       </p>
-    </div>
-  </div>
+    </div> -->
+
+
+
       </div>
     </section>
 
@@ -301,6 +320,13 @@
     </section>
 
   </main>
+<script>
+window.chartLabels = <?= json_encode($chartLabels) ?>;
+window.chartData   = <?= json_encode($chartData) ?>;
+</script>
+
+
+
 
   <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
   <script src="assets/js/admin.js"></script>
@@ -328,9 +354,11 @@
       window.location.href = '/admin/logout'; // change URL as needed
     });
   </script>
+ <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="assets/js/chart.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
 <script src="assets/js/admin.js"></script>
+ 
 </body>
 </html>

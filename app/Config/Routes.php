@@ -22,6 +22,7 @@ $routes->post('api/patient/delete/(:num)', 'Api\PatientController::delete/$1', [
 $routes->put('api/patient/update/(:num)', 'Api\PatientController::update/$1', ['filter' => 'auth:admin']); // NEW ROUTE
 $routes->get('patient/profile/(:num)', 'PatientProfile::view/$1', ['filter' => 'auth:admin']);
 
+
 // -------------------------
 // 👇 Employee API routes
 // -------------------------
