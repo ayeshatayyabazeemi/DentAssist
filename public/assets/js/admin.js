@@ -187,7 +187,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Patient search
-  setupSearch({ inputId: 'patientSearch', dropdownId: 'searchResults', apiUrl: '/api/patient/search', onSelect: item => window.location.href = `/patient/profile/${item.id}` });
+  setupSearch({ inputId: 'patientSearch', dropdownId: 'searchResults', apiUrl: '/api/patient/search', onSelect: item => {
+        // Use patient_id for redirect
+        const patientId = item.patient_id; // fetch patient_id from API response
+        window.location.href = `/patient/profile/${patientId}`;
+    }
+  });
   // Employee search
   setupSearch({ inputId: 'employeeSearch', dropdownId: 'employeeResults', apiUrl: '/api/employee/search', onSelect: item => window.location.href = `/employee/profile/${item.id}` });
 

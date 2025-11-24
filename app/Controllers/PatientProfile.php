@@ -6,15 +6,18 @@ use CodeIgniter\Controller;
 
 class PatientProfile extends Controller
 {
-    public function view($id = null)
+    public function view($patientId = null)
     {
-        if ($id === null) {
+        if ($patientId === null) {
             // invalid request
             return redirect()->to('/adminDashboard'); // or some safe place
         }
 
         $model = new PatientModel();
-        $patient = $model->find($id);
+       
+  $patient = $model->find($patientId);
+         
+
 
         if (!$patient) {
             // no patient found

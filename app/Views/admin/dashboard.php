@@ -101,7 +101,8 @@
       <div class="top-row">
         <div class="total">Total Patients: <span id="totalCount">0</span></div>
         <div class="search-bar">
-          <i class="fa fa-search search-icon"></i>
+          <!-- SEARCH ICON -->
+          <!-- <i class="fa fa-search search-icon"></i> -->
           <input type="text" id="patientSearch" placeholder="Search patients..." />
           <div id="searchResults" class="autocomplete-items"></div>
         </div>
@@ -223,7 +224,7 @@
       <div class="top-row">
         <div class="total">Total Employees: <span id="totalEmpCount">0</span></div>
         <div class="search-bar">
-          <i class="fa fa-search search-icon"></i>
+          <!-- <i class="fa fa-search search-icon"></i> -->
           <input type="text" id="employeeSearch" placeholder="Search employee..." />
           <div id="employeeResults" class="autocomplete-items"></div>
         </div>

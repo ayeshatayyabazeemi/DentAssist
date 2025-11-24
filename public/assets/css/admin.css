@@ -103,35 +103,30 @@ nav {
 
 
 .dashboard-content {
-  padding: 1rem 2rem;
+  padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
-  min-height: 100vh; /* full viewport height */
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  overflow: hidden; /* prevent scrolling */
 }
 
 
 
 
 
+/* KPI Cards */
 .kpi-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  justify-content: space-between;
+  gap: 1.5rem;
+  margin: 2rem 0;
 }
 
 .kpi-card {
-  flex: 1 1 22%; /* 4 cards in a row, shrinkable */
-  background-color: var(--card-bg);
-  box-shadow: 0 4px 12px var(--card-shadow);
-  padding: 1rem;
+  flex: 1 1 200px;
+  background: var(--card-bg);
+  padding: 1.5rem;
   border-radius: 12px;
-  text-align: center;
+  box-shadow: 0 4px 15px var(--card-shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .kpi-card:hover {
@@ -191,24 +186,6 @@ nav {
 .insight-box:hover {
   background: var(--color-rose);
   color: white;
-}
-canvas {
-  box-sizing: border-box;
-}
-/* Optional: shrink fonts slightly for small screens */
-@media (max-width: 1200px) {
-  .kpi-card {
-    flex: 1 1 45%; /* 2 cards per row on smaller screens */
-  }
-}
-
-@media (max-width: 768px) {
-  .kpi-container {
-    flex-direction: column;
-  }
-  .kpi-card {
-    flex: 1 1 100%;
-  }
 }
 
 /* Animations */

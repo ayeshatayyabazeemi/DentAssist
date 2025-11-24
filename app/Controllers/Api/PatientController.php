@@ -138,7 +138,7 @@ class PatientController extends BaseController
                          ->orLike('cnic', $q)
                          ->orLike('name', $q)
                          ->groupEnd()
-                         ->select('mr_number AS id, name, mobile_no, email, cnic')
+                         ->select('patient_id,mr_number AS id, name, mobile_no, email, cnic')
                          ->findAll(10);
 
         foreach ($results as &$r) {
