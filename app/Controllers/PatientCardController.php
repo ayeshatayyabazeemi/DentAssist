@@ -63,6 +63,10 @@ class PatientCardController extends Controller
         $pdf->SetTextColor(0, 0, 80);
         $pdf->Cell(0, 4, 'Patient Card', 0, 1, 'L');
 
+        // Keep MR Number digits only
+        $mrNumber = $patient['mr_number'] ?? '';
+        $mrNumberDigits = preg_replace('/\D/', '', $mrNumber);
+
         $labels = ['Name', 'ID', 'Age', 'Gender', 'Phone', 'Address', 'MR Number'];
         $values = [
             $patient['name'],
@@ -71,7 +75,7 @@ class PatientCardController extends Controller
             ucfirst($patient['gender']),
             $patient['mobile_no'],
             $patient['address'] ?? '',
-            $patient['mr_number'] ?? ''
+            $mrNumberDigits
         ];
 
         $pdf->SetFont('helvetica', 'B', 7);
