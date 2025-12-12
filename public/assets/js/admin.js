@@ -122,28 +122,31 @@ document.addEventListener("DOMContentLoaded", function () {
     
 
 
-      fetch('/api/patient/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dataObj)
-      })
-      .then(res => res.json())
-      .then(json => {
-        if (json.status === 'success') {
-          notyf.success(`Patient added! ID: ${json.id}, MR: ${json.mr_number}`);
-          patientForm.reset();
-          const totalCountElem = document.getElementById('totalCount');
-        }
-      })
-      .catch(err => { console.error(err); notyf.error('Network error'); });
-     
-      // re-enable button and clear guard only if you want to allow retry
-      
-      if (submitBtn) submitBtn.disabled = false;
-      isSubmitting = false;
-    
-    });
+     fetch('/api/patient/add', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(dataObj)
+})
+.then(res => res.json())
+.then(json => {
+  if (json.status === 'success') {
+    notyf.success(`Patient added! ID: ${json.id}, MR: ${json.mr_number}`);
+    patientForm.reset();
+  } else {
+    // <-- SHOW BACKEND ERROR MESSAGE
+    notyf.error(json.message || 'Something went wrong');
   }
+})
+.catch(err => { 
+  console.error(err); 
+  notyf.error('Network error'); 
+})
+.finally(() => {
+  if (submitBtn) submitBtn.disabled = false;
+  isSubmitting = false;
+});
+
+})}
 
   // =========================
   // SEARCH AUTOCOMPLETE

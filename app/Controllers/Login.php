@@ -51,12 +51,12 @@ class Login extends BaseController
     }
 
     // For now plain‐text (change later to hashed)
-//    if (!password_verify($password, $employee['password'])) {
-//     return $this->response->setJSON([
-//         'success' => false,
-//         'message' => 'Invalid password'
-//     ]);
-// }
+   if (!password_verify($password, $employee['password'])) {
+    return $this->response->setJSON([
+        'success' => false,
+        'message' => 'Invalid password'
+    ]);
+}
 
 
     // Determine actual role from employee record

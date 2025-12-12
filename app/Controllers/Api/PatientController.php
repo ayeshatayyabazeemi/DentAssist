@@ -7,26 +7,23 @@ use App\Models\AppointmentModel;
 
 class PatientController extends BaseController
 {
-    public function add() 
+    public function add()
 {
-    $method = $this->request->getMethod();
-
-    // Accept only POST
-    if ($method !== 'POST') {
-        return $this->response
-                    ->setStatusCode(405)
-                    ->setJSON(['status'=>'error','message'=>'Method not allowed']);
+    // Only allow POST
+    if ($this->request->getMethod() !== 'POST') {
+        return $this->response->setStatusCode(405)
+            ->setJSON(['status' => 'error', 'message' => 'Only POST method is allowed.']);
     }
 
-   $model = new PatientModel();
+    $model = new PatientModel();
 
-    // Get incoming data (JSON or POST)
+    // Get JSON or POST data
     $data = $this->request->getJSON(true);
     if (empty($data)) {
         $data = $this->request->getPost([
-            'name','mobile_no','email','gender','dob','address',
-            'occupation','regdate','guardianname','guardianphonenumber',
-            'doctorName','cnic','bloodGroup','insurance','mr_number' // make sure mr_number is here
+            'name', 'mobile_no', 'email', 'gender', 'dob', 'address',
+            'occupation', 'regdate', 'guardianname', 'guardianphonenumber',
+            'doctorName', 'cnic', 'bloodGroup', 'insurance', 'mr_number'
         ]);
     }
 
@@ -38,44 +35,79 @@ class PatientController extends BaseController
         }
     }
 
-    // Validation
+    // Required checks
     if (empty($data['name']) || empty($data['mobile_no'])) {
-        return $this->response
-                    ->setStatusCode(400)
-                    ->setJSON(['status'=>'error','message'=>'Name & Mobile No required']);
+        return $this->response->setStatusCode(400)
+            ->setJSON(['status' => 'error', 'message' => 'Name and Mobile Number are required.']);
     }
 
-    // ---------------------------
-    // Generate MR number if not provided
-    // ---------------------------
+    // Duplicate email check (mobile can duplicate)
+    if (!empty($data['email'])) {
+        $existing = $model->where('email', $data['email'])->first();
+        if ($existing) {
+            return $this->response->setStatusCode(409) // 409 Conflict
+                ->setJSON([
+                    'status' => 'error',
+                    'message' => 'This email is already registered with another patient.'
+                ]);
+        }
+    }
+
+    // Auto-generate MR number if not provided
     if (empty($data['mr_number']) && !empty($data['insurance'])) {
-        $prefix = $data['insurance']; // use insurance as prefix
+        $prefix = $data['insurance'];
         $db = \Config\Database::connect();
+
         $query = $db->query("
             SELECT mr_number 
             FROM patients 
-            WHERE mr_number LIKE '{$prefix}-%' 
+            WHERE mr_number LIKE '{$prefix}-%'
             ORDER BY patient_id DESC 
             LIMIT 1
         ");
+
         $last = $query->getRow();
         $lastNumber = $last ? (int) explode('-', $last->mr_number)[1] : 0;
+
         $data['mr_number'] = $prefix . '-' . str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
     }
 
-    // Insert patient
-    $insertID = $model->insert($data);
+    // Try inserting the record
+    try {
+        $insertID = $model->insert($data);
 
-    if ($insertID) {
-        return $this->response
-                    ->setStatusCode(201)
-                    ->setJSON(['status'=>'success','message'=>'Patient added','id'=>$insertID, 'mr_number' => $data['mr_number']]);
-    } else {
-        return $this->response
-                    ->setStatusCode(500)
-                    ->setJSON(['status'=>'error','message'=>'Could not add patient']);
+        if ($insertID) {
+            return $this->response->setStatusCode(201)
+                ->setJSON([
+                    'status' => 'success',
+                    'message' => 'Patient added successfully.',
+                    'id' => $insertID,
+                    'mr_number' => $data['mr_number']
+                ]);
+        }
+
+        // Insert returned false
+        return $this->response->setStatusCode(500)
+            ->setJSON(['status' => 'error', 'message' => 'Unable to add patient. Please try again.']);
+
+    } catch (\Exception $e) {
+
+        // Human readable SQL message
+        $errorMessage = $e->getMessage();
+
+        // Make MySQL messages friendly
+        if (str_contains($errorMessage, 'Duplicate entry')) {
+            $errorMessage = 'A record with this information already exists.';
+        }
+
+        return $this->response->setStatusCode(500)
+            ->setJSON([
+                'status' => 'error',
+                'message' => $errorMessage
+            ]);
     }
 }
+
 
     
 
@@ -131,15 +163,33 @@ class PatientController extends BaseController
         }
 
         $model = new PatientModel();
-        $results = $model->groupStart()
-                         ->like('mr_number', $q)
-                         ->orLike('mobile_no', $q)
-                         ->orLike('email', $q)
-                         ->orLike('cnic', $q)
-                         ->orLike('name', $q)
-                         ->groupEnd()
-                         ->select('patient_id,mr_number AS id, name, mobile_no, email, cnic')
-                         ->findAll(10);
+       $escaped_q = $model->escapeLikeString($q);
+
+$order_case = "
+CASE 
+    WHEN mr_number LIKE '%{$escaped_q}%' THEN 1
+WHEN LOWER(name) LIKE LOWER('%{$escaped_q}%') THEN 2
+    WHEN mobile_no LIKE '%{$escaped_q}%' THEN 3
+    WHEN email LIKE '%{$escaped_q}%' THEN 4
+    WHEN cnic LIKE '%{$escaped_q}%' THEN 5
+    ELSE 6
+END
+";
+
+
+$results = $model->groupStart()
+                 ->like('mr_number', $escaped_q)
+                 ->orLike('mobile_no', $escaped_q)
+                 ->orLike('email', $escaped_q)
+                 ->orLike('cnic', $escaped_q)
+                 ->orLike('name', $escaped_q)
+                 ->groupEnd()
+                 ->select('patient_id, mr_number AS id, name, mobile_no, email, cnic')
+                 ->orderBy($order_case, 'ASC')                      // MR number matches first
+                 ->orderBy('CAST(mr_number AS UNSIGNED)', 'ASC')     // numeric sort
+                 ->orderBy('patient_id', 'ASC')                     // fallback
+                 ->findAll(10);
+
 
         foreach ($results as &$r) {
             $r['email'] = $r['email'] ?: 'none';

@@ -20,50 +20,107 @@ class EmployeeController extends BaseController
 
     // ---------------- Add Employee ----------------
     public function add()
-    {
-        if($this->request->getMethod() !== 'POST') {
-            return $this->response->setStatusCode(405)->setJSON(['status'=>'error','message'=>'Method not allowed']);
+{
+    if ($this->request->getMethod() !== 'POST') {
+        return $this->response->setStatusCode(405)
+            ->setJSON(['status' => 'error', 'message' => 'Method not allowed']);
+    }
+
+    $data = $this->request->getJSON(true) ?? $this->request->getPost();
+
+    // Trim string fields
+    foreach ($data as $k => $v) {
+        if (is_string($v)) {
+            $data[$k] = trim($v) ?: null;
         }
+    }
 
-        $data = $this->request->getJSON(true) ?? $this->request->getPost();
-        foreach($data as $k => $v) if(is_string($v)) $data[$k] = trim($v) ?: null;
+    // Required fields
+    if (empty($data['name']) || empty($data['mobile_no'])) {
+        return $this->response->setStatusCode(400)
+            ->setJSON(['status' => 'error', 'message' => 'Name and Mobile Number are required']);
+    }
 
-        if(empty($data['name']) || empty($data['mobile_no'])){
-            return $this->response->setStatusCode(400)->setJSON(['status'=>'error','message'=>'Name and Mobile No are required']);
-        }
+    // ---- Check unique mobile number ----
+    $existing = $this->employeeModel
+        ->where('mobile_no', $data['mobile_no'])
+        ->first();
 
-        if(!empty($data['password'])){
-            $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
-        } else {
-            unset($data['password']);
-        }
+    if ($existing) {
+        return $this->response->setStatusCode(409)
+            ->setJSON(['status' => 'error', 'message' => 'This mobile number is already registered.']);
+    }
 
-        // Role flags
-        $data['is_admin'] = ($data['designation']==='admin') ? 1:0;
-        $data['is_doctor'] = ($data['designation']==='doctor') ? 1:0;
-        $data['is_receptionist'] = ($data['designation']==='receptionist') ? 1:0;
-        $data['is_staff'] = ($data['designation']==='staff') ? 1:0;
-        unset($data['designation']);
+    // Password hashing
+    if (!empty($data['password'])) {
+        $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+    } else {
+        unset($data['password']);
+    }
 
+    // Role flags
+    $designation = $data['designation'] ?? '';
+    $data['is_admin']        = $designation === 'admin' ? 1 : 0;
+    $data['is_doctor']       = $designation === 'doctor' ? 1 : 0;
+    $data['is_receptionist'] = $designation === 'receptionist' ? 1 : 0;
+    $data['is_staff']        = $designation === 'staff' ? 1 : 0;
+    unset($data['designation']);
+
+    // Try–Catch for readable SQL errors
+    try {
         $insertID = $this->employeeModel->insert($data);
-        if(!$insertID){
-            return $this->response->setStatusCode(500)->setJSON(['status'=>'error','message'=>'Failed to add employee']);
+
+        if (!$insertID) {
+            return $this->response->setStatusCode(500)
+                ->setJSON(['status' => 'error', 'message' => 'Could not save employee.']);
         }
 
         // Doctor schedule
-        if(!empty($data['is_doctor']) && !empty($data['schedule']) && is_array($data['schedule'])){
-            foreach($data['schedule'] as $sch){
+        if (!empty($data['is_doctor']) && !empty($data['schedule']) && is_array($data['schedule'])) {
+            foreach ($data['schedule'] as $sch) {
                 $this->scheduleModel->insert([
-                    'employee_id'=>$insertID,
-                    'day_of_week'=>$sch['day'],
-                    'start_time'=>$sch['start_time'],
-                    'end_time'=>$sch['end_time']
+                    'employee_id' => $insertID,
+                    'day_of_week' => $sch['day'],
+                    'start_time'  => $sch['start_time'],
+                    'end_time'    => $sch['end_time']
                 ]);
             }
         }
 
-        return $this->response->setStatusCode(201)->setJSON(['status'=>'success','message'=>'Employee added successfully','id'=>$insertID]);
+        return $this->response->setStatusCode(201)
+            ->setJSON([
+                'status'  => 'success',
+                'message' => 'Employee added successfully',
+                'id'      => $insertID
+            ]);
+    } 
+    catch (\Exception $e) {
+
+        $errorMsg = $e->getMessage();
+
+        // 🔥 Detect readable SQL errors:
+        if (strpos($errorMsg, 'Duplicate entry') !== false) {
+
+            if (strpos($errorMsg, 'mobile_no') !== false) {
+                $msg = 'Mobile number already exists.';
+            } elseif (strpos($errorMsg, 'email') !== false) {
+                $msg = 'This email is already registered.';
+            } else {
+                $msg = 'Duplicate data — the record already exists.';
+            }
+
+            return $this->response->setStatusCode(409)
+                ->setJSON(['status' => 'error', 'message' => $msg]);
+        }
+
+        // Unknown SQL error → show safe message
+        return $this->response->setStatusCode(500)
+            ->setJSON([
+                'status' => 'error',
+                'message' => 'Database error: ' . $errorMsg
+            ]);
     }
+}
 
     // ---------------- Search Employees ----------------
     public function search()

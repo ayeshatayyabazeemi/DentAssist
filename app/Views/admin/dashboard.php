@@ -66,7 +66,6 @@
   <!-- Patients Tab Content -->
   <section id="tab-patients" class="tab-content" style="display: none;">
     <div class="top-row">
-      <div class="total">Total Patients: <span id="totalCount">0</span></div>
       <div class="search-bar">
         <input type="text" id="patientSearch" placeholder="Search patients..." />
         <div id="searchResults" class="autocomplete-items"></div>
@@ -95,7 +94,7 @@
               <option value="">Select Gender</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
-              <option value="other">Other</option>
+            
             </select>
           </div>
           <div class="form-group">
@@ -177,7 +176,6 @@
   <!-- Staffs / Employees Tab Content -->
   <section id="tab-staffs" class="tab-content" style="display: none;">
     <div class="top-row">
-      <div class="total">Total Employees: <span id="totalEmpCount">0</span></div>
       <div class="search-bar">
         <input type="text" id="employeeSearch" placeholder="Search employee..." />
         <div id="employeeResults" class="autocomplete-items"></div>
@@ -206,7 +204,7 @@
               <option value="">Select Gender</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
-              <option value="other">Other</option>
+             
             </select>
           </div>
           <div class="form-group">

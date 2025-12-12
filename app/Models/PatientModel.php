@@ -42,6 +42,33 @@ class PatientModel extends Model
      * @param int $months Number of months to go back (e.g. 24)
      * @return array
      */
+
+
+
+     protected $afterFind = ['formatMobile'];
+
+protected function formatMobile(array $data)
+{
+    if (isset($data['data'])) {
+        // Single row
+        if (isset($data['data']['mobile_no'])) {
+            if (strpos($data['data']['mobile_no'], '0') !== 0) {
+                $data['data']['mobile_no'] = '0' . $data['data']['mobile_no'];
+            }
+        }
+
+        // Multiple rows
+        if (is_array($data['data'])) {
+            foreach ($data['data'] as &$row) {
+                if (isset($row['mobile_no']) && strpos($row['mobile_no'], '0') !== 0) {
+                    $row['mobile_no'] = '0' . $row['mobile_no'];
+                }
+            }
+        }
+    }
+    return $data;
+}
+
 public function getMonthlyRegistrationsRaw(int $months = 24): array
 {
     $db = \Config\Database::connect();
