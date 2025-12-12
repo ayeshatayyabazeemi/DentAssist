@@ -89,7 +89,8 @@
 
     <div class="why-container">
       <div class="why-image">
-     <img src="https://img.freepik.com/premium-photo/interior-pink-modern-dental-clinic-3d-rendering-dentist-chair-dental-office-dentistry-concept-ai-generated_538213-21570.jpg" alt="Dental Clinic Team">
+     <img src="assets/images/why.png" alt="Dental Clinic Team">
+
     </div>
 
     <div class="why-content">

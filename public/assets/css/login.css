@@ -1,101 +1,118 @@
-/* Reset & base */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+/* ===== Clean & Final Login Page CSS ===== */
 
-body {
-  font-family: 'Poppins', sans-serif;
-  background: linear-gradient(135deg, #FCF9EA, #BADFDB);
-  height: 100vh;
+.login-page {
+  padding-top: 80px;
+  height: calc(100vh - 80px);
   display: flex;
   align-items: center;
   justify-content: center;
+  background: linear-gradient(to bottom right, #ffffff, #fff7e9);
 }
 
-.login-container {
+/* All elements inside login page */
+.login-page * {
+  box-sizing: border-box;
+}
+
+/* ===== Login Container ===== */
+.login-page .login-container {
   background: #fff;
-  padding: 40px 50px;
+  padding: 45px 50px;
   border-radius: 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  width: 360px;
   text-align: center;
-  width: 350px;
   animation: fadeIn 1s ease-in-out;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.12); /* soft visible shadow */
+  position: relative;
+  z-index: 1;
 }
 
-.login-title {
-  color: #FF7B7B;
-  font-size: 26px;
+/* ===== Title ===== */
+.login-page .login-title {
+  color: #F08787;
+  font-size: 28px;
+  font-weight: 600;
   margin-bottom: 25px;
 }
 
-.input-group {
+/* ===== Input Group ===== */
+.login-page .input-group {
   position: relative;
   margin-bottom: 20px;
 }
 
-.input-group i {
+.login-page .input-group i {
   position: absolute;
-  left: 10px;
+  left: 12px;
   top: 50%;
   transform: translateY(-50%);
   color: #888;
+  font-size: 1.2rem;
 }
 
-.input-group input {
+/* Matching role-select theme */
+.login-page .input-group input {
   width: 100%;
-  padding: 12px 40px 12px 35px;
-  border: 2px solid #FFA4A4;
-  border-radius: 30px;
+  padding: 12px 40px 12px 40px;
+  border-radius: 25px;
+  border: 2px solid #BADFDB;
+  background-color: #FCF9EA;
+  font-size: 0.95rem;
+  color: #3d3d3d;
   outline: none;
   transition: border-color 0.3s, box-shadow 0.3s;
-  background-color: #FCF9EA;
 }
 
-.input-group input:focus {
-  border-color: #FFBDBD;
-  box-shadow: 0 0 10px rgba(255,164,164,0.4);
+/* Focus effect */
+.login-page .input-group input:focus {
+  border-color: #FFA4A4;
+  box-shadow: 0 0 10px rgba(255,164,164,0.3);
 }
 
-.role-select {
+/* ===== Role Dropdown ===== */
+.login-page .role-select {
   margin-bottom: 20px;
   text-align: left;
   font-size: 14px;
   color: #555;
 }
 
-.role-select select {
+.login-page .role-select select {
   width: 100%;
   padding: 10px;
   border-radius: 25px;
   border: 2px solid #BADFDB;
   background-color: #FCF9EA;
-  transition: border-color 0.3s;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  font-size: 0.95rem;
+  color: #3d3d3d;
 }
 
-.role-select select:focus {
+.login-page .role-select select:focus {
   border-color: #FFA4A4;
 }
 
-.login-btn {
+/* ===== Login Button ===== */
+.login-page .login-btn {
   width: 100%;
   padding: 12px;
   border: none;
-  border-radius: 30px;
-  background: linear-gradient(135deg, #FFA4A4, #FFBDBD);
+  border-radius: 25px;
+  background: linear-gradient(90deg, #F08787, #FFC7A7);
   color: white;
   font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
-  transition: background 0.3s, transform 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.login-btn:hover {
-  background: linear-gradient(135deg, #FFBDBD, #FFA4A4);
+.login-page .login-btn:hover {
   transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(240,135,135,0.3);
 }
 
-.message {
+/* ===== Messages ===== */
+.login-page .message {
   margin-top: 15px;
   display: none;
   padding: 10px;
@@ -103,16 +120,17 @@ body {
   font-size: 14px;
 }
 
-.message.error {
+.login-page .message.error {
   background-color: rgba(255, 100, 100, 0.2);
   color: #ff4d4d;
 }
 
-.message.success {
+.login-page .message.success {
   background-color: rgba(100, 255, 100, 0.2);
   color: #3ea43a;
 }
 
+/* ===== Animation ===== */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -120,6 +138,13 @@ body {
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+  }
+}
+
+/* ===== Mobile Responsive ===== */
+@media (max-width: 400px) {
+  .login-page .login-container {
+    width: 90%;
+    padding: 35px 30px;
   }
 }
