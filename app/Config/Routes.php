@@ -5,12 +5,13 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
+
+// Default
 $routes->get('/', 'Landing::index');
 $routes->get('/', 'Home::index');
 $routes->get('/login', 'Login::index');
 $routes->post('login/auth', 'Login::auth');
 $routes->post('logout', 'Login::logout', ['filter' => 'auth:admin']);
-
 
 // -------------------------
 // Admin Dashboard
@@ -20,7 +21,6 @@ $routes->get('/adminDashboard', 'AdminDashboard::index', ['filter' => 'auth:admi
 // -------------------------
 // Patient API Routes
 // -------------------------
-// Grouping for admin filter is optional since we apply individually below
 $routes->post('api/patient/add', 'Api\PatientController::add', ['filter' => 'auth:admin']);
 $routes->get('api/patient/search', 'Api\PatientController::search', ['filter' => 'auth:admin']);
 $routes->put('api/patient/update/(:num)', 'Api\PatientController::update/$1', ['filter' => 'auth:admin']);
@@ -32,6 +32,10 @@ $routes->get('api/patient/generate-mr', 'Api\PatientController::generateMrNumber
 // View patient profile (admin)
 $routes->get('patient/profile/(:num)', 'PatientProfile::view/$1', ['filter' => 'auth:admin']);
 
+// -------------------------
+// Patient Card PDF Route (TCPDF)
+// -------------------------
+$routes->get('patientcard/(:num)', 'PatientCardController::generate/$1', ['filter' => 'auth:admin']);
 
 // -------------------------
 // Employee API Routes
@@ -66,3 +70,8 @@ $routes->group('reception', ['filter' => 'auth:receptionist'], function($routes)
 $routes->get('api/appointments/form/(:num)', 'Api\AppointmentController::form/$1', ['filter' => 'auth:admin']);
 $routes->get('api/appointments/getSlots', 'Api\AppointmentController::getSlots', ['filter' => 'auth:admin']);
 $routes->post('api/appointments/save', 'Api\AppointmentController::save', ['filter' => 'auth:admin']);
+
+// -------------------------
+// Optional: Test barcode route
+// -------------------------
+$routes->get('barcode-test', 'BarcodeController::test');

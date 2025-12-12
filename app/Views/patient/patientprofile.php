@@ -9,18 +9,17 @@
   <style>
     /* ===================== EDIT PATIENT MODAL ===================== */
     #editPatientModal .edit-modal-content {
-      width: 520px; /* slightly smaller */
+      width: 520px;
       max-width: 90%;
-      background: #fff5e6; /* soft beige */
+      background: #fff5e6;
       border-radius: 15px;
       padding: 20px 25px;
       box-shadow: 0 10px 20px rgba(0,0,0,0.25);
       animation: fadeInUp 0.4s ease;
       border: 1px solid #f2d9c3;
-      max-height: 480px; /* keep compact */
-      overflow-y: auto; /* scroll if needed */
+      max-height: 480px;
+      overflow-y: auto;
     }
-
     #editPatientModal .modal-header {
       display: flex;
       justify-content: space-between;
@@ -29,14 +28,12 @@
       margin-bottom: 15px;
       padding-bottom: 5px;
     }
-
     #editPatientModal .modal-header h3 {
       margin: 0;
       font-size: 1.35rem;
       color: #c47f3a;
       font-weight: 600;
     }
-
     #editPatientModal .modal-close {
       font-size: 1.5rem;
       background: none;
@@ -45,12 +42,10 @@
       color: #c47f3a;
       transition: all 0.3s ease;
     }
-
     #editPatientModal .modal-close:hover {
       color: #a35d2b;
       transform: rotate(90deg);
     }
-
     #editPatientModal .form-group {
       background: #fff8f0;
       padding: 10px 12px;
@@ -60,7 +55,6 @@
       display:flex;
       flex-direction:column;
     }
-
     #editPatientModal .form-group label {
       display: block;
       font-weight: 500;
@@ -68,7 +62,6 @@
       color: #8c5a32;
       font-size: 0.95rem;
     }
-
     #editPatientModal input,
     #editPatientModal select {
       width: 100%;
@@ -80,14 +73,12 @@
       transition: all 0.3s ease;
       box-sizing: border-box;
     }
-
     #editPatientModal input:focus,
     #editPatientModal select:focus {
       border-color: #c47f3a;
       box-shadow: 0 0 5px rgba(196, 127, 58, 0.35);
       outline: none;
     }
-
     #editPatientModal .submit-btn {
       width: 100%;
       background: #c47f3a;
@@ -100,13 +91,11 @@
       transition: all 0.3s ease;
       margin-top: 8px;
     }
-
     #editPatientModal .submit-btn:hover {
       background: #a35d2b;
       transform: translateY(-2px);
       box-shadow: 0 5px 12px rgba(163, 93, 43, 0.3);
     }
-
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(-15px); }
       to { opacity: 1; transform: translateY(0); }
@@ -127,11 +116,26 @@
       transform: translateY(-10px);
       animation: slideIn 0.4s forwards;
     }
-
     .notification.error { background: #f44336; }
-
     @keyframes slideIn {
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===================== NEW BUTTON ===================== */
+    .btn-generate-id {
+      background-image: linear-gradient(135deg, #FFA4A4, #FFBDBD);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-left: 10px;
+    }
+    .btn-generate-id:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(255,189,189,0.5);
     }
   </style>
 </head>
@@ -142,6 +146,8 @@
   <div class="header-icons">
     <span class="icon edit" id="openEditPatientModal">✏️</span>
     <span class="icon delete" id="deletePatient" data-id="<?= esc($patient['patient_id']); ?>">🗑️</span>
+    <!-- NEW BUTTON -->
+    <a href="<?= base_url('patientcard/'.$patient['patient_id']) ?>" class="btn-generate-id" target="_blank">Generate Patient Card</a>
   </div>
 </div>
 
@@ -254,5 +260,17 @@
 </div>
 
 <script src="<?= base_url('assets/js/patientprofile.js') ?>"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const patientId = document.getElementById("patient_id").value;
+  const generateBtn = document.querySelector(".btn-generate-id");
+
+  generateBtn.addEventListener("click", function(e) {
+    e.preventDefault();
+    window.open(`/patientcard/${patientId}`, "_blank");
+  });
+});
+</script>
 </body>
 </html>

@@ -64,10 +64,8 @@ $empId = $employee['employee_id'];
         <?php endforeach; ?>
       </tbody>
     </table>
-           
-
   </div>
-        
+
   <div class="appointments-section">
     <h2>Doctor Appointments</h2>
     <?php if (!empty($appointments)): ?>
@@ -91,31 +89,53 @@ $empId = $employee['employee_id'];
   <?php endif; ?>
 </div>
 
-<!-- Edit Modal -->
+<!-- Edit Modal (Patient-style) -->
 <div class="modal-overlay" id="editModal" aria-hidden="true">
   <div class="modal-content">
-    <div class="modal-header"><h3>Edit Employee</h3><button id="closeEdit">&times;</button></div>
+    <div class="modal-header">
+      <h3>Edit Employee</h3>
+      <button id="closeEdit">&times;</button>
+    </div>
     <form id="editForm">
       <div class="form-grid">
-        <div class="form-group"><label>Name</label><input type="text" name="name" value="<?= esc($employee['name']) ?>" required></div>
-        <div class="form-group"><label>Email</label><input type="email" name="email" value="<?= esc($employee['email']) ?>"></div>
-        <div class="form-group"><label>Phone</label><input type="text" name="mobile_no" value="<?= esc($employee['mobile_no']) ?>" required></div>
-        <div class="form-group"><label>Gender</label>
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" name="name" value="<?= esc($employee['name']) ?>" required>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" name="email" value="<?= esc($employee['email']) ?>">
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="text" name="mobile_no" value="<?= esc($employee['mobile_no']) ?>" required pattern="^\d{11}$" title="Phone must be 11 digits">
+        </div>
+        <div class="form-group">
+          <label>Gender</label>
           <select name="gender">
             <option value="">Select</option>
             <option value="male" <?= ($employee['gender']=='male')?'selected':'' ?>>Male</option>
             <option value="female" <?= ($employee['gender']=='female')?'selected':'' ?>>Female</option>
           </select>
         </div>
-        <div class="form-group"><label>DOB</label><input type="date" name="dob" value="<?= esc($employee['dob']) ?>"></div>
-        <div class="form-group"><label>CNIC</label><input type="text" name="cnic" value="<?= esc($employee['cnic']) ?>"></div>
-        <div class="form-group address-field"><label>Address</label><textarea name="address"><?= esc($employee['address']) ?></textarea></div>
+        <div class="form-group">
+          <label>DOB</label>
+          <input type="date" name="dob" value="<?= esc($employee['dob']) ?>">
+        </div>
+        <div class="form-group">
+          <label>CNIC</label>
+          <input type="text" name="cnic" value="<?= esc($employee['cnic']) ?>" required pattern="^\d{13}$" title="CNIC must be 13 digits">
+        </div>
+        <div class="form-group address-field">
+          <label>Address</label>
+          <textarea name="address"><?= esc($employee['address']) ?></textarea>
+        </div>
       </div>
 
-      <?php if (!empty($employee['is_doctor'])): ?>
+      <?php if(!empty($employee['is_doctor'])): ?>
       <h4>Doctor Schedule</h4>
       <div id="scheduleEdit">
-        <?php foreach ($schedules ?? [] as $i => $sch): ?>
+        <?php foreach ($schedules ?? [] as $i=>$sch): ?>
         <div class="schedule-row">
           <input type="text" name="schedule[<?= $i ?>][day]" value="<?= esc($sch['day_of_week']) ?>" placeholder="Day">
           <input type="time" name="schedule[<?= $i ?>][start_time]" value="<?= esc($sch['start_time']) ?>">
@@ -131,6 +151,5 @@ $empId = $employee['employee_id'];
 </div>
 
 <script src="<?= base_url('assets/js/employeeprofile.js') ?>"></script>
-
 </body>
 </html>

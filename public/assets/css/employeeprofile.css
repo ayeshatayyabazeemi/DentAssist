@@ -1,9 +1,12 @@
-/* File: assets/css/employeeprofile.css
-   Full-page header/banner like patientprofile while preserving field positions.
-*/
+/* ===========================================
+   Employee Profile CSS
+   Mirrored from patient profile modal & styling
+=========================================== */
 
+/* Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
+/* Root Variables */
 :root{
   --bg-page: #FCF9EA;
   --accent-light: #BADFDB;
@@ -16,14 +19,14 @@
   --shadow: rgba(0,0,0,0.05);
 }
 
-/* Page & animation */
+/* Body */
 body {
   font-family: 'Poppins', sans-serif;
   background-color: var(--bg-page);
-  color: #333;
-  padding: 20px; /* outer page padding - patient uses similar */
+  color: var(--text);
+  padding: 20px;
   animation: fadeInPage 0.6s ease-out;
-  -webkit-font-smoothing:antialiased;
+  -webkit-font-smoothing: antialiased;
 }
 
 @keyframes fadeInPage {
@@ -31,20 +34,19 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Make container span the page (so header & info feel like patient page)
-   but keep internal padding so content lines up with patient layout */
+/* Container */
 .container {
-  width: calc(100% - 40px); /* respect body padding */
-  max-width: none;          /* let it stretch */
+  width: calc(100% - 40px);
+  max-width: none;
   margin: 0 auto;
-  padding: 0;               /* header and sections have their own padding */
-  background: transparent;  /* no card background around whole container */
+  padding: 0;
+  background: transparent;
   box-shadow: none;
 }
 
-/* Header band spreads across available page width (like patient) */
+/* ===================== Header ===================== */
 .profile-header {
-  background: var(--accent-light); /* rgb(186,223,219) */
+  background: var(--accent-light);
   padding: 20px;
   border-radius: 12px;
   display: flex;
@@ -53,7 +55,6 @@ body {
   margin-bottom: 22px;
 }
 
-/* Keep header-left stacked text */
 .header-left {
   display: flex;
   flex-direction: column;
@@ -72,7 +73,6 @@ body {
   margin-top: 6px;
 }
 
-/* Header actions on the right */
 .header-actions {
   display: flex;
   gap: 8px;
@@ -96,8 +96,7 @@ body {
   color: #b91c1c;
 }
 
-/* Form section sits under header and looks like patient (white card with shadow)
-   but its width aligns with the header because container is full-width */
+/* ===================== Form Section ===================== */
 .form-section {
   background-color: var(--card-bg);
   padding: 28px;
@@ -106,28 +105,23 @@ body {
   margin-bottom: 30px;
 }
 
-/* Title color & spacing like patient */
 .form-section h2 {
   color: var(--accent-mid);
   margin-bottom: 18px;
   font-size: 1.1rem;
 }
 
-/* Preserve original 3-column grid and field positions */
+/* Grid layout */
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* keep positions: 3 columns */
+  grid-template-columns: repeat(3, 1fr);
   gap: 14px;
   align-items: start;
 }
 
-/* Address spans entire row */
 .address-field { grid-column: 1 / -1; }
-
-/* Roles overview spans whole row */
 .roles-overview { grid-column: 1 / -1; margin-top: 6px; }
 
-/* Field card styling (unchanged positions/spacing) */
 .form-group {
   background: #fbfdff;
   border: 1px solid #e6eef8;
@@ -159,9 +153,15 @@ label.required-label::after {
   border-radius: 8px;
   border: 1px solid var(--accent-light);
   cursor: default;
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
 }
 
-/* Roles pill styling */
+.form-group span:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.06);
+}
+
+/* Roles pill */
 .roles-list {
   display: flex;
   gap: 10px;
@@ -176,7 +176,7 @@ label.required-label::after {
   font-size: 13px;
 }
 
-/* Appointments section */
+/* ===================== Appointments Section ===================== */
 .appointments-section {
   background: var(--card-bg);
   padding: 20px;
@@ -207,7 +207,7 @@ label.required-label::after {
 
 .btn-add-appt:hover { transform: scale(1.05); }
 
-/* Table animation & style */
+/* Table */
 .appointments-table {
   width: 100%;
   border-collapse: collapse;
@@ -237,7 +237,7 @@ label.required-label::after {
   background: var(--accent-mid);
 }
 
-/* Modal (patient style) */
+/* ===================== Modal ===================== */
 .modal-overlay {
   display: none;
   position: fixed;
@@ -283,7 +283,6 @@ label.required-label::after {
 
 .modal-close:hover { color: var(--accent-strong); }
 
-/* Inputs inside modal (patient look) */
 .form-grid input,
 .form-grid select,
 .form-grid textarea {
@@ -305,19 +304,11 @@ label.required-label::after {
   outline: none;
 }
 
-/* hover micro-animation for values (patient-like) */
-.form-group span {
-  transition: transform 0.14s ease, box-shadow 0.14s ease;
-}
-.form-group span:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 18px rgba(0,0,0,0.06);
-}
-
-/* Responsive columns preserved */
+/* ===================== Responsive ===================== */
 @media (max-width: 860px) {
   .form-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
 @media (max-width: 520px) {
   .form-grid { grid-template-columns: 1fr; }
   .header-actions { margin-top: 12px; }

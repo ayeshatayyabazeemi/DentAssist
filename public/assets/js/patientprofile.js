@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Stay for 4 seconds
     setTimeout(() => {
-      // Fade-out transition
       notif.style.transition = "opacity 0.5s ease, transform 0.5s ease";
       notif.style.opacity = "0";
       notif.style.transform = "translateX(50px)";
@@ -63,14 +62,49 @@ document.addEventListener("DOMContentLoaded", function () {
   closeEditBtn.addEventListener("click", () => editModal.style.display = "none");
   editModal.addEventListener("click", e => { if(e.target === editModal) editModal.style.display = "none"; });
 
+  // ===================== SHOW FIELD ERROR INSIDE MODAL =====================
+  function setFieldError(inputId, message){
+    // Remove old error
+    const oldErr = document.querySelector(`#${inputId}Error`);
+    if(oldErr) oldErr.remove();
+
+    // Create new error text
+    const small = document.createElement("small");
+    small.id = inputId + "Error";
+    small.className = "error-text";
+    small.style.color = "red";
+    small.style.fontSize = "12px";
+    small.textContent = message;
+
+    // Insert below the input
+    const input = document.getElementById(inputId);
+    input.insertAdjacentElement("afterend", small);
+  }
+
+  function clearFieldError(inputId){
+    const oldErr = document.querySelector(`#${inputId}Error`);
+    if(oldErr) oldErr.remove();
+  }
+
+  // ===================== EDIT SUBMIT =====================
   editForm.addEventListener("submit", function(e){
     e.preventDefault();
+
+    // ===================== MOBILE NO VALIDATION (11 DIGITS INSIDE MODAL) =====================
+    const mobile = document.getElementById("edit_mobile_no").value.trim();
+    clearFieldError("edit_mobile_no");
+
+    if(!/^\d{11}$/.test(mobile)){
+        setFieldError("edit_mobile_no", "Mobile number must be exactly 11 digits");
+        return;
+    }
+
     const patientId = deleteBtn.dataset.id;
 
     const data = {
       name: document.getElementById("edit_name").value,
       email: document.getElementById("edit_email").value,
-      mobile_no: document.getElementById("edit_mobile_no").value,
+      mobile_no: mobile,
       gender: document.getElementById("edit_gender").value,
       dob: document.getElementById("edit_dob").value,
       address: document.getElementById("edit_address").value,
