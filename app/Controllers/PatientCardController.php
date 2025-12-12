@@ -119,8 +119,4 @@ class PatientCardController extends Controller
         $pdf->Output('PatientCard_'.$patientId.'.pdf', 'I');
         exit;
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 23da279fd58c9be3a184acfff278526b71769919
