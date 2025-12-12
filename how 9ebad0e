@@ -1,0 +1,11 @@
+[33m9ebad0e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdevelop[m[33m, [m[1;31morigin/develop[m[33m, [m[1;31morigin/backup-develop-changes[m[33m, [m[1;32mbackup-develop-changes[m[33m)[m Updated MR number logic and appointment handling
+[33m31e0ca3[m Your message here
+[33m5db7d56[m[33m ([m[1;31morigin/mytooba[m[33m, [m[1;31morigin/Employee-Edit-Delete[m[33m)[m Added MR number feature
+[33mc750b0e[m[33m ([m[1;31morigin/employeesave[m[33m, [m[1;31morigin/EMPLOYEEKAAM[m[33m)[m Merge Maryam appointment feature into develop
+[33md1e39a5[m Resolved merge conflict for PatientController.php, keeping syedatooba code
+[33ma374a51[m[33m ([m[1;31morigin/syedatooba[m[33m)[m Initial commit: patient profile editable fields with notifications
+[33m28c2928[m until dasboard frontend
+[33m636956e[m employee profile added
+[33mb36d0e3[m[33m ([m[1;31morigin/mybranch[m[33m)[m Apply .gitignore and stop tracking ignored files
+[33m823e816[m Add .gitignore file
+[33ma8fdcca[m work done until patient registration
