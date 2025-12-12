@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Employee Profile</title>
 <link rel="stylesheet" href="<?= base_url('assets/css/employeeprofile.css') ?>">
+
+<!-- Logo added as favicon -->
+<link rel="icon" href="<?= base_url('assets/images/mylogo.png') ?>" type="image/png">
 </head>
 <body>
 

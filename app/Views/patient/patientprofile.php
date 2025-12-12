@@ -6,6 +6,9 @@
   <title>Patient Profile</title>
   <link rel="stylesheet" href="<?= base_url('assets/css/patientprofile.css') ?>">
 
+  <!-- Logo added as favicon -->
+  <link rel="icon" href="<?= base_url('assets/images/mylogo.png') ?>" type="image/png">
+
   <style>
     /* ===================== EDIT PATIENT MODAL ===================== */
     #editPatientModal .edit-modal-content {
