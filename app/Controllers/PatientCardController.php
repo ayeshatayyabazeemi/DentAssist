@@ -115,8 +115,8 @@ class PatientCardController extends Controller
             'N'
         );
 
-        // Output PDF
-        $pdf->Output('PatientCard_'.$patientId.'.pdf', 'I');
+        // Output PDF - Force download instead of inline
+        $pdf->Output('PatientCard_'.$patientId.'.pdf', 'D');
         exit;
     }
 }

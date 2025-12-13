@@ -32,121 +32,130 @@ document.addEventListener("DOMContentLoaded", function () {
   // Initialize default tab
   showTab('dashboard');
 
+  
   // =========================
   // MR NUMBER AUTO-GENERATION
   // =========================
+  let currentMR = "";
   const insuranceSelect = document.getElementById("insurance");
-  const mrNumberInput = document.getElementById("mr_number");
-
-  if (insuranceSelect && mrNumberInput) {
+  if (insuranceSelect) {
     insuranceSelect.addEventListener("change", function () {
-      const insurance = this.value;
-
-      if (!insurance) {
-        mrNumberInput.value = "";
-        return;
+      const val = this.value.trim();
+      if (!val) { currentMR = ""; return; }
+      const suffix = Date.now().toString().slice(-4);
+      if (val.toUpperCase() === "GEN") currentMR = "PP" + suffix;
+      else {
+        const code = val.replace(/\s+/g, "").substring(0, 3).toUpperCase();
+        currentMR = code + suffix;
       }
-
-      fetch("/api/patient/generate-mr?insurance=" + insurance)
-        .then(res => res.json())
-        .then(data => {
-          if (data.mr_number) mrNumberInput.value = data.mr_number;
-        })
-        .catch(err => console.error('MR generation error:', err));
     });
+  }
+
+  // =========================
+  // POPUP FOR MR NUMBER
+  // =========================
+  function showMRPopup(mr) {
+    const overlay = document.createElement("div");
+    overlay.style.cssText = `
+      position:fixed; inset:0; background:rgba(0,0,0,0.55);
+      display:flex; align-items:center; justify-content:center; z-index:9999;
+    `;
+    const box = document.createElement("div");
+    box.style.cssText = `
+      background:#fff; padding:30px 25px; border-radius:14px; text-align:center;
+      width:360px; box-shadow:0 10px 35px rgba(0,0,0,0.25);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont;
+    `;
+    box.innerHTML = `
+      <div style="width:70px;height:70px;margin:0 auto 15px;background:#28a745;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;color:white;font-size:36px;">✓</div>
+      <h2 style="margin:10px 0 6px;color:#222;">Patient Registered</h2>
+      <p style="color:#666;margin-bottom:18px;">Registration completed successfully</p>
+      <div style="background:#f4f6f8;padding:14px;border-radius:10px;margin-bottom:20px;font-size:18px;letter-spacing:1px;">
+        <strong>MR Number</strong><br>
+        <span style="color:#28a745;font-size:22px;">${mr}</span>
+      </div>
+      <button id="mrOkBtn" style="width:100%;padding:12px;background:#28a745;color:#fff;border:none;border-radius:8px;font-size:16px;cursor:pointer;">OK</button>
+    `;
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    document.getElementById("mrOkBtn").onclick = () => overlay.remove();
   }
 
   // =========================
   // NOTIFICATION HELPER
   // =========================
   const notyf = new Notyf({ duration: 3000, position: { x: 'center', y: 'top' } });
-  function showNotification(message, type = "success") {
-    const notif = document.createElement("div");
-    notif.className = `notification ${type}`;
-    notif.textContent = message;
-    document.body.appendChild(notif);
-    setTimeout(() => notif.remove(), 3000);
-  }
 
   // =========================
-  // ADD PATIENT FORM
+  // ADD PATIENT FORM LOGIC
   // =========================
   let isSubmitting = false;
   const patientForm = document.getElementById('patientForm');
   if (patientForm) {
     patientForm.addEventListener('submit', e => {
       e.preventDefault();
-       if (isSubmitting) {
-      console.warn('Submission blocked: already submitting');
-      return;
-    }
-    isSubmitting = true;
+      if (isSubmitting) return;
+      isSubmitting = true;
+      e.stopImmediatePropagation?.();
 
-    // stop other submit handlers (if any) from running this same event
-    e.stopImmediatePropagation?.();
       const submitBtn = patientForm.querySelector('button[type="submit"], input[type="submit"]');
-    if (submitBtn) submitBtn.disabled = true;
+      if (submitBtn) submitBtn.disabled = true;
+
       const dataObj = {};
-      new FormData(patientForm).forEach((value, key) => { dataObj[key] = value; });
+      new FormData(patientForm).forEach((value, key) => dataObj[key] = value);
+
+      // AGE CALCULATION
       if (dataObj.dob) {
-      const dob = new Date(dataObj.dob);
-      const today = new Date();
-
-      let age = today.getFullYear() - dob.getFullYear();
-      const monthDiff = today.getMonth() - dob.getMonth();
-
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-        age--;
+        const dob = new Date(dataObj.dob);
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+        const monthDiff = today.getMonth() - dob.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) age--;
+        dataObj.age = `${age} Years`;
       }
 
-      dataObj.age = `${age} Years`; // store age as "35 Years"
-    }
-      // Validation
+      // VALIDATION
       const cnicRegex = /^\d{13}$/;
       const phoneRegex = /^0\d{10}$/;
-      if (dataObj.cnic && !cnicRegex.test(dataObj.cnic)) { notyf.error('CNIC must be 13 digits'); return; }
-      if (dataObj.mobile_no && !phoneRegex.test(dataObj.mobile_no)) { notyf.error('Mobile must be 11 digits'); return; }
-      if (dataObj.guardianphonenumber && !phoneRegex.test(dataObj.guardianphonenumber)) { notyf.error('Guardian phone invalid'); return; }
+      if (dataObj.cnic && !cnicRegex.test(dataObj.cnic)) { notyf.error('CNIC must be 13 digits'); unlock(); return; }
+      if (dataObj.mobile_no && !phoneRegex.test(dataObj.mobile_no)) { notyf.error('Mobile must be 11 digits'); unlock(); return; }
+      if (dataObj.guardianphonenumber && !phoneRegex.test(dataObj.guardianphonenumber)) { notyf.error('Guardian phone invalid'); unlock(); return; }
 
+      // NORMALIZATION
+      if (dataObj.mobile_no) dataObj.mobile_no = dataObj.mobile_no.replace(/^0/, "");
+      if (!dataObj.regdate || dataObj.regdate.trim() === "") {
+        const today = new Date();
+        dataObj.regdate = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+      }
 
-       if (dataObj.mobile_no) {
-      dataObj.mobile_no = dataObj.mobile_no.replace(/^0/, "");
-    }
-        if (!dataObj.regdate || dataObj.regdate.trim() === "") {
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = String(today.getMonth() + 1).padStart(2, '0');
-      const day = String(today.getDate()).padStart(2, '0');
-      dataObj.regdate = `${year}-${month}-${day}`; // YYYY-MM-DD
-    }
-    
+      // ADD MR NUMBER
+      dataObj.mr_number = currentMR || "PP" + Date.now().toString().slice(-4);
 
+      // SUBMIT
+      fetch('/api/patient/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataObj)
+      })
+      .then(res => res.json())
+      .then(json => {
+        if (json.status === 'success') {
+          showMRPopup(dataObj.mr_number);
+          patientForm.reset();
+          currentMR = "";
+        } else notyf.error(json.message || "Registration failed");
+      })
+      .catch(() => notyf.error("Network error"))
+      .finally(unlock);
 
-     fetch('/api/patient/add', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(dataObj)
-})
-.then(res => res.json())
-.then(json => {
-  if (json.status === 'success') {
-    notyf.success(`Patient added! ID: ${json.id}, MR: ${json.mr_number}`);
-    patientForm.reset();
-  } else {
-    // <-- SHOW BACKEND ERROR MESSAGE
-    notyf.error(json.message || 'Something went wrong');
+      function unlock() {
+        isSubmitting = false;
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
   }
-})
-.catch(err => { 
-  console.error(err); 
-  notyf.error('Network error'); 
-})
-.finally(() => {
-  if (submitBtn) submitBtn.disabled = false;
-  isSubmitting = false;
-});
 
-})}
 
   // =========================
   // SEARCH AUTOCOMPLETE

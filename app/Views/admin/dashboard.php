@@ -163,10 +163,10 @@
               <option value="NHA">NHA</option>
             </select>
           </div>
-          <div class="form-group">
+          <!-- <div class="form-group">
             <label for="mr_number">MR Number</label>
             <input type="text" id="mr_number" name="mr_number" readonly />
-          </div>
+          </div> -->
         </div>
         <button type="submit" class="submit-btn">Add Patient</button>
       </form>

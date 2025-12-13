@@ -98,7 +98,7 @@ class EmployeeController extends BaseController
 
         $errorMsg = $e->getMessage();
 
-        // 🔥 Detect readable SQL errors:
+        //  Detect readable SQL errors:
         if (strpos($errorMsg, 'Duplicate entry') !== false) {
 
             if (strpos($errorMsg, 'mobile_no') !== false) {
@@ -124,28 +124,54 @@ class EmployeeController extends BaseController
 
     // ---------------- Search Employees ----------------
     public function search()
-    {
-        $q = trim($this->request->getGet('q'));
-        if(!$q) return $this->response->setStatusCode(400)->setJSON(['status'=>'error','message'=>'Search query required']);
-
-        $results = $this->employeeModel
-                        ->groupStart()
-                        ->like('employee_id',$q)
-                        ->orLike('name',$q)
-                        ->orLike('mobile_no',$q)
-                        ->orLike('email',$q)
-                        ->orLike('cnic',$q)
-                        ->groupEnd()
-                        ->select('employee_id AS id, name, mobile_no, email, cnic')
-                        ->findAll(10);
-
-        foreach($results as &$r){
-            $r['email'] = $r['email'] ?: 'none';
-            $r['cnic']  = $r['cnic'] ?: 'none';
-        }
-
-        return $this->response->setJSON(['status'=>'success','data'=>$results]);
+{
+    $q = trim($this->request->getGet('q'));
+    if (!$q) {
+        return $this->response
+            ->setStatusCode(400)
+            ->setJSON(['status' => 'error', 'message' => 'Search query required']);
     }
+
+    // Escape for LIKE safety
+    $escaped_q = $this->employeeModel->escapeLikeString($q);
+
+    // Relevance ordering
+    $order_case = "
+        CASE
+            WHEN employee_id LIKE '%{$escaped_q}%' THEN 1
+            WHEN LOWER(name) LIKE LOWER('%{$escaped_q}%') THEN 2
+            WHEN mobile_no LIKE '%{$escaped_q}%' THEN 3
+            WHEN email LIKE '%{$escaped_q}%' THEN 4
+            WHEN cnic LIKE '%{$escaped_q}%' THEN 5
+            ELSE 6
+        END
+    ";
+
+    $results = $this->employeeModel
+        ->groupStart()
+            ->like('employee_id', $escaped_q)
+            ->orLike('name', $escaped_q)
+            ->orLike('mobile_no', $escaped_q)
+            ->orLike('email', $escaped_q)
+            ->orLike('cnic', $escaped_q)
+        ->groupEnd()
+        ->select('employee_id AS id, name, mobile_no, email, cnic')
+        ->orderBy($order_case, 'ASC')                 // relevance first
+        ->orderBy('CAST(employee_id AS UNSIGNED)', 'ASC') // numeric ID sort (if applicable)
+        ->orderBy('employee_id', 'ASC')               // fallback
+        ->findAll(10);
+
+    foreach ($results as &$r) {
+        $r['email'] = $r['email'] ?: 'none';
+        $r['cnic']  = $r['cnic'] ?: 'none';
+    }
+
+    return $this->response->setJSON([
+        'status' => 'success',
+        'data'   => $results
+    ]);
+}
+
 
     // ---------------- Update Employee ----------------
     public function update($id=null)
