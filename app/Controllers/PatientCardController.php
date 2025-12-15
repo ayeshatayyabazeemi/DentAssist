@@ -2,6 +2,8 @@
 namespace App\Controllers;
 
 use App\Models\PatientModel;
+use App\Models\AppointmentModel;
+use App\Models\EmployeeModel; // For doctor names
 use CodeIgniter\Controller;
 use TCPDF;
 
@@ -13,12 +15,22 @@ class PatientCardController extends Controller
             return redirect()->to('/adminDashboard');
         }
 
-        $model = new PatientModel();
-        $patient = $model->find($patientId);
+        $patientModel = new PatientModel();
+        $appointmentModel = new AppointmentModel();
+        $employeeModel = new EmployeeModel();
+
+        $patient = $patientModel->find($patientId);
 
         if (!$patient) {
             return redirect()->to('/adminDashboard')->with('error','Patient not found');
         }
+
+        // Fetch all appointments for this patient
+        $appointments = $appointmentModel
+            ->where('patient_id', $patientId)
+            ->orderBy('appointment_date', 'ASC')
+            ->orderBy('appointment_time', 'ASC')
+            ->findAll();
 
         // Clear output buffer
         while (ob_get_level() > 0) {
@@ -57,21 +69,18 @@ class PatientCardController extends Controller
             $pdf->Image($photoPath, 50, 25, 20, 20, '', '', '', false, 300);
         }
 
-        // ===== Patient Info (tight layout) =====
+        // ===== Patient Info =====
         $pdf->SetXY(5, 25);
         $pdf->SetFont('helvetica', 'B', 8);
         $pdf->SetTextColor(0, 0, 80);
         $pdf->Cell(0, 4, 'Patient Card', 0, 1, 'L');
 
-        // Keep MR Number digits only
         $mrNumber = $patient['mr_number'] ?? '';
         $mrNumberDigits = preg_replace('/\D/', '', $mrNumber);
 
-        $labels = ['Name', 'ID', 'Age', 'Gender', 'Phone', 'Address', 'MR Number'];
+        $labels = ['Name', 'Gender', 'Phone', 'Address', 'MR Number'];
         $values = [
             $patient['name'],
-            $patient['patient_id'],
-            $patient['age'],
             ucfirst($patient['gender']),
             $patient['mobile_no'],
             $patient['address'] ?? '',
@@ -80,7 +89,7 @@ class PatientCardController extends Controller
 
         $pdf->SetFont('helvetica', 'B', 7);
         $pdf->SetTextColor(0, 0, 0);
-        $lineHeight = 3; // slightly tighter
+        $lineHeight = 3;
         $labelWidth = 17;
         $valueWidth = 26;
 
@@ -91,26 +100,43 @@ class PatientCardController extends Controller
             $pdf->SetFont('helvetica', 'B', 7);
         }
 
-        // ===== Barcode (centered below info) =====
-        $style = ['border'=>1,'padding'=>2,'fgcolor'=>[0,0,0]];
-        $barcodeWidth = 45;
-        $barcodeHeight = 12;
-        $x = ($pdf->getPageWidth() - $barcodeWidth) / 2;
-        $y = 58;
+        // ===== QR Code (centered below patient info) =====
+        $qrSize = 30;
+        $y = $pdf->GetY() + 3;
+        $x = ($pdf->getPageWidth() - $qrSize) / 2;
 
-        // Line above barcode
-        $pdf->SetLineWidth(0.1);
-        $pdf->Line($x, $y - 2, $x + $barcodeWidth, $y - 2);
+        // QR content: patient info + all appointments
+        $qrContent = "Name: {$patient['name']}\n";
+        $qrContent .= "Gender: " . ucfirst($patient['gender']) . "\n";
+        $qrContent .= "Phone: {$patient['mobile_no']}\n";
+        $qrContent .= "Address: " . ($patient['address'] ?? '') . "\n";
+        $qrContent .= "MR Number: " . $mrNumberDigits;
 
-        // Write barcode
-        $pdf->write1DBarcode(
-            $patient['patient_id'],
-            'C128',
+        if (!empty($appointments)) {
+            $qrContent .= "\nAppointments:";
+            foreach ($appointments as $appointment) {
+                $doctor = $employeeModel->find($appointment['employee_id']);
+                $doctorName = $doctor['name'] ?? 'Unknown';
+                $apptDate = date('d-m-Y', strtotime($appointment['appointment_date']));
+                $apptTime = date('h:i A', strtotime($appointment['appointment_time']));
+                $qrContent .= "\nDoctor: $doctorName | Date: $apptDate | Time: $apptTime";
+            }
+        }
+
+        $style = [
+            'border' => 0,
+            'padding' => 1,
+            'fgcolor' => [0,0,0],
+            'bgcolor' => false
+        ];
+
+        $pdf->write2DBarcode(
+            $qrContent,
+            'QRCODE,H',
             $x,
             $y,
-            $barcodeWidth,
-            $barcodeHeight,
-            0.4,
+            $qrSize,
+            $qrSize,
             $style,
             'N'
         );

@@ -1,3 +1,5 @@
+// employeeprofile.js
+
 const editBtn = document.getElementById('editBtn');
 const editModal = document.getElementById('editModal');
 const closeEdit = document.getElementById('closeEdit');
@@ -30,8 +32,14 @@ function showNotification(message, type='success'){
 }
 
 // Open/Close modal
-editBtn.addEventListener('click', ()=>{ editModal.classList.add('show'); editModal.setAttribute('aria-hidden','false'); });
-closeEdit.addEventListener('click', ()=>{ editModal.classList.remove('show'); editModal.setAttribute('aria-hidden','true'); });
+editBtn.addEventListener('click', ()=>{ 
+    editModal.classList.add('show'); 
+    editModal.setAttribute('aria-hidden','false'); 
+});
+closeEdit.addEventListener('click', ()=>{ 
+    editModal.classList.remove('show'); 
+    editModal.setAttribute('aria-hidden','true'); 
+});
 
 // Delete employee
 deleteBtn.addEventListener('click', ()=>{
@@ -59,38 +67,52 @@ function clearFieldError(input){
     if(oldErr && oldErr.classList.contains('error-text')) oldErr.remove();
 }
 
-// Handle edit form
+// Handle edit form submission
 editForm.addEventListener('submit', function(e){
     e.preventDefault();
-    const phoneInput = document.querySelector('input[name="mobile_no"]');
-    const cnicInput  = document.querySelector('input[name="cnic"]');
+    
+    const phoneInput = editForm.querySelector('input[name="mobile_no"]');
+    const cnicInput  = editForm.querySelector('input[name="cnic"]');
     let hasError = false;
+
+    // Clear previous errors
     clearFieldError(phoneInput);
+    clearFieldError(cnicInput);
+
+    // Validate phone (mandatory)
     if(!/^\d{11}$/.test(phoneInput.value.trim())){
         setFieldError(phoneInput,'Phone number must be exactly 11 digits');
-        hasError=true;
+        hasError = true;
     }
-    clearFieldError(cnicInput);
-    if(!/^\d{13}$/.test(cnicInput.value.trim())){
+
+    // Validate CNIC (optional)
+    const cnicValue = cnicInput.value.trim();
+    if(cnicValue && !/^\d{13}$/.test(cnicValue)){
         setFieldError(cnicInput,'CNIC must be exactly 13 digits');
-        hasError=true;
+        hasError = true;
     }
+
     if(hasError) return;
 
+    // Collect form data
     const formData = new FormData(editForm);
     const obj = {};
     formData.forEach((v,k)=>{
         if(k.includes('schedule')){
             const match = k.match(/schedule\[(\d+)\]\[(\w+)\]/);
             if(match){
-                obj['schedule']=obj['schedule']||[];
+                obj['schedule'] = obj['schedule']||[];
                 const idx = parseInt(match[1]);
-                obj['schedule'][idx]=obj['schedule'][idx]||{};
-                obj['schedule'][idx][match[2]]=v;
+                obj['schedule'][idx] = obj['schedule'][idx]||{};
+                obj['schedule'][idx][match[2]] = v;
             }
-        } else obj[k]=v;
+        } else {
+            obj[k] = v;
+        }
     });
+
     const empId = deleteBtn.dataset.id;
+
     fetch('/api/employee/update/' + empId,{
         method:'PUT',
         headers:{'Content-Type':'application/json'},
