@@ -174,7 +174,13 @@
     <div class="form-group"><label>CNIC</label><span id="cnicSpan"><?= esc($patient['cnic'] ?? 'none') ?></span></div>
     <div class="form-group"><label>Blood Group</label><span id="bloodGroupSpan"><?= esc($patient['bloodGroup'] ?? 'none') ?></span></div>
     <div class="form-group"><label>Registration Date</label><span id="regdateSpan"><?= esc($patient['regdate'] ?? 'none') ?></span></div>
-    <div class="form-group"><label>MR Number</label><span id="mr_numberSpan"><?= esc($patient['mr_number'] ?? 'none') ?></span></div>
+    <!-- new -->
+     <div class="form-group">
+    <label>MR Number</label>
+    <input type="text" id="mr_number" value="<?= esc($patient['mr_number'] ?? ''); ?>" readonly>
+    </div>
+
+    <!-- <div class="form-group"><label>MR Number</label><span id="mr_numberSpan"><?= esc($patient['mr_number'] ?? 'none') ?></span></div> -->
   </div>
 </div>
 
@@ -205,7 +211,21 @@
     </div>
     <form id="makeAppointmentForm">
       <div class="form-grid">
-        <div class="form-group"><label>Patient ID</label><input id="patient_id" name="patient_id" value="<?= esc($patient['patient_id']); ?>" readonly/></div>
+        <!-- SHOW MR NUMBER (VISIBLE TO USER) -->
+<div class="form-group">
+  <label>MR Number</label>
+  <input value="<?= esc($patient['mr_number']); ?>" readonly>
+</div>
+
+<!-- REAL PATIENT ID (HIDDEN, FOR SYSTEM) -->
+<input
+  type="hidden"
+  id="patient_id"
+  name="patient_id"
+  value="<?= esc($patient['patient_id']); ?>"
+>
+
+        <!-- <div class="form-group"><label>Patient ID</label><input id="patient_id" name="patient_id" value="<?= esc($patient['patient_id']); ?>" readonly/></div> -->
         <div class="form-group"><label>Doctor</label><select id="doctor_id" name="doctor_id" required><option value="">Select Doctor</option></select></div>
         <div class="form-group"><label>Date</label><input type="date" id="date" name="date" required /></div>
         <div class="form-group"><label>Slot</label><select id="slot" name="slot" required><option value="">Select Slot</option></select></div>

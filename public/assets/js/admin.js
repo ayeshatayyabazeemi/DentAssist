@@ -36,20 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // =========================
   // MR NUMBER AUTO-GENERATION
   // =========================
-  let currentMR = "";
-  const insuranceSelect = document.getElementById("insurance");
-  if (insuranceSelect) {
-    insuranceSelect.addEventListener("change", function () {
-      const val = this.value.trim();
-      if (!val) { currentMR = ""; return; }
-      const suffix = Date.now().toString().slice(-4);
-      if (val.toUpperCase() === "GEN") currentMR = "PP" + suffix;
-      else {
-        const code = val.replace(/\s+/g, "").substring(0, 3).toUpperCase();
-        currentMR = code + suffix;
-      }
-    });
-  }
+ 
 
   // =========================
   // POPUP FOR MR NUMBER
@@ -115,6 +102,10 @@ document.addEventListener("DOMContentLoaded", function () {
         dataObj.age = `${age} Years`;
       }
 
+    // do NOT send mr_number
+      delete dataObj.mr_number;
+
+
       // VALIDATION
       const cnicRegex = /^\d{13}$/;
       const phoneRegex = /^0\d{10}$/;
@@ -130,29 +121,30 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       // ADD MR NUMBER
-      dataObj.mr_number = currentMR || "PP" + Date.now().toString().slice(-4);
-
+      
       // SUBMIT
-      fetch('/api/patient/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dataObj)
-      })
-      .then(res => res.json())
-      .then(json => {
-        if (json.status === 'success') {
-          showMRPopup(dataObj.mr_number);
-          patientForm.reset();
-          currentMR = "";
-        } else notyf.error(json.message || "Registration failed");
-      })
-      .catch(() => notyf.error("Network error"))
-      .finally(unlock);
-
-      function unlock() {
-        isSubmitting = false;
-        if (submitBtn) submitBtn.disabled = false;
+          fetch('/api/patient/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dataObj)
+    })
+    .then(res => res.json())
+    .then(json => {
+      if (json.status === 'success') {
+        showMRPopup(json.mr_number); // backend-generated MR
+        patientForm.reset();
+      } else {
+        notyf.error(json.message || "Registration failed");
       }
+    })
+    .catch(() => notyf.error("Network error"))
+    .finally(unlock);
+
+    function unlock() {
+      isSubmitting = false;
+      if (submitBtn) submitBtn.disabled = false;
+    }
+
     });
   }
 
