@@ -12,75 +12,61 @@ class PatientController extends BaseController
     public function add()
     {
         if ($this->request->getMethod() !== 'POST') {
-            return $this->response->setStatusCode(405)
-                ->setJSON(['status' => 'error', 'message' => 'Only POST allowed']);
-        }
+        return $this->response->setStatusCode(405)
+            ->setJSON(['status' => 'error', 'message' => 'Only POST allowed']);
+    }
 
-        $model = new PatientModel();
+    $model = new PatientModel();
+    $data = $this->request->getJSON(true) ?? [];
 
-        // Get JSON data
-        $data = $this->request->getJSON(true) ?? [];
+    // Trim string values
+    foreach ($data as $k => $v) {
+        if (is_string($v)) $data[$k] = trim($v) ?: null;
+    }
 
-        // Trim values
-        foreach ($data as $k => $v) {
-            if (is_string($v)) {
-                $data[$k] = trim($v) ?: null;
-            }
-        }
+    // Required fields
+    if (empty($data['name']) || empty($data['mobile_no'])) {
+        return $this->response->setStatusCode(400)
+            ->setJSON(['status'=>'error','message'=>'Name and mobile are required']);
+    }
 
-        // Required fields
-        if (empty($data['name']) || empty($data['mobile_no'])) {
-            return $this->response->setStatusCode(400)
-                ->setJSON(['status'=>'error','message'=>'Name and mobile are required']);
-        }
+    // Unique email check
+    if (!empty($data['email']) && $model->where('email', $data['email'])->first()) {
+        return $this->response->setStatusCode(409)
+            ->setJSON(['status'=>'error','message'=>'Email already registered']);
+    }
 
-        // Unique email check
-        if (!empty($data['email'])) {
-            if ($model->where('email', $data['email'])->first()) {
-                return $this->response->setStatusCode(409)
-                    ->setJSON([
-                        'status'=>'error',
-                        'message'=>'Email already registered'
-                    ]);
-            }
-        }
+    $db = \Config\Database::connect();
+    $builder = $db->table('patients');
 
-        /* -------------------------------------------------
-           MR NUMBER GENERATION (PP00001 / ABC00002)
-        ------------------------------------------------- */
-        $db = \Config\Database::connect();
+    // ---------- MR NUMBER LOGIC ----------
+    if (empty($data['insurance']) || strtoupper($data['insurance']) === 'GEN') {
+        // General Patient (PP)
+        $prefix = 'PP';
+    } else {
+        // Insurance Patient → first 3 letters of company
+        $company = preg_replace('/\s+/', '', $data['insurance']); // remove spaces
+        $prefix = strtoupper(substr($company, 0, 3));
+    }
 
-        // Decide prefix
-       // Decide MR prefix
-if (empty($data['insurance']) || strtoupper($data['insurance']) === 'GEN') {
-    // General patient
-    $prefix = 'PP';
-} else {
-    // Insurance patient → first 3 letters
-    $prefix = strtoupper(substr(
-        preg_replace('/\s+/', '', $data['insurance']),
-        0,
-        3
-    ));
-}
+    // Find last MR number for this prefix
+    $builder->select('mr_number')->like('mr_number', $prefix, 'after')
+            ->orderBy('patient_id', 'DESC')->limit(1);
+    $row = $builder->get()->getRow();
 
-
-        // Fetch last MR for prefix
-        $builder = $db->table('patients');
-        $builder->select('mr_number');
-        $builder->like('mr_number', $prefix, 'after');
-        $builder->orderBy('patient_id', 'DESC');
-        $builder->limit(1);
-
-        $row = $builder->get()->getRow();
-
+    if ($row) {
+        // Increment from last number in DB for this prefix
+        $lastNumber = (int) substr($row->mr_number, strlen($prefix));
+    } else {
+        // Start fresh from 1 if no existing MR for this prefix
         $lastNumber = 0;
-        if ($row) {
-            $lastNumber = (int) substr($row->mr_number, strlen($prefix));
-        }
+    }
 
-        $data['mr_number'] = $prefix . str_pad($lastNumber + 1, 6, '0', STR_PAD_LEFT);
+    $nextNumber = $lastNumber + 1;
 
+    // Format MR number: prefix + 6-digit number with leading zeros
+    $data['mr_number'] = $prefix . str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
+        
         /* -------------------------------------------------
            INSERT
         ------------------------------------------------- */
