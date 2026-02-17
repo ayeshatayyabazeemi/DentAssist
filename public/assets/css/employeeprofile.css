@@ -1,0 +1,315 @@
+/* ===========================================
+   Employee Profile CSS
+   Mirrored from patient profile modal & styling
+=========================================== */
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* Root Variables */
+:root{
+  --bg-page: #FCF9EA;
+  --accent-light: #BADFDB;
+  --accent-mid: #FFBDBD;
+  --accent-strong: #FFA4A4;
+  --card-bg: #ffffff;
+  --value-bg: #FCF9EA;
+  --muted: #666;
+  --text: #0b1220;
+  --shadow: rgba(0,0,0,0.05);
+}
+
+/* Body */
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text);
+  padding: 20px;
+  animation: fadeInPage 0.6s ease-out;
+  -webkit-font-smoothing: antialiased;
+}
+
+@keyframes fadeInPage {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Container */
+.container {
+  width: calc(100% - 40px);
+  max-width: none;
+  margin: 0 auto;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* ===================== Header ===================== */
+.profile-header {
+  background: var(--accent-light);
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.employee-name {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.header-sub .designation {
+  font-size: 0.95rem;
+  color: #475569;
+  margin-top: 6px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-btn {
+  background: #eef2ff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #3730a3;
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.icon-btn:hover { transform: translateY(-2px); }
+
+.icon-btn.danger {
+  background: #fff1f2;
+  color: #b91c1c;
+}
+
+/* ===================== Form Section ===================== */
+.form-section {
+  background-color: var(--card-bg);
+  padding: 28px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px var(--shadow);
+  margin-bottom: 30px;
+}
+
+.form-section h2 {
+  color: var(--accent-mid);
+  margin-bottom: 18px;
+  font-size: 1.1rem;
+}
+
+/* Grid layout */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.address-field { grid-column: 1 / -1; }
+.roles-overview { grid-column: 1 / -1; margin-top: 6px; }
+
+.form-group {
+  background: #fbfdff;
+  border: 1px solid #e6eef8;
+  padding: 10px 12px;
+  border-radius: 10px;
+  display:flex;
+  flex-direction:column;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+label.required-label::after {
+  content: " *";
+  color: #ff0000;
+}
+
+.form-group span {
+  display: block;
+  font-size: 14px;
+  color: var(--text);
+  padding: 8px 12px;
+  background: var(--value-bg);
+  border-radius: 8px;
+  border: 1px solid var(--accent-light);
+  cursor: default;
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+
+.form-group span:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.06);
+}
+
+/* Roles pill */
+.roles-list {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.role {
+  background: #eef2ff;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+/* ===================== Appointments Section ===================== */
+.appointments-section {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px var(--shadow);
+  position: relative;
+  margin-bottom: 18px;
+}
+
+.appointments-section h2 {
+  color: var(--accent-strong);
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.btn-add-appt {
+  background-image: linear-gradient(135deg, var(--accent-strong), var(--accent-mid));
+  border: none;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: transform 0.16s;
+}
+
+.btn-add-appt:hover { transform: scale(1.05); }
+
+/* Table */
+.appointments-table {
+  width: 100%;
+  border-collapse: collapse;
+  animation: fadeIn 0.5s ease-out 0.25s forwards;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.appointments-table th,
+.appointments-table td {
+  padding: 12px 10px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.appointments-table th {
+  background: var(--accent-light);
+  color: #333;
+  font-weight: 600;
+}
+
+.appointments-table tr:hover {
+  background: var(--accent-mid);
+}
+
+/* ===================== Modal ===================== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0,0,0,0.35);
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal-overlay.show { display:flex; }
+
+.modal-content {
+  background-color: var(--bg-page);
+  width: 92%;
+  max-width: 560px;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  animation: popIn 0.4s ease-out;
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.modal-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.4em;
+  cursor: pointer;
+  color: #999;
+  padding: 0;
+}
+
+.modal-close:hover { color: var(--accent-strong); }
+
+.form-grid input,
+.form-grid select,
+.form-grid textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 2px solid var(--accent-light);
+  border-radius: 8px;
+  background-color: #fff;
+  font-size: 0.95em;
+  transition: border-color 0.28s, box-shadow 0.28s;
+  box-sizing: border-box;
+}
+
+.form-grid input:focus,
+.form-grid select:focus,
+.form-grid textarea:focus {
+  border-color: var(--accent-mid);
+  box-shadow: 0 0 6px rgba(255,189,189,0.28);
+  outline: none;
+}
+
+/* ===================== Responsive ===================== */
+@media (max-width: 860px) {
+  .form-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 520px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .header-actions { margin-top: 12px; }
+}

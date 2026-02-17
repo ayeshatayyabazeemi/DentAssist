@@ -1,0 +1,150 @@
+/* ===== Clean & Final Login Page CSS ===== */
+
+.login-page {
+  padding-top: 80px;
+  height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to bottom right, #ffffff, #fff7e9);
+}
+
+/* All elements inside login page */
+.login-page * {
+  box-sizing: border-box;
+}
+
+/* ===== Login Container ===== */
+.login-page .login-container {
+  background: #fff;
+  padding: 45px 50px;
+  border-radius: 20px;
+  width: 360px;
+  text-align: center;
+  animation: fadeIn 1s ease-in-out;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.12); /* soft visible shadow */
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== Title ===== */
+.login-page .login-title {
+  color: #F08787;
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 25px;
+}
+
+/* ===== Input Group ===== */
+.login-page .input-group {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.login-page .input-group i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  font-size: 1.2rem;
+}
+
+/* Matching role-select theme */
+.login-page .input-group input {
+  width: 100%;
+  padding: 12px 40px 12px 40px;
+  border-radius: 25px;
+  border: 2px solid #BADFDB;
+  background-color: #FCF9EA;
+  font-size: 0.95rem;
+  color: #3d3d3d;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+/* Focus effect */
+.login-page .input-group input:focus {
+  border-color: #FFA4A4;
+  box-shadow: 0 0 10px rgba(255,164,164,0.3);
+}
+
+/* ===== Role Dropdown ===== */
+.login-page .role-select {
+  margin-bottom: 20px;
+  text-align: left;
+  font-size: 14px;
+  color: #555;
+}
+
+.login-page .role-select select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 25px;
+  border: 2px solid #BADFDB;
+  background-color: #FCF9EA;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  font-size: 0.95rem;
+  color: #3d3d3d;
+}
+
+.login-page .role-select select:focus {
+  border-color: #FFA4A4;
+}
+
+/* ===== Login Button ===== */
+.login-page .login-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 25px;
+  background: linear-gradient(90deg, #F08787, #FFC7A7);
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.login-page .login-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(240,135,135,0.3);
+}
+
+/* ===== Messages ===== */
+.login-page .message {
+  margin-top: 15px;
+  display: none;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.login-page .message.error {
+  background-color: rgba(255, 100, 100, 0.2);
+  color: #ff4d4d;
+}
+
+.login-page .message.success {
+  background-color: rgba(100, 255, 100, 0.2);
+  color: #3ea43a;
+}
+
+/* ===== Animation ===== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ===== Mobile Responsive ===== */
+@media (max-width: 400px) {
+  .login-page .login-container {
+    width: 90%;
+    padding: 35px 30px;
+  }
+}
