@@ -19,6 +19,20 @@ $routes->post('logout', 'Login::logout', ['filter' => 'auth:admin']);
 $routes->get('/adminDashboard', 'AdminDashboard::index', ['filter' => 'auth:admin']);
 
 // -------------------------
+// invoice
+// -------------------------
+$routes->get('patient/invoice/(:num)', 'PatientProfile::invoiceView/$1', ['filter' => 'auth:admin,receptionist']);
+$routes->post('patient/invoice/save', 'PatientProfile::saveInvoice', ['filter' => 'auth:admin,receptionist']);
+$routes->get('patient/procedures', 'PatientProfile::getProcedures', ['filter' => 'auth:admin,receptionist']);
+
+// -------------------------
+// procedures
+// -------------------------
+$routes->get('patient/procedures', 'PatientProfile::getProcedures');
+$routes->post('patient/procedures/create', 'PatientProfile::createProcedure');
+$routes->post('patient/procedures/update', 'PatientProfile::updateProcedure');
+$routes->post('patient/procedures/delete', 'PatientProfile::deleteProcedure');
+// -------------------------
 // Patient API Routes
 // -------------------------
 $routes->post('api/patient/add', 'Api\PatientController::add', ['filter' => 'auth:admin']);
