@@ -140,6 +140,21 @@
       transform: scale(1.05);
       box-shadow: 0 4px 12px rgba(255,189,189,0.5);
     }
+    .btn-generate-invoice {
+      background-image: linear-gradient(135deg, #FFA4A4, #FFBDBD);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-left: 10px;
+    }
+    .btn-generate-invoice:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(255,189,189,0.5);
+    }
   </style>
 </head>
 <body>
@@ -147,10 +162,14 @@
 <div class="profile-header">
   <h1><?= esc($patient['name'] ?? 'none') ?></h1>
   <div class="header-icons">
+    
     <span class="icon edit" id="openEditPatientModal">✏️</span>
     <span class="icon delete" id="deletePatient" data-id="<?= esc($patient['patient_id']); ?>">🗑️</span>
-    <!-- NEW BUTTON -->
+        <a href="<?= base_url('patient/invoice/'.$patient['patient_id']) ?>" class="btn-generate-invoice" target="_blank">Invoice</a>
+
     <a href="<?= base_url('patientcard/'.$patient['patient_id']) ?>" class="btn-generate-id" target="_blank">Generate Patient Card</a>
+
+    <!-- NEW BUTTON -->
   </div>
 </div>
 
@@ -182,6 +201,43 @@
 
     <!-- <div class="form-group"><label>MR Number</label><span id="mr_numberSpan"><?= esc($patient['mr_number'] ?? 'none') ?></span></div> -->
   </div>
+</div>
+<div class="appointments-section-invoice">
+  <h2>Invoices</h2>
+
+  <table class="appointments-table-invoice">
+    <thead>
+      <tr>
+        <th>Invoice ID</th>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Paid</th>
+        <th>Dues</th>
+        <th>User</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <?php if (!empty($invoices)): ?>
+        <?php foreach ($invoices as $inv): ?>
+          <tr>
+            <td><?= esc($inv['invoice_id'] ?? '-') ?></td>
+            <td><?= esc($inv['payment_date'] ?? '-') ?></td>
+            <td><?= esc($inv['description'] ?? '-') ?></td>
+            <td>Rs <?= esc($inv['paid_amount'] ?? '0') ?></td>
+            <td>Rs <?= esc($inv['dues'] ?? '0') ?></td>
+            <td><?= esc($inv['user_name'] ?? '-') ?></td>
+          </tr>
+        <?php endforeach; ?>
+      <?php else: ?>
+        <tr>
+          <td colspan="6" style="text-align:center;">
+            No invoices found
+          </td>
+        </tr>
+      <?php endif; ?>
+    </tbody>
+  </table>
 </div>
 
 <div class="appointments-section">

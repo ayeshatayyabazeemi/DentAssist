@@ -16,9 +16,14 @@ class PatientProfile extends Controller
         }
 
         $model = new PatientModel();
+            $invoiceModel = new InvoiceModel();
+
        
   $patient = $model->find($patientId);
-         
+         $invoices = $invoiceModel
+        ->where('patient_id', $patientId)
+        ->orderBy('payment_date', 'DESC')
+        ->findAll();
 
 
         if (!$patient) {
@@ -27,7 +32,7 @@ class PatientProfile extends Controller
         }
 
         // pass data to view or return JSON if you want
-        return view('patient/patientprofile', ['patient' => $patient]);
+        return view('patient/patientprofile', ['patient' => $patient, 'invoices' => $invoices]);
     }
  public function invoiceView($patientId)
 {

@@ -153,20 +153,6 @@ id="totalPrice"
 name="total_price"
 readonly>
 </div>
-
-<div class="form-group">
-<label>Discount</label>
-<input type="number"
-id="discount"
-name="discount"
-value="0">
-</div>
-
-</div>
-
-
-<div class="form-row two-col">
-
 <div class="form-group">
 <label>Paid Amount</label>
 <input type="number"
@@ -183,6 +169,13 @@ name="dues"
 id="duesAmount"
 readonly>
 </div>
+
+</div>
+
+
+<div class="form-row two-col">
+
+
 
 </div>
 
