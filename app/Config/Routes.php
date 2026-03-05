@@ -17,6 +17,7 @@ $routes->post('logout', 'Login::logout', ['filter' => 'auth:admin']);
 // Admin Dashboard
 // -------------------------
 $routes->get('/adminDashboard', 'AdminDashboard::index', ['filter' => 'auth:admin']);
+$routes->get('/invoice/data', 'PatientProfile::getInvoiceSummary');
 
 // -------------------------
 // invoice

@@ -8,6 +8,42 @@ use App\Models\ProcedureModel;
 
 class PatientProfile extends Controller
 {
+
+
+    public function getInvoiceSummary()
+{
+    try {
+
+        log_message('info', 'getInvoiceSummary API called');
+
+        $invoiceModel = new InvoiceModel();
+
+      $invoices = $invoiceModel
+->select("
+    DATE_FORMAT(payment_date_new,'%Y-%m-01') as month,
+    SUM(paid_amount) as total_revenue
+")
+->where("payment_date_new IS NOT NULL")
+->where("YEAR(payment_date_new) > 2010")   // ❗ Prevent garbage years
+->groupBy("YEAR(payment_date_new), MONTH(payment_date_new)")
+->orderBy("month","ASC")
+->findAll();
+
+        // Log response data
+        log_message('info', 'Invoice Summary Response: ' . json_encode($invoices));
+
+        return $this->response->setJSON($invoices);
+
+    } catch (\Exception $e) {
+
+        // Log error
+        log_message('error', 'Invoice Summary Error: ' . $e->getMessage());
+
+        return $this->response->setJSON([
+            "error" => $e->getMessage()
+        ]);
+    }
+}
     public function view($patientId = null)
     {
         if ($patientId === null) {
