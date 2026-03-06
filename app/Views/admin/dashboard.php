@@ -55,12 +55,29 @@
       </div>
     </div>
 
-    <div class="chart-container">
-      <h2>Registration Trend (Last 24 Months)</h2>
-      <div class="chart-wrapper" style="position: relative; height: 350px; width: 100%;">
-        <canvas id="regChart"></canvas>
-      </div>
+   <div class="chart-container">
+    <h2>
+        <?php echo (ENVIRONMENT === 'development') 
+            ? "Revenue Prediction vs Actual (Development Mode)" 
+            : "Registration Trend (Last 24 Months)"; ?>
+    </h2>
+
+    <div class="chart-wrapper" style="position: relative; height: 350px; width: 100%;">
+        
+        <!-- Production Chart -->
+        <?php if (ENVIRONMENT === 'production'): ?>
+
+            <canvas id="regChart"></canvas>
+
+        <!-- Development Prediction Chart -->
+        <?php else: ?>
+
+            <canvas id="predictionChart"></canvas>
+
+        <?php endif; ?>
+
     </div>
+</div>
   </section>
 
   <!-- Patients Tab Content -->
