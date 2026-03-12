@@ -5,7 +5,6 @@ print("📌 Fetching Data From API...")
 
 response = requests.get("http://localhost:8080/invoice/data")
 data = response.json()
-print (data)
 df = pd.DataFrame(data)
 
 df['month'] = pd.to_datetime(df['month'])

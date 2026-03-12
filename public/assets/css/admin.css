@@ -160,6 +160,18 @@ nav {
   box-shadow: 0 4px 15px var(--card-shadow);
   animation: fadeInUp 0.6s ease-out;
 }
+.chart-container-pie {
+  background: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px var(--card-shadow);
+  animation: fadeInUp 0.6s ease-out;
+}
+.chart-container-pie h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.75rem;
+  color: var(--text-dark);
+}
 
 .chart-container h2 {
   margin: 0 0 0.5rem;

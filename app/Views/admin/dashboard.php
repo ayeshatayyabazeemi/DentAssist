@@ -73,11 +73,39 @@
         <?php else: ?>
 
             <canvas id="predictionChart"></canvas>
-
+           <!-- Recommendations for development mode -->
+            <!-- <div id="forecastRecommendations" style="margin-top: 20px; font-size: 14px; color: #333;"> -->
+                <!-- JS will populate recommendations here -->
+            </div>
         <?php endif; ?>
 
     </div>
+
+    
 </div>
+        </div>
+<?php if (ENVIRONMENT === 'development'): ?>
+<div class="chart-container">
+    <h2>Procedure Revenue Share (Top 8 + Other)</h2>
+
+    <div class="chart-wrapper-pie" style="position: relative; height: 350px; width: 100%;">
+        <h3>Overall Procedure Revenue Share</h3>
+      <canvas id="pieChart"></canvas>
+    </div>
+    <div class="chart-wrapper-pie" style="position: relative; height: 350px; width: 100%;">
+             <h3>Predicted Procedure Share (June 2026)</h3>
+      <canvas id="predictedPieChart"></canvas>
+
+    </div>
+</div>
+<?php endif; ?>
+
+ 
+
+
+
+
+       
   </section>
 
   <!-- Patients Tab Content -->
@@ -304,6 +332,8 @@ document.querySelectorAll('.tabbtn').forEach(btn => {
 
 <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
 <script src="assets/js/chart.js"></script>
 <script src="assets/js/admin.js"></script>
 
