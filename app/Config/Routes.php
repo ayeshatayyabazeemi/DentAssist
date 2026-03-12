@@ -11,11 +11,17 @@ $routes->get('/', 'Landing::index');
 // $routes->get('/', 'Home::index'); // commented from develop branch
 $routes->get('/login', 'Login::index');
 $routes->post('login/auth', 'Login::auth');
-$routes->post('logout', 'Login::logout', ['filter' => 'auth:admin']);
+$routes->post('logout', 'Login::logout', ['filter' => 'auth:admin,receptionist']);
 
 // -------------------------
 // Admin Dashboard
 $routes->get('/adminDashboard', 'AdminDashboard::index', ['filter' => 'auth:admin']);
+$routes->get('/receptionDashboard', 'ReceptionController::dashboard', ['filter' => 'auth:admin,receptionist']);
+$routes->get('/api/appointments/update-status', 'ReceptionController::updateStatus', ['filter' => 'auth:admin,receptionist']);
+$routes->get('/api/appointments/today', 'ReceptionController:: fetchTodayAppointments', ['filter' => 'auth:admin,receptionist']);
+
+
+
 
 // -------------------------
 // invoice
@@ -31,21 +37,23 @@ $routes->post('patient/procedures/delete', 'PatientProfile::deleteProcedure');
 
 // -------------------------
 // Patient API Routes
-$routes->post('api/patient/add', 'Api\PatientController::add', ['filter' => 'auth:admin']);
-$routes->get('api/patient/search', 'Api\PatientController::search', ['filter' => 'auth:admin']);
+// -------------------------
+$routes->post('api/patient/add', 'Api\PatientController::add', ['filter' => 'auth:admin,receptionist']);
+$routes->get('api/patient/search', 'Api\PatientController::search', ['filter' => 'auth:admin,receptionist']);
 $routes->put('api/patient/update/(:num)', 'Api\PatientController::update/$1', ['filter' => 'auth:admin']);
 $routes->delete('api/patient/(:num)', 'Api\PatientController::delete/$1', ['filter' => 'auth:admin']);
 $routes->post('api/patient/delete/(:num)', 'Api\PatientController::delete/$1', ['filter' => 'auth:admin']);
-$routes->get('api/patient/getAppointments/(:num)', 'Api\PatientController::getAppointments/$1', ['filter' => 'auth:admin']);
-$routes->get('api/patient/generate-mr', 'Api\PatientController::generateMrNumber', ['filter' => 'auth:admin']);
+$routes->get('api/patient/getAppointments/(:num)', 'Api\PatientController::getAppointments/$1', ['filter' => 'auth:admin,receptionist']);
+$routes->get('api/patient/generate-mr', 'Api\PatientController::generateMrNumber', ['filter' => 'auth:admin,receptionist']);
 
 // -------------------------
 // View patient profile (admin)
-$routes->get('patient/profile/(:num)', 'PatientProfile::view/$1', ['filter' => 'auth:admin']);
+$routes->get('patient/profile/(:num)', 'PatientProfile::view/$1', ['filter' => 'auth:admin,receptionist']);
 
 // -------------------------
 // Patient Card PDF Route (TCPDF)
-$routes->get('patientcard/(:num)', 'PatientCardController::generate/$1', ['filter' => 'auth:admin']);
+// -------------------------
+$routes->get('patientcard/(:num)', 'PatientCardController::generate/$1', ['filter' => 'auth:admin,receptionist']);
 
 // -------------------------
 // Employee API Routes
@@ -85,6 +93,10 @@ $routes->group('laborders', ['filter' => 'auth:admin'], function($routes) {
 // Doctor Routes
 $routes->group('doctor', ['filter' => 'auth:doctor'], function($routes) {
     $routes->get('dashboard', 'DoctorDashboard::index');
+    $routes->get('appointments', 'DoctorDashboard::appointments');
+    
+    // POST route for marking appointment as completed
+    $routes->post('updateStatus', 'DoctorDashboard::updateStatus');
 });
 
 // -------------------------
@@ -94,10 +106,11 @@ $routes->group('reception', ['filter' => 'auth:receptionist'], function($routes)
 });
 
 // -------------------------
-// Appointment Routes (Admin Only)
-$routes->get('api/appointments/form/(:num)', 'Api\AppointmentController::form/$1', ['filter' => 'auth:admin']);
-$routes->get('api/appointments/getSlots', 'Api\AppointmentController::getSlots', ['filter' => 'auth:admin']);
-$routes->post('api/appointments/save', 'Api\AppointmentController::save', ['filter' => 'auth:admin']);
+// Appointment routes (admin only)
+// -------------------------
+$routes->get('api/appointments/form/(:num)', 'Api\AppointmentController::form/$1', ['filter' => 'auth:admin,receptionist']);
+$routes->get('api/appointments/getSlots', 'Api\AppointmentController::getSlots', ['filter' => 'auth:admin,receptionist']);
+$routes->post('api/appointments/save', 'Api\AppointmentController::save', ['filter' => 'auth:admin,receptionist']);
 
 // -------------------------
 // Optional: Test barcode route

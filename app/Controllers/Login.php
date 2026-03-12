@@ -89,6 +89,8 @@ class Login extends BaseController
         'role'       => $role,
         'isLoggedIn' => true
     ]);
+    // session()->set($sessionData);
+
     // $session->set('expire', time() + 43200);
 
     // Redirect based on role
@@ -97,7 +99,7 @@ class Login extends BaseController
             $redirectURL = base_url('adminDashboard');
             break;
         case 'doctor':
-            $redirectURL = base_url('doctorDashboard');
+            $redirectURL = base_url('doctor/dashboard');
             break;
         case 'receptionist':
             $redirectURL = base_url('receptionDashboard');
