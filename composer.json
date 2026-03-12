@@ -15,8 +15,11 @@
         "ext-mbstring": "*",
         "dompdf/dompdf": "^3.1",
         "laminas/laminas-escaper": "^2.17",
+        "nyholm/psr7": "^1.8",
+        "openai-php/client": "^0.19.0",
         "picqer/php-barcode-generator": "^3.2",
         "psr/log": "^3.0",
+        "symfony/http-client": "^7.4",
         "tecnickcom/tcpdf": "^6.10"
     },
     "require-dev": {
@@ -61,7 +64,10 @@
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
     },
     "scripts": {
         "test": "phpunit"

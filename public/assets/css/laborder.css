@@ -1,0 +1,184 @@
+/* ==============================
+   Lab Order Form Specific Styles
+   ============================== */
+
+/* Container adjustment */
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Form Section */
+.form-section {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  margin-bottom: 40px;
+}
+
+.form-section h2 {
+  color: #FFBDBD; /* matches patient profile headings */
+  margin-bottom: 20px;
+  font-weight: 700;
+  font-size: 1.8em;
+}
+
+/* Form Grid */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+/* Form Groups */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  position: relative; /* needed for autocomplete dropdown positioning */
+}
+
+.form-group label {
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #666;
+}
+
+label.required-label::after {
+  content: " *";
+  color: #FF0000;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 2px solid #BADFDB; /* light blue border */
+  border-radius: 8px;
+  background-color: #fff;
+  font-size: 0.95em;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #FFBDBD; /* pink focus */
+  box-shadow: 0 0 6px rgba(255,189,189,0.4);
+  outline: none;
+}
+
+/* Textarea adjustment */
+textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* Buttons */
+button.btn,
+button.btn-add-appt {
+  margin-top: 15px;
+  background-image: linear-gradient(135deg, #FFA4A4, #FFBDBD);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1em;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+button.btn:hover,
+button.btn-add-appt:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 12px rgba(255,189,189,0.3);
+}
+
+/* Responsive Address / Comments fields */
+.form-group.address-field,
+.form-group textarea {
+  grid-column: span 2;
+}
+
+/* Header Icons */
+.profile-header {
+  background: #BADFDB; /* same as patient profile */
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.profile-header h1 {
+  margin: 0;
+  font-size: 2em;
+  font-weight: 700;
+}
+
+.profile-header .header-icons a.btn-generate-id {
+  text-decoration: none;
+  background-image: linear-gradient(135deg, #FFA4A4, #FFBDBD);
+  padding: 8px 15px;
+  color: #fff;
+  border-radius: 20px;
+  font-weight: 600;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.profile-header .header-icons a.btn-generate-id:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 12px rgba(255,189,189,0.3);
+}
+
+/* ==============================
+   Autocomplete Dropdown Styles
+   ============================== */
+.autocomplete-dropdown {
+  position: absolute;
+  right: 0; /* align to the right end of the input */
+  background: #fff;
+  border: 1px solid #BADFDB;
+  border-radius: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  min-width: 220px; /* ensures dropdown is visible */
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  font-size: 0.95em;
+}
+
+/* Dropdown items */
+.autocomplete-dropdown div {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  justify-content: space-between; /* Name left, Patient ID right */
+  align-items: center;
+}
+
+/* Hover effect */
+.autocomplete-dropdown div:hover {
+  background-color: #FFBDBD;
+  color: #fff;
+}
+
+/* Scrollbar styling */
+.autocomplete-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.autocomplete-dropdown::-webkit-scrollbar-thumb {
+  background-color: #FFBDBD;
+  border-radius: 3px;
+}
+
+.autocomplete-dropdown::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
