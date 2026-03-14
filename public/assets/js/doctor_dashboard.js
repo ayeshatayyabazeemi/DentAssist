@@ -1,90 +1,41 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
+    const notyf = new Notyf({ duration: 3000, position: { x: 'center', y: 'top' } });
 
-  // --- Existing modal & procedure code ---
-  const modal = document.getElementById('procedureModal');
-  const closeBtn = document.getElementById('closeProcedureModal');
-  const form = document.getElementById('procedureForm');
-
-  document.querySelectorAll('.appointment-row').forEach(row => {
-    row.addEventListener('click', async () => {
-      const appointmentId = row.dataset.appointmentId;
-      try {
-        const res = await fetch(`/doctor/getPatient/${appointmentId}`);
-        const data = await res.json();
-        if(data.status === 'success'){
-          document.getElementById('procedure_appointment_id').value = appointmentId;
-          document.getElementById('procedure_patient_name').textContent = data.patient.name;
-          modal.style.display = 'flex';
-        } else {
-          alert(data.message || 'Failed to load patient');
-        }
-      } catch(err){
-        console.error(err);
-        alert('Server error');
-      }
-    });
-  });
-
-  closeBtn.addEventListener('click', () => modal.style.display = 'none');
-  modal.addEventListener('click', e => { if(e.target === modal) modal.style.display = 'none'; });
-
-  form.addEventListener('submit', async e => {
-    e.preventDefault();
-    const formData = new FormData(form);
-    try {
-      const res = await fetch('/doctor/saveProcedure', { method: 'POST', body: formData });
-      const data = await res.json();
-      if(data.status === 'success'){
-        alert('Procedure saved!');
-        modal.style.display = 'none';
-        window.location.reload();
-      } else {
-        alert(data.message || 'Failed to save procedure');
-      }
-    } catch(err){
-      console.error(err);
-      alert('Server error');
+    function applyStatusStyle(select, status) {
+        const styles = {
+            scheduled: { bg: '#E5E7EB', color: '#374151' },
+            checked_in: { bg: '#BFDBFE', color: '#1E40AF' },
+            in_progress: { bg: '#FED7AA', color: '#C2410C' },
+            completed: { bg: '#BBF7D0', color: '#166534' },
+            no_show: { bg: '#FECACA', color: '#991B1B' },
+            cancelled: { bg: '#CBD5E1', color: '#334155' },
+        };
+        const style = styles[status] || { bg: '#D1D5DB', color: '#111' };
+        select.style.background = style.bg;
+        select.style.color = style.color;
     }
-  });
 
-  // --- NEW: Mark Completed code ---
-  document.querySelectorAll('.complete-form').forEach(form => {
-        form.addEventListener('submit', async function(e){
-            e.preventDefault();
-
-            const formData = new FormData(this);
+    document.querySelectorAll('.status-select').forEach(select => {
+        applyStatusStyle(select, select.value);
+        select.addEventListener('change', async () => {
+            const appointmentId = select.dataset.appointment;
+            const newStatus = select.value;
+            applyStatusStyle(select, newStatus);
 
             try {
-                const res = await fetch(this.action, {
+                const res = await fetch('/doctor/updateStatus', {
                     method: 'POST',
-                    body: formData
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ appointment_id: appointmentId, status: newStatus })
                 });
-
-                if(res.ok){
-                    const data = await res.json();
-                    if(data.status === 'success'){
-                        // Remove the row from table
-                        this.closest('tr').remove();
-
-                        // Update Pending count
-                        const pendingElem = document.querySelector('.kpi-card.border-primary .value');
-                        pendingElem.textContent = parseInt(pendingElem.textContent) - 1;
-
-                        // Optional: Update Completed count
-                        const completedElem = document.querySelector('.kpi-card.border-success .value');
-                        completedElem.textContent = parseInt(completedElem.textContent) + 1;
-                    } else {
-                        alert(data.message || 'Failed to update status');
-                    }
-                } else {
-                    alert('Server error');
+                const data = await res.json();
+                if (data.status !== 'success') {
+                    notyf.error(data.message || 'Failed to update status');
                 }
-
-            } catch(err){
+            } catch (err) {
                 console.error(err);
-                alert('Server error');
+                notyf.error('Server error');
             }
         });
     });
-
 });

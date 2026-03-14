@@ -17,8 +17,8 @@ $routes->post('logout', 'Login::logout', ['filter' => 'auth:admin,receptionist']
 // Admin Dashboard
 $routes->get('/adminDashboard', 'AdminDashboard::index', ['filter' => 'auth:admin']);
 $routes->get('/receptionDashboard', 'ReceptionController::dashboard', ['filter' => 'auth:admin,receptionist']);
-$routes->get('/api/appointments/update-status', 'ReceptionController::updateStatus', ['filter' => 'auth:admin,receptionist']);
-$routes->get('/api/appointments/today', 'ReceptionController:: fetchTodayAppointments', ['filter' => 'auth:admin,receptionist']);
+$routes->post('/api/appointments/update-status', 'ReceptionController::updateStatus', ['filter' => 'auth:admin,receptionist']);
+$routes->get('/api/appointments/today', 'ReceptionController::fetchTodayAppointments', ['filter' => 'auth:admin,receptionist']);
 
 
 
@@ -90,7 +90,18 @@ $routes->group('laborders', ['filter' => 'auth:admin'], function($routes) {
 });
 
 // -------------------------
-// Doctor Routes
+// $routes->group('doctor', ['filter' => 'auth:doctor'], function($routes) {
+
+//     $routes->get('dashboard', 'DoctorDashboard::index');
+//     $routes->get('appointments', 'DoctorDashboard::appointments');
+
+//     $routes->get('todayAppointments', 'DoctorDashboard::fetchTodayAppointments');
+//     $routes->get('allAppointments', 'DoctorDashboard::fetchAllAppointments');
+
+//     $routes->post('updateStatus', 'DoctorDashboard::updateStatus');
+
+// });
+
 $routes->group('doctor', ['filter' => 'auth:doctor'], function($routes) {
     $routes->get('dashboard', 'DoctorDashboard::index');
     $routes->get('appointments', 'DoctorDashboard::appointments');
@@ -98,6 +109,8 @@ $routes->group('doctor', ['filter' => 'auth:doctor'], function($routes) {
     // POST route for marking appointment as completed
     $routes->post('updateStatus', 'DoctorDashboard::updateStatus');
 });
+
+
 
 // -------------------------
 // Receptionist Routes

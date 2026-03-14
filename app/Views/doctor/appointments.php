@@ -1,112 +1,73 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Doctor Appointments</title>
 <link rel="stylesheet" href="<?= base_url('assets/css/admin.css') ?>">
-
-<style>
-
-.appointment-table{
-width:100%;
-border-collapse:collapse;
-margin-top:30px;
-}
-
-.appointment-table th{
-background:#343a40;
-color:white;
-padding:12px;
-text-align:left;
-}
-
-.appointment-table td{
-padding:12px;
-border-bottom:1px solid #ddd;
-}
-
-.appointment-table tr:hover{
-background:#f5f5f5;
-}
-
-.status-pending{
-background:#ffc107;
-padding:4px 8px;
-border-radius:4px;
-}
-
-.status-completed{
-background:#28a745;
-color:white;
-padding:4px 8px;
-border-radius:4px;
-}
-
-</style>
-
+<link rel="stylesheet" href="<?= base_url('assets/css/receptionistDashboard.css') ?>">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
 </head>
-
 <body>
 
-<header>
-<div class="logo-btn">Doctor Dashboard</div>
-
-<nav>
-<ul>
-<li><a href="/doctor/dashboard">Dashboard</a></li>
-</ul>
-
-<form action="<?= base_url('logout') ?>" method="post">
-<button class="logout-btn">Logout</button>
-</form>
-
-</nav>
+<header class="main-header">
+  <div class="logo-btn">Doctor Dashboard</div>
+  <nav>
+    <ul class="nav-list">
+      <li><a href="<?= base_url('doctor/appointments') ?>">Appointments</a></li>
+    </ul>
+    <form id="logoutForm" action="<?= base_url('logout') ?>" method="post">
+      <button type="submit" class="logout-btn">Logout</button>
+    </form>
+  </nav>
 </header>
 
-<main class="main-content">
+<div class="content-wrapper">
+  <h2>Remaining Appointments</h2>
+  <div class="appointments-card">
+    <div class="appointments-card-header"><span>Appointments</span></div>
+    <div class="appointments-card-body">
+      <table class="appointments-table">
+        <thead>
+          <tr>
+            <th>Appointment ID</th>
+            <th>Patient MR Number</th>
+            <th>Patient Name</th>
+            <th>Doctor</th>
+            <th>Appointment Date</th>
+            <th>Slot</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="appointments-body">
+          <?php foreach($appointments as $apt): ?>
+            <tr class="status-<?= $apt['status'] ?>">
+              <td><?= esc($apt['appointment_id']) ?></td>
+              <td><?= esc($apt['mr_number']) ?></td>
+              <td><?= esc($apt['patient_name']) ?></td>
+              <td><?= esc(session()->get('username')) ?></td>
+              <td><?= esc($apt['appointment_date']) ?></td>
+              <td><?= esc($apt['slot'] ?? '-') ?></td>
+              <td>
+                <select class="status-select" data-appointment="<?= $apt['appointment_id'] ?>">
+                  <option value="scheduled" <?= $apt['status']=='scheduled'?'selected':'' ?>>Scheduled</option>
+                  <option value="checked_in" <?= $apt['status']=='checked_in'?'selected':'' ?>>Checked In</option>
+                  <option value="in_progress" <?= $apt['status']=='in_progress'?'selected':'' ?>>In Progress</option>
+                  <option value="completed" <?= $apt['status']=='completed'?'selected':'' ?>>Completed</option>
+                  <option value="no_show" <?= $apt['status']=='no_show'?'selected':'' ?>>No Show</option>
+                  <option value="cancelled" <?= $apt['status']=='cancelled'?'selected':'' ?>>Cancelled</option>
+                </select>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
-<h2>All Appointments</h2>
-
-<table class="appointment-table">
-
-<tr>
-<th>Date</th>
-<th>Patient Name</th>
-<th>MR Number</th>
-<th>Slot</th>
-<th>Status</th>
-</tr>
-
-<?php foreach($appointments as $app): ?>
-
-<tr>
-
-<td><?= $app['appointment_date'] ?></td>
-<td><?= $app['name'] ?></td>
-<td><?= $app['mr_number'] ?></td>
-<td><?= $app['slot'] ?></td>
-
-<td>
-
-<?php if($app['status']=="completed"): ?>
-
-<span class="status-completed">Completed</span>
-
-<?php else: ?>
-
-<span class="status-pending">Pending</span>
-
-<?php endif; ?>
-
-</td>
-
-</tr>
-
-<?php endforeach; ?>
-
-</table>
-
-</main>
-
+<script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+<script src="<?= base_url('assets/js/doctor_dashboard.js') ?>"></script>
 </body>
 </html>

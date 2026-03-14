@@ -153,7 +153,7 @@ public function getSlots()
         }
 
         $appointmentModel = new AppointmentModel();
-
+        
         // Block doctor double booking
         $doctorSlotExists = $appointmentModel
             ->where('employee_id', $data['doctor_id'])
@@ -181,7 +181,7 @@ public function getSlots()
                 'message' => 'Patient already has an appointment at this time'
             ]);
         }
-
+        
 
         $insertData = [
             'patient_id' => $data['patient_id'],
@@ -192,7 +192,8 @@ public function getSlots()
         ];
 
         // $insertId = $appointmentModel->insert($insertData);
-        try {
+        
+         try {
             $insertId = $appointmentModel->insert($insertData);
         } catch (\Exception $e) {
             // This happens if UNIQUE constraint fails (double booking)
@@ -201,6 +202,7 @@ public function getSlots()
                 'message' => 'This slot was just booked by another user'
             ]);
         }
+
 
         if ($insertId) {
             // Return the new appointment with doctor name

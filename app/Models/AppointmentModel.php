@@ -15,6 +15,8 @@ class AppointmentModel extends Model
         'employee_id',        // doctor
         'appointment_date',
         'appointment_time',
+         'status',              // NEW
+    'status_updated_at', 
         'slot'                // the slot assigned
     ];
 
@@ -24,6 +26,7 @@ class AppointmentModel extends Model
         'employee_id' => 'required|integer',
         'appointment_date' => 'required|valid_date[Y-m-d]',
         'appointment_time' => 'required',
+        
         'slot' => 'required'
     ];
 
