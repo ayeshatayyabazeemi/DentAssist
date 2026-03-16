@@ -1,6 +1,202 @@
 // assets/js/chart.js
 
 document.addEventListener('DOMContentLoaded', function () {
+
+if (document.getElementById("barChart")) {
+
+  
+ 
+  fetch('/patient/pareto')
+    .then(res => res.json())
+    .then(json => {
+
+      if (json.status !== "success" || !json.data?.chart) return;
+
+      const labels = json.data.chart.labels;
+      const revenues = json.data.chart.revenues;
+      const vipPatients = json.data.vip_patients;
+      const insight = json.insight;
+
+      const ctx = canvas.getContext("2d");
+
+      if (window.paretoBarChart) window.paretoBarChart.destroy();
+
+      const root = getComputedStyle(document.documentElement);
+
+      const darkPeach =
+        root.getPropertyValue('--color-rose').trim() || "#ee6a6a";
+
+      const lightPeach =
+        root.getPropertyValue('--color-peach').trim() || "#f5ac82";
+
+      const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+      gradient.addColorStop(0, darkPeach);
+      gradient.addColorStop(1, lightPeach);
+
+      /* ---------- CUMULATIVE PARETO CALCULATION ---------- */
+
+      const totalRevenue = revenues.reduce((a, b) => a + b, 0);
+
+      let cumulative = 0;
+
+      const cumulativePercent = revenues.map(v => {
+        cumulative += v;
+        return ((cumulative / totalRevenue) * 100).toFixed(2);
+      });
+
+      /* ---------- DOME BAR SHAPE ---------- */
+
+      const DomeBar = {
+        id: "domeBar",
+        beforeDatasetsDraw(chart) {
+
+          const { ctx } = chart;
+          const meta = chart.getDatasetMeta(0);
+
+          ctx.save();
+
+          meta.data.forEach(bar => {
+
+            const { x, y, base, width } = bar;
+            const radius = width / 2;
+
+            ctx.beginPath();
+
+            ctx.moveTo(x - width / 2, y + radius);
+
+            ctx.arc(x, y + radius, radius, Math.PI, 0, false);
+
+            ctx.lineTo(x + width / 2, base);
+            ctx.lineTo(x - width / 2, base);
+
+            ctx.closePath();
+
+            ctx.fillStyle = gradient;
+            ctx.fill();
+          });
+
+          ctx.restore();
+        }
+      };
+
+      /* ---------- CHART ---------- */
+
+      window.paretoBarChart = new Chart(ctx, {
+
+        data: {
+          labels: labels,
+          datasets: [
+
+            /* Revenue Bars */
+            {
+              type: "bar",
+              data: revenues,
+              backgroundColor: "transparent",
+              barPercentage: 0.95,
+              categoryPercentage: 0.98
+            },
+
+            /* Pareto Line */
+            {
+              type: "line",
+              label: "Cumulative %",
+              data: cumulativePercent,
+              borderColor: "#ee6a6a",
+              backgroundColor: "#ee6a6a",
+              yAxisID: "y1",
+              tension: 0.4,
+              pointRadius: 4,
+              pointBackgroundColor: "#ee6a6a"
+            }
+
+          ]
+        },
+
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+
+          plugins: {
+            legend: { display: false },
+
+            tooltip: {
+              callbacks: {
+
+                label: function(context) {
+
+                  if (context.dataset.type === "line") {
+                    return "Cumulative: " + context.raw + "%";
+                  }
+
+                  const patient = vipPatients[context.dataIndex];
+
+                  return [
+                    "Revenue: " + Number(patient.revenue).toLocaleString(),
+                    "Visits: " + patient.visits
+                  ];
+                }
+              }
+            }
+          },
+
+          scales: {
+
+            x: {
+              grid: { display: false },
+              border: { display: false }
+            },
+
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: "rgba(0,0,0,0.05)",
+                borderDash: [3,3]
+              },
+              ticks: {
+                callback: v => Number(v).toLocaleString()
+              },
+              border: { display: false }
+            },
+
+            /* Percentage Axis */
+            y1: {
+              position: "right",
+              min: 0,
+              max: 100,
+              grid: { display: false },
+              ticks: {
+                callback: v => v + "%"
+              }
+            }
+
+          }
+        },
+
+        plugins: [DomeBar]
+      });
+
+      /* ---------- INSIGHT BELOW CHART ---------- */
+
+      let insightBox = json.data.insight;
+
+      if (!insightBox) {
+
+        insightBox = document.createElement("div");
+        insightBox.id = "paretoInsight";
+        insightBox.style.marginTop = "12px";
+        insightBox.style.fontSize = "14px";
+        insightBox.style.color = "#666";
+
+        canvas.parentNode.appendChild(insightBox);
+      }
+
+      insightBox.innerHTML = "📊 <strong>Pareto Insight:</strong> " + insight;
+
+    })
+    .catch(err => console.error(err));
+}
+
+  
 // ---------- Historical Chart ----------
 fetch('/invoice/procedure/data/')
 .then(res => res.json())

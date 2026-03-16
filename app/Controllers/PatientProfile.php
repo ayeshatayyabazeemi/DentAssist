@@ -11,6 +11,265 @@ class PatientProfile extends Controller
 {
 
 
+
+
+// public function paretoPatients()
+// {
+//     try {
+
+//         log_message('info', 'paretoPatients API called');
+
+//         $invoiceModel = new InvoiceModel();
+
+//         // ===============================
+//         // Fetch patient revenue + visits
+//         // ===============================
+//         $patients = $invoiceModel
+//             ->select("
+//                 patients.patient_id,
+//                 patients.name AS patient_name,
+//                 SUM(invoice.paid_amount) AS revenue,
+//                 COUNT(invoice.invoice_id) AS visits
+//             ")
+//             ->join('patients', 'patients.patient_id = invoice.patient_id')
+//             ->where('invoice.paid_amount >', 0)
+//             ->groupBy('patients.patient_id, patients.name')
+//             ->orderBy('revenue', 'DESC')
+//             ->findAll();
+
+//         // ===============================
+//         // Filter loyal patients (visits >= 7)
+//         // ===============================
+//         $loyalPatients = array_values(array_filter($patients, function($p){
+//             return $p['visits'] >= 9;
+//         }));
+
+//         // ===============================
+//         // Calculate totals
+//         // ===============================
+//         $totalPatients = count($loyalPatients);
+
+//         if ($totalPatients == 0) {
+//             return $this->response->setJSON([
+//                 'status' => 'success',
+//                 'data' => [],
+//                 'insight' => 'No loyal patients found.'
+//             ]);
+//         }
+
+//         // Top 20% of loyal patients
+//         $topCount = ceil($totalPatients * 0.2);
+
+//         $vipPatients = array_slice($loyalPatients, 0, $topCount);
+
+//         // ===============================
+//         // Chart data (Top 10)
+//         // ===============================
+//         $chartPatients = array_slice($loyalPatients, 0, 10);
+
+//         $labels = [];
+//         $revenues = [];
+
+//         foreach ($chartPatients as $p) {
+//             $labels[] = $p['patient_name'];
+//             $revenues[] = (float)$p['revenue'];
+//         }
+
+//        // ===============================
+// // Insight calculation (all patients)
+// // ===============================
+// $allPatients = $invoiceModel
+//     ->select("
+//         patients.patient_id,
+//         patients.name AS patient_name,
+//         SUM(invoice.paid_amount) AS revenue
+//     ")
+//     ->join('patients', 'patients.patient_id = invoice.patient_id')
+//     ->where('invoice.paid_amount >', 0)
+//     ->groupBy('patients.patient_id, patients.name')
+//     ->orderBy('revenue', 'DESC')
+//     ->findAll();
+
+// $totalAllRevenue = array_sum(array_column($allPatients, 'revenue'));
+// $topCountAll = ceil(count($allPatients) * 0.2);
+// $topRevenuePatients = array_slice($allPatients, 0, $topCountAll);
+// $vipRevenueAll = array_sum(array_column($topRevenuePatients, 'revenue'));
+
+// $percentageAll = $totalAllRevenue > 0 
+//     ? round(($vipRevenueAll / $totalAllRevenue) * 100, 2) 
+//     : 0;
+
+// $insight = "Top 20% of all patients generate {$percentageAll}% of clinic revenue.";
+//         return $this->response->setJSON([
+//             'status' => 'success',
+
+//             'data' => [
+//                 'chart' => [
+//                     'labels' => $labels,
+//                     'revenues' => $revenues
+//                 ],
+//                 'vip_patients' => $vipPatients
+//             ],
+
+//             'stats' => [
+//                 'total_loyal_patients' => $totalPatients,
+//                 'vip_count' => $topCount,
+//                 'vip_revenue_percent' => $percentageAll
+//             ],
+
+//             'insight' => $insight
+//         ]);
+
+//     } catch (\Exception $e) {
+
+//         log_message('error', 'Error in paretoPatients: ' . $e->getMessage());
+
+//         return $this->response->setJSON([
+//             'status' => 'fail',
+//             'message' => 'Something went wrong'
+//         ]);
+//     }
+// }
+
+public function paretoPatients()
+{
+    try {
+
+        log_message('info', 'paretoPatients API called');
+
+        $invoiceModel = new InvoiceModel();
+
+        // ===============================
+        // Fetch patient revenue + visits
+        // ===============================
+        $patients = $invoiceModel
+            ->select("
+                patients.patient_id,
+                patients.name AS patient_name,
+                SUM(invoice.paid_amount) AS revenue,
+                COUNT(invoice.invoice_id) AS visits
+            ")
+            ->join('patients', 'patients.patient_id = invoice.patient_id')
+            ->where('invoice.paid_amount >', 0)
+            ->groupBy('patients.patient_id, patients.name')
+            ->orderBy('revenue', 'DESC')
+            ->findAll();
+
+        // ===============================
+        // Filter loyal patients (visits >= 9)
+        // ===============================
+        $loyalPatients = array_values(array_filter($patients, function($p){
+            return $p['visits'] >= 9;
+        }));
+
+        // ===============================
+        // Calculate totals
+        // ===============================
+        $totalPatients = count($loyalPatients);
+
+        if ($totalPatients == 0) {
+            return $this->response->setJSON([
+                'status' => 'success',
+                'data' => [],
+                'insight' => 'No loyal patients found.'
+            ]);
+        }
+
+        // Top 20% of loyal patients
+        $topCount = ceil($totalPatients * 0.2);
+
+        $vipPatients = array_slice($loyalPatients, 0, $topCount);
+
+        // Format VIP patients list for JSON
+        $vipPatientsList = [];
+        foreach ($vipPatients as $p) {
+            $vipPatientsList[] = [
+                'patient_id'   => $p['patient_id'],
+                'patient_name' => $p['patient_name'],
+                'revenue'      => number_format((float)$p['revenue'], 2, '.', ''),
+                'visits'       => (int)$p['visits']
+            ];
+        }
+
+        // ===============================
+        // Chart data (Top 10 loyal patients)
+        // ===============================
+        $chartPatients = array_slice($loyalPatients, 0, 10);
+
+        $labels = [];
+        $revenues = [];
+        foreach ($chartPatients as $p) {
+            $labels[] = $p['patient_name'];
+            $revenues[] = (float)$p['revenue'];
+        }
+
+        // ===============================
+        // Insight calculation (all patients)
+        // ===============================
+        $allPatients = $invoiceModel
+            ->select("
+                patients.patient_id,
+                patients.name AS patient_name,
+                SUM(invoice.paid_amount) AS revenue
+            ")
+            ->join('patients', 'patients.patient_id = invoice.patient_id')
+            ->where('invoice.paid_amount >', 0)
+            ->groupBy('patients.patient_id, patients.name')
+            ->orderBy('revenue', 'DESC')
+            ->findAll();
+
+        $totalAllRevenue = array_sum(array_column($allPatients, 'revenue'));
+        $topCountAll = ceil(count($allPatients) * 0.2);
+        $topRevenuePatients = array_slice($allPatients, 0, $topCountAll);
+        $vipRevenueAll = array_sum(array_column($topRevenuePatients, 'revenue'));
+
+        $percentageAll = $totalAllRevenue > 0 
+            ? round(($vipRevenueAll / $totalAllRevenue) * 100, 2) 
+            : 0;
+
+        $insight = "Top 20% of all patients generate {$percentageAll}% of clinic revenue.";
+
+        // ===============================
+        // Return JSON
+        // ===============================
+        return $this->response->setJSON([
+    'status' => 'success',
+
+    'data' => [
+        'chart' => [
+            'labels' => $labels,
+            'revenues' => $revenues
+        ],
+
+        // VIP patients (top 20% of loyal)
+        'vip_patients' => $vipPatients,
+
+        // FULL loyal patient list
+        'loyal_patients' => $loyalPatients
+    ],
+
+    'stats' => [
+        'total_loyal_patients' => $totalPatients,
+        'vip_count' => $topCount,
+        'vip_revenue_percent' => $percentageAll
+    ],
+
+    'insight' => $insight
+]);
+
+    } catch (\Exception $e) {
+
+        log_message('error', 'Error in paretoPatients: ' . $e->getMessage());
+
+        return $this->response->setJSON([
+            'status' => 'fail',
+            'message' => 'Something went wrong'
+        ]);
+    }
+}
+
+
+
  public function list()
     {
         try {

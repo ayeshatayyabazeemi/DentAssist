@@ -99,8 +99,13 @@
     </div>
 </div>
 <?php endif; ?>
+<?php if (ENVIRONMENT === 'development'): ?>
+<div class="chart-container">
+<canvas id="barChart" width="800" height="400"></canvas>
 
- 
+</div>
+ <?php endif; ?>
+
 
 
 
