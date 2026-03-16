@@ -109,3 +109,7 @@ $routes->get('/ai-assistant', 'AiAssistant::index');
 
 // API route for getting suggestions
 $routes->post('/api/ai-assistant', 'Api\AiAssistantController::getSuggestion');
+$routes->get('attendance', 'Attendance::index');                 // Daily attendance page
+$routes->post('attendance/save', 'Attendance::save');            // Save daily attendance
+$routes->get('attendance/monthlyCalendar', 'Attendance::monthlyCalendar'); // Monthly calendar page
+
