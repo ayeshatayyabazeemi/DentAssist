@@ -43,6 +43,11 @@
       <li><button class="tabbtn" data-tab="staffs">Employees</button></li>
     </ul>
 
+     <!-- Employee Attendance Button -->
+    <a href="<?= base_url('attendance') ?>" class="ai-btn">
+    <i class="fa fa-calendar-check-o"></i> Attendance
+    </a>
+
     <!-- Lab Order Button (Added) -->
     <a href="<?= base_url('laborders/create') ?>" class="ai-btn">
       <i class="fa fa-flask"></i> Lab Order
