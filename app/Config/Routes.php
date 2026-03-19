@@ -105,8 +105,8 @@ $routes->group('laborders', ['filter' => 'auth:admin'], function($routes) {
 $routes->group('doctor', ['filter' => 'auth:doctor'], function($routes) {
     $routes->get('dashboard', 'DoctorDashboard::index');
     $routes->get('appointments', 'DoctorDashboard::appointments');
-    
-    // POST route for marking appointment as completed
+    $routes->get('dentalForm/(:num)', 'DoctorDashboard::dentalForm/$1');
+    $routes->post('saveDentalForm', 'DoctorDashboard::saveDentalForm');
     $routes->post('updateStatus', 'DoctorDashboard::updateStatus');
 });
 
@@ -135,3 +135,13 @@ $routes->get('/ai-assistant', 'AiAssistant::index');
 
 // API route for getting suggestions
 $routes->post('/api/ai-assistant', 'Api\AiAssistantController::getSuggestion');
+
+$routes->get('inventory','Inventory::index');
+$routes->match(['get','post'],'inventory/add','Inventory::add');
+$routes->match(['get','post'],'inventory/edit/(:num)','Inventory::edit/$1');
+$routes->post('inventory/delete/(:num)','Inventory::delete/$1');
+$routes->match(['get','post'],'inventory/stock/(:any)/(:num?)','Inventory::stock/$1/$2');
+$routes->get('inventory/history','Inventory::history');
+$routes->get('inventory/search','Inventory::search');
+
+

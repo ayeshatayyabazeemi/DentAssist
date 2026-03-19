@@ -29,9 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     body: JSON.stringify({ appointment_id: appointmentId, status: newStatus })
                 });
                 const data = await res.json();
-                if (data.status !== 'success') {
-                    notyf.error(data.message || 'Failed to update status');
-                }
+                if (data.status !== 'success') notyf.error(data.message || 'Failed to update status');
             } catch (err) {
                 console.error(err);
                 notyf.error('Server error');

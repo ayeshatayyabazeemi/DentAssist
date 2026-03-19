@@ -10,44 +10,39 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
 </head>
 <body>
-
 <header class="main-header">
   <div class="logo-btn">Doctor Dashboard</div>
   <nav>
     <ul class="nav-list">
       <li><a href="<?= base_url('doctor/appointments') ?>">Appointments</a></li>
     </ul>
-    <form id="logoutForm" action="<?= base_url('logout') ?>" method="post">
+    <form action="<?= base_url('logout') ?>" method="post">
       <button type="submit" class="logout-btn">Logout</button>
     </form>
   </nav>
 </header>
 
 <div class="content-wrapper">
-  <h2>Remaining Appointments</h2>
+  <h2>All Future Appointments</h2>
   <div class="appointments-card">
-    <div class="appointments-card-header"><span>Appointments</span></div>
     <div class="appointments-card-body">
       <table class="appointments-table">
         <thead>
           <tr>
-            <th>Appointment ID</th>
-            <th>Patient MR Number</th>
+            <th>ID</th>
+            <th>MR Number</th>
             <th>Patient Name</th>
-            <th>Doctor</th>
-            <th>Appointment Date</th>
             <th>Slot</th>
             <th>Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
-        <tbody id="appointments-body">
+        <tbody>
           <?php foreach($appointments as $apt): ?>
             <tr class="status-<?= $apt['status'] ?>">
               <td><?= esc($apt['appointment_id']) ?></td>
               <td><?= esc($apt['mr_number']) ?></td>
               <td><?= esc($apt['patient_name']) ?></td>
-              <td><?= esc(session()->get('username')) ?></td>
-              <td><?= esc($apt['appointment_date']) ?></td>
               <td><?= esc($apt['slot'] ?? '-') ?></td>
               <td>
                 <select class="status-select" data-appointment="<?= $apt['appointment_id'] ?>">
@@ -58,6 +53,11 @@
                   <option value="no_show" <?= $apt['status']=='no_show'?'selected':'' ?>>No Show</option>
                   <option value="cancelled" <?= $apt['status']=='cancelled'?'selected':'' ?>>Cancelled</option>
                 </select>
+              </td>
+              <td>
+                <a href="<?= base_url('doctor/patientForm/'.$apt['appointment_id']) ?>" class="btn btn-primary">Form</a>
+                <a href="<?= base_url('invoice/view/'.$apt['appointment_id']) ?>" class="btn btn-success">Invoice</a>
+                <a href="<?= base_url('assistant/symptoms/'.$apt['appointment_id']) ?>" class="btn btn-info">Assistant</a>
               </td>
             </tr>
           <?php endforeach; ?>
