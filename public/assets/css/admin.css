@@ -99,6 +99,8 @@ nav {
   --text-muted: #666666;
 }
 
+
+
 /* Base styles */
 
 
@@ -163,18 +165,79 @@ nav {
   box-shadow: 0 4px 15px var(--card-shadow);
   animation: fadeInUp 0.6s ease-out;
 }
+/* Bar chart container */
+.chart-container-bar {
+  height: 550px; /* fixed height to prevent infinite growth */
+  max-height: 450px;
+  position: relative;
+}
+
+/* Canvas inside container */
+#barChart {
+  width: 100% !important;
+  height: 100% !important; /* fills the container height */
+  display: block;
+}
+
+/* Insight Box */
+#paretoInsight {
+  margin-top: 14px;
+  font-size: 14px;
+  color: #333;
+  position: absolute;
+  bottom: 10px; /* sticks insight at bottom of container */
+  left: 1.5rem;
+}
+/* Pie Chart Container */
 .chart-container-pie {
   background: var(--card-bg);
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 4px 15px var(--card-shadow);
   animation: fadeInUp 0.6s ease-out;
+  margin-bottom: 25px;
+    overflow: hidden; /* prevents container from expanding indefinitely */
+
 }
+
+/* Heading style */
 .chart-container-pie h2 {
-  margin: 0 0 0.5rem;
+  margin-bottom: 1rem;
   font-size: 1.75rem;
   color: var(--text-dark);
 }
+
+/* Row layout for two pie charts */
+.chart-container-pie-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: nowrap; /* keep in same row */
+}
+
+/* Individual Pie Chart wrapper */
+.chart-wrapper-pie {
+  flex: 1; /* equal width */
+    max-height: 400px; /* fixes the chart height */
+
+  min-height: 400px; /* fix height */
+  position: relative;
+  background: white;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+/* Canvas scaling */
+.chart-wrapper-pie canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
 
 .chart-container h2 {
   margin: 0 0 0.5rem;
@@ -187,20 +250,60 @@ nav {
   margin: 0;
 }
 
-/* Insight Box */
-.insight-box {
-  margin-top: 1.5rem;
-  padding: 1rem;
-  border-radius: 8px;
-  background: var(--color-peach);
-  border: 1px solid var(--color-warm);
-  color: var(--text-dark);
-  transition: background-color 0.3s;
+.page-insight-container {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  gap: 16px; /* space if you have multiple boxes */
+  z-index: 1000;
 }
 
-.insight-box:hover {
-  background: var(--color-rose);
-  color: white;
+.insight-boxs {
+  padding: 12px 24px;
+  border-radius: 10px;
+  background: linear-gradient(135deg,#f4f891,#fad38b);
+  border-left: 5px solid #ee6a6a;
+  box-shadow: 0 4px 12px rgba(240,135,135,0.15);
+  font-size: 14px;
+  color: #333;
+  text-align: center;
+  white-space: nowrap; /* prevents text wrapping */
+}
+
+/* .insight-boxs{
+  padding:12px 18px;
+  border-radius:10px;
+  background: linear-gradient(135deg,#f4f891,#fad38b);
+  border-left:5px solid #ee6a6a;
+  box-shadow:0 4px 12px rgba(240,135,135,0.15);
+  font-size:14px;
+  color:#333;
+  text-align:center;
+} */
+.insight-boxs{
+  margin-top:24px;
+  padding:14px 18px;
+  border-radius:10px;
+
+  background: linear-gradient(
+    135deg,
+    var(--color-light),
+    var(--color-warm)
+  );
+
+  border-left:5px solid var(--color-rose);
+  box-shadow:0 4px 12px var(--card-shadow);
+
+  font-size:14px;
+  line-height:1.5;
+  color:var(--text-dark);
+}
+
+#paretoInsight{
+  font-weight:500;
 }
 
 /* Animations */

@@ -2,24 +2,26 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
-if (document.getElementById("barChart")) {
-
-  
  
-  fetch('/patient/pareto')
+ const canvass = document.getElementById("barChart");
+  if (!canvass) return;
+
+  fetch("/patient/pareto")
     .then(res => res.json())
     .then(json => {
 
-      if (json.status !== "success" || !json.data?.chart) return;
+      if (json.status !== "success") return;
 
       const labels = json.data.chart.labels;
       const revenues = json.data.chart.revenues;
       const vipPatients = json.data.vip_patients;
       const insight = json.insight;
 
-      const ctx = canvas.getContext("2d");
+      const ctx = canvass.getContext("2d");
 
       if (window.paretoBarChart) window.paretoBarChart.destroy();
+
+      /* ---------- COLOR THEME ---------- */
 
       const root = getComputedStyle(document.documentElement);
 
@@ -33,18 +35,18 @@ if (document.getElementById("barChart")) {
       gradient.addColorStop(0, darkPeach);
       gradient.addColorStop(1, lightPeach);
 
-      /* ---------- CUMULATIVE PARETO CALCULATION ---------- */
+      /* ---------- PARETO CALCULATION ---------- */
 
-      const totalRevenue = revenues.reduce((a, b) => a + b, 0);
+      const total = revenues.reduce((a, b) => a + b, 0);
 
       let cumulative = 0;
 
       const cumulativePercent = revenues.map(v => {
         cumulative += v;
-        return ((cumulative / totalRevenue) * 100).toFixed(2);
+        return ((cumulative / total) * 100).toFixed(2);
       });
 
-      /* ---------- DOME BAR SHAPE ---------- */
+      /* ---------- DOME BAR PLUGIN ---------- */
 
       const DomeBar = {
         id: "domeBar",
@@ -58,14 +60,12 @@ if (document.getElementById("barChart")) {
           meta.data.forEach(bar => {
 
             const { x, y, base, width } = bar;
-            const radius = width / 2;
+            const r = width / 2;
 
             ctx.beginPath();
 
-            ctx.moveTo(x - width / 2, y + radius);
-
-            ctx.arc(x, y + radius, radius, Math.PI, 0, false);
-
+            ctx.moveTo(x - width / 2, y + r);
+            ctx.arc(x, y + r, r, Math.PI, 0);
             ctx.lineTo(x + width / 2, base);
             ctx.lineTo(x - width / 2, base);
 
@@ -87,7 +87,6 @@ if (document.getElementById("barChart")) {
           labels: labels,
           datasets: [
 
-            /* Revenue Bars */
             {
               type: "bar",
               data: revenues,
@@ -96,27 +95,26 @@ if (document.getElementById("barChart")) {
               categoryPercentage: 0.98
             },
 
-            /* Pareto Line */
             {
               type: "line",
-              label: "Cumulative %",
               data: cumulativePercent,
-              borderColor: "#ee6a6a",
-              backgroundColor: "#ee6a6a",
+              borderColor: darkPeach,
+              backgroundColor: darkPeach,
               yAxisID: "y1",
-              tension: 0.4,
-              pointRadius: 4,
-              pointBackgroundColor: "#ee6a6a"
+              tension: 0.35,
+              pointRadius: 4
             }
 
           ]
         },
 
         options: {
+
           responsive: true,
           maintainAspectRatio: false,
 
           plugins: {
+
             legend: { display: false },
 
             tooltip: {
@@ -148,17 +146,13 @@ if (document.getElementById("barChart")) {
 
             y: {
               beginAtZero: true,
-              grid: {
-                color: "rgba(0,0,0,0.05)",
-                borderDash: [3,3]
-              },
+              grid: { color: "rgba(0,0,0,0.05)", borderDash: [3,3] },
               ticks: {
                 callback: v => Number(v).toLocaleString()
               },
               border: { display: false }
             },
 
-            /* Percentage Axis */
             y1: {
               position: "right",
               min: 0,
@@ -168,33 +162,91 @@ if (document.getElementById("barChart")) {
                 callback: v => v + "%"
               }
             }
-
           }
         },
 
         plugins: [DomeBar]
       });
 
-      /* ---------- INSIGHT BELOW CHART ---------- */
+      /* ---------- INSIGHT ---------- */
 
-      let insightBox = json.data.insight;
+ 
+  const insightBox = document.getElementById("paretoInsight");
+  const loyalPatients = json.data.loyal_patients;
 
-      if (!insightBox) {
+  // Add insight text + "See More" link
+  insightBox.innerHTML = `
+    📊 <strong>Pareto Insight:</strong> ${insight} 
+    <a href="#" id="seeMorePareto" style="margin-left:10px; text-decoration:underline; color:#ee6a6a; cursor:pointer;">See More</a>
+  `;
 
-        insightBox = document.createElement("div");
-        insightBox.id = "paretoInsight";
-        insightBox.style.marginTop = "12px";
-        insightBox.style.fontSize = "14px";
-        insightBox.style.color = "#666";
+  // Modal elements
+  const modal = document.getElementById("paretoModal");
+  const tbody = document.getElementById("paretoPatientTable");
+  const closeBtn = document.getElementById("paretoModalClose");
 
-        canvas.parentNode.appendChild(insightBox);
-      }
+  // Populate table rows dynamically with loyal_patients
+ // Clear table
+tbody.innerHTML = "";
 
-      insightBox.innerHTML = "📊 <strong>Pareto Insight:</strong> " + insight;
+// Add rows dynamically
+loyalPatients.forEach(p => {
+  const tr = document.createElement("tr");
 
-    })
-    .catch(err => console.error(err));
-}
+  // Name cell
+  const nameTd = document.createElement("td");
+  nameTd.textContent = p.patient_name;
+  nameTd.style.padding = "8px";
+  nameTd.style.borderBottom = "1px solid #eee";
+  nameTd.style.cursor = "pointer";
+  nameTd.style.color = "#007bff";
+
+  // Attach click handler to open profile in new tab
+  nameTd.addEventListener("click", () => {
+    window.open(`/patient/profile/${p.patient_id}`, "_blank");
+  });
+
+  // Revenue cell
+  const revTd = document.createElement("td");
+  revTd.textContent = Number(p.revenue).toLocaleString();
+  revTd.style.padding = "8px";
+  revTd.style.borderBottom = "1px solid #eee";
+  revTd.style.textAlign = "right";
+
+  // Visits cell
+  const visitsTd = document.createElement("td");
+  visitsTd.textContent = p.visits;
+  visitsTd.style.padding = "8px";
+  visitsTd.style.borderBottom = "1px solid #eee";
+  visitsTd.style.textAlign = "right";
+
+  // Append cells to row
+  tr.appendChild(nameTd);
+  tr.appendChild(revTd);
+  tr.appendChild(visitsTd);
+
+  // Append row to tbody
+  tbody.appendChild(tr);
+});
+
+  // Show modal on "See More"
+  document.getElementById("seeMorePareto").addEventListener("click", e => {
+    e.preventDefault();
+    modal.style.display = "flex";
+  });
+
+  // Close modal via cross
+  closeBtn.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  // Click outside modal to close
+  modal.addEventListener("click", e => {
+    if (e.target === modal) modal.style.display = "none";
+  });
+
+})
+.catch(err => console.error(err));
 
   
 // ---------- Historical Chart ----------
@@ -253,8 +305,8 @@ if (document.getElementById("pieChart")) {
         },
         datalabels: {
           color: '#333',
-          anchor: 'end',
-          align: 'end',
+          anchor: 'center',
+    align: 'center',
           formatter: function(value, ctx) {
             const percent = ((value / total) * 100).toFixed(1);
             return percent + '%';
@@ -328,8 +380,8 @@ if (document.getElementById("predictedPieChart")) {
             },
             datalabels: {
               color: '#333',
-              anchor: 'end',
-              align: 'end',
+              anchor: 'center',
+    align: 'center',
               formatter: function(value) {
                 return value; // shows number outside slices
               }
