@@ -441,95 +441,154 @@ if (document.getElementById("predictionChart")) {
         // ===============================
         // CREATE CHART
         // ===============================
-        new Chart(ctx, {
-            type: "line",
-            data: {
-                labels: labels,
-                datasets: [
-                    // ACTUAL REVENUE
-                    {
-                        label: "Actual Revenue",
-                        data: actual,
-                        borderColor: "#2E86DE",
-                        backgroundColor: "#2E86DE",
-                        borderWidth: 3,
-                        tension: 0.3,
-                        pointRadius: 5,
-                        pointHoverRadius: 7,
-                        order: 1
-                    },
-                    // PREDICTED REVENUE
-                    {
-                        label: "Predicted Revenue",
-                        data: predicted,
-                        borderColor: "#27AE60",
-                        backgroundColor: gradient,
-                        borderWidth: 3,
-                        tension: 0.4,
-                        fill: true,
-                        borderDash: [6, 4],
-                        pointRadius: 4,
-                        pointHoverRadius: 6,
-                        order: 2
-                    },
-                    
-                ]
-            },
-            options: {
-                responsive: true,
-                interaction: {
-                    mode: 'index',
-                    intersect: false
-                },
-                plugins: {
-                    legend: {
-                        position: "top",
-                        labels: {
-                            font: { size: 13 }
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context){
-                                let value = context.parsed.y;
-                                if(value === null) return "";
-                                return `${context.dataset.label}: Rs ${value.toLocaleString()}`;
-                            }
-                        }
-                    },
-                    title: {
-                        display: true,
-                        text: "📊 Monthly Revenue Forecast ",
-                        font: { size: 18, weight: '600' },
-                        padding: { top: 10, bottom: 20 }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        grid: { color: "rgba(0,0,0,0.05)" },
-                        ticks: {
-                            callback: function(value) {
-                                return "Rs " + value.toLocaleString();
-                            }
-                        }
-                    },
-                    x: {
-                        grid: { display: false }
-                    }
-                }
-            }
-        });
+       new Chart(ctx, {
+  type: "line",
+  data: {
+    labels: labels,
+    datasets: [
 
+      // ACTUAL REVENUE
+      {
+        label: "Actual Revenue",
+        data: actual,
+        borderColor: "#ee6a6a",
+        backgroundColor: "#ee6a6a",
+        borderWidth: 3,
+        tension: 0.35,
+        pointRadius: 5,
+        pointHoverRadius: 8,
+        pointBackgroundColor: "#fff",
+        pointBorderWidth: 2,
+        pointBorderColor: "#ee6a6a"
+      },
+
+      // PREDICTED REVENUE
+     {
+  label: "Predicted Revenue",
+  data: predicted,
+  borderColor: "#2E86DE",   // blue prediction line
+  backgroundColor: gradient,
+  borderDash: [6,5],
+  borderWidth: 3,
+  tension: 0.4,
+  fill: true,
+  pointRadius: 4,
+  pointHoverRadius: 7,
+  pointBackgroundColor: "#fff",
+  pointBorderWidth: 2,
+  pointBorderColor: "#2E86DE"   // blue points
+}
+    ]
+  },
+
+  options: {
+    responsive: true,
+    maintainAspectRatio:false,
+
+    interaction: {
+      mode: "index",
+      intersect: false
+    },
+
+    plugins: {
+
+      legend: {
+        position: "bottom",
+        labels: {
+          color: "#333",
+          font: {
+            family: "Poppins",
+            size: 13
+          },
+          boxWidth: 12
+        }
+      },
+
+      tooltip: {
+        backgroundColor:"#fff",
+        titleColor:"#333",
+        bodyColor:"#333",
+        borderColor:"#eee",
+        borderWidth:1,
+        padding:12,
+        callbacks: {
+          label: function(context){
+            let value = context.parsed.y;
+            if(value===null) return "";
+            return `${context.dataset.label}: Rs ${value.toLocaleString()}`;
+          }
+        }
+      },
+
+      title: {
+        display: true,
+        text: "Monthly Revenue Forecast",
+        color:"#333",
+        font: {
+          family:"Poppins",
+          size:18,
+          weight:"600"
+        },
+        padding:{bottom:15}
+      }
+
+    },
+
+    scales: {
+
+      y: {
+        grid: {
+          color: "rgba(0,0,0,0.05)"
+        },
+        ticks: {
+          color:"#666",
+          callback: function(value){
+            return "Rs " + value.toLocaleString();
+          }
+        }
+      },
+
+      x: {
+        grid: {
+          display:false
+        },
+        ticks:{
+          color:"#666"
+        }
+      }
+
+    }
+  }
+});
         // ===============================
         // DISPLAY RECOMMENDATIONS
         // ===============================
-        const recContainer = document.getElementById("forecastRecommendations");
-        if(recContainer && recommendations.length > 0){
-            recContainer.innerHTML = "<h3>💡 Recommendations:</h3><ul>" + 
-                recommendations.map(r => `<li>${r}</li>`).join("") + 
-                "</ul>";
+        // ===============================
+// DISPLAY RECOMMENDATIONS
+// ===============================
+const recContainer = document.getElementById("forecastRecommendations");
+
+if (recContainer && recommendations.length > 0) {
+
+    let html = "<h3 class='rec-title'>💡 Recommendations</h3>";
+
+    html += recommendations.map(r => {
+
+        let cls = "recommendation-stable";
+
+        if (r.toLowerCase().includes("decline") || r.toLowerCase().includes("lower")) {
+            cls = "recommendation-decline";
+        } 
+        else if (r.toLowerCase().includes("growth") || r.toLowerCase().includes("high")) {
+            cls = "recommendation-growth";
         }
+
+        return `<div class="recommendation-card ${cls}">${r}</div>`;
+
+    }).join("");
+
+    recContainer.innerHTML = html;
+}
 
     })
     .catch(err => console.error("Error loading forecast data:", err));

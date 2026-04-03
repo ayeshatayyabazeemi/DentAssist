@@ -111,7 +111,58 @@ nav {
 }
 
 
+/* Recommendations container */
+#forecastRecommendations{
+  margin-top:15px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  font-size:14px;
+}
 
+/* Title */
+.rec-title{
+  margin-bottom:6px;
+  font-size:16px;
+  color:var(--text-dark);
+}
+
+/* Base card */
+.recommendation-card{
+  padding:12px 16px;
+  border-radius:8px;
+  border-left:5px solid;
+  background:#fafafa;
+  line-height:1.5;
+  box-shadow:0 2px 6px rgba(0,0,0,0.05);
+  transition:all .2s ease;
+}
+
+.recommendation-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* Decline */
+.recommendation-decline{
+  border-color:#e74c3c;
+  background:#fff5f5;
+  color:#b42318;
+}
+
+/* Growth */
+.recommendation-growth{
+  border-color:#2ecc71;
+  background:#f3fff7;
+  color:#1e7f4f;
+}
+
+/* Stable */
+.recommendation-stable{
+  border-color:#3498db;
+  background:#f4f8ff;
+  color:#1d4ed8;
+}
 
 
 /* KPI Cards */
@@ -164,6 +215,7 @@ nav {
   border-radius: 12px;
   box-shadow: 0 4px 15px var(--card-shadow);
   animation: fadeInUp 0.6s ease-out;
+   margin-bottom: 30px;
 }
 /* Bar chart container */
 .chart-container-bar {
@@ -179,15 +231,7 @@ nav {
   display: block;
 }
 
-/* Insight Box */
-#paretoInsight {
-  margin-top: 14px;
-  font-size: 14px;
-  color: #333;
-  position: absolute;
-  bottom: 10px; /* sticks insight at bottom of container */
-  left: 1.5rem;
-}
+
 /* Pie Chart Container */
 .chart-container-pie {
   background: var(--card-bg);
@@ -251,16 +295,30 @@ canvas {
 }
 
 .page-insight-container {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: static; /* remove fixed positioning */
   display: flex;
   justify-content: center;
-  gap: 16px; /* space if you have multiple boxes */
-  z-index: 1000;
+  gap: 16px;
+  margin: 30px 0; /* 30px top & bottom spacing */
 }
-
+.page-insight-container-pie {
+  position: static; /* remove fixed positioning */
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 30px 0; /* 30px top & bottom spacing */
+}
+.insight-boxs-pie {
+  padding: 12px 24px;
+  border-radius: 10px;
+  background: linear-gradient(135deg,#f4f891,#fad38b);
+  border-left: 5px solid #ee6a6a;
+  box-shadow: 0 4px 12px rgba(240,135,135,0.15);
+  font-size: 14px;
+  color: #333;
+  text-align: center;
+  white-space: nowrap; /* prevents text wrapping */
+}
 .insight-boxs {
   padding: 12px 24px;
   border-radius: 10px;

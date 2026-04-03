@@ -400,65 +400,76 @@ worst_month = monthly_avg.idxmin()
 best_month_name = calendar.month_name[best_month]
 worst_month_name = calendar.month_name[worst_month]
 
+# ===============================
+# SMART BUSINESS RECOMMENDATIONS
+# ===============================
 
-# ===============================
-# BUSINESS RECOMMENDATIONS
-# ===============================
 recommendations = []
 
-
+# 1️⃣ Merge consecutive windows with same demand type
+merged = []
 for w in windows:
+    if not merged or merged[-1]["type"] != w["type"]:
+        merged.append(w.copy())
+    else:
+        merged[-1]["end"] = w["end"]
+
+# 2️⃣ Generate demand recommendations
+priority = {"High":3, "Low":2,"Normal": 1, "Stable":1}
+
+for w in merged:
+
+    start = w["start"]
+    end = w["end"]
+
+    period = start if start == end else f"{start} to {end}"
 
     if w["type"] == "High":
-        recommendations.append(
-            f"High patient demand expected from {w['start']} to {w['end']}. Increase dentist availability, hygiene slots, and clinic hours."
-        )
-
+        msg = f"High patient demand expected from {period}. Increase dentist availability and hygiene slots."
     elif w["type"] == "Low":
-        recommendations.append(
-            f"Lower patient visits predicted from {w['start']} to {w['end']}. Consider promotional dental packages, whitening campaigns, or preventive care programs."
-        )
+        msg = f"Lower patient visits predicted from {period}. Consider promotions or preventive care campaigns."
 
-    else:
-        recommendations.append(
-            f"Stable demand expected from {w['start']} to {w['end']}. Maintain regular staffing and focus on patient retention."
-        )
+    elif w["type"] in ["Normal", "Stable"]:
+        msg = f"Stable demand expected from {period}. Maintain regular staffing and focus on patient retention."
 
+    recommendations.append((priority[w["type"]], msg))
 
+# 3️⃣ Revenue trend insight
 if len(forecast_future) > 0:
 
     first_val = forecast_future['yhat'].iloc[0]
     last_val = forecast_future['yhat'].iloc[-1]
 
-    if last_val > first_val:
-        recommendations.append(
-            "Revenue trend shows growth. Consider expanding dental services or adding specialists."
-        )
+    change = ((last_val - first_val) / max(first_val,1)) * 100
+
+    if change > 10:
+        msg = f"Revenue forecast indicates strong growth of {change:.1f}%. Consider expanding services or clinic capacity."
+        score = 4
+    elif change < -10:
+        msg = f"Revenue forecast indicates a decline of {abs(change):.1f}%. Focus on retention and targeted marketing."
+        score = 4
     else:
-        recommendations.append(
-            "Revenue trend shows slowdown. Focus on patient retention and marketing."
-        )
-    
+        msg = f"Revenue expected to remain stable ({change:.1f}%). Maintain operational efficiency."
+        score = 2
 
-growth = ((last_val - first_val) / first_val) * 100
+    recommendations.append((score, msg))
 
-if growth > 10:
-    recommendations.append(
-        f"Forecast indicates strong growth of {growth:.1f}% in upcoming months. Consider expanding services or adding specialists."
-    )
+# 4️⃣ Rank by importance and remove duplicates
+recommendations = sorted(set(recommendations), reverse=True)
 
-
+# 5️⃣ Return only top insights
+recommendations = [r[1] for r in recommendations[:4]]
 # ===============================
 # VOLATILITY DETECTION
 # ===============================
-volatility = forecast_future['yhat'].std()
-mean_val = forecast_future['yhat'].mean()
+# volatility = forecast_future['yhat'].std()
+# mean_val = forecast_future['yhat'].mean()
 
 
-if volatility > mean_val * 0.25:
-    recommendations.append(
-        "High revenue variability detected. Stabilize cash flow by increasing preventive care packages and recall appointments."
-    )
+# if volatility > mean_val * 0.25:
+#     recommendations.append(
+#         "High revenue variability detected. Stabilize cash flow by increasing preventive care packages and recall appointments."
+#     )
 
 # ===============================
 # MERGE VALIDATION RESULTS

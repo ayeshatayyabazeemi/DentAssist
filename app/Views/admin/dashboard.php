@@ -103,6 +103,9 @@
   </div>
 
 </div>
+<div class="page-insight-container-pie">
+    <div class="insight-boxs-pie" ></div>
+</div>
 <?php endif; ?>
 <?php if (ENVIRONMENT === 'development'): ?>
 <div class="chart-container chart-container-bar">
