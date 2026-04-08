@@ -13,20 +13,65 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="assets/images/mylogo.png" />
 
-  <!-- AI Button Style -->
+  <!-- Navbar & Buttons Style -->
   <style>
-  .ai-btn{
-    background:#6c63ff;
-    color:white;
-    padding:8px 14px;
-    border-radius:6px;
-    text-decoration:none;
-    margin-right:10px;
-    font-size:14px;
-  }
-  .ai-btn:hover{
-    background:#5848d6;
-  }
+    /* Navbar links and buttons (Attendance, Lab Order, AI Assistant, Logout) */
+    nav a,
+    nav button {
+      background-color: #ffb6c1; /* light pink */
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 6px;
+      text-decoration: none;
+      border: none;
+      font-size: 14px;
+      margin-right: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    /* Hover effect for all navbar buttons */
+    nav a:hover,
+    nav button:hover {
+      background-color: #ff99aa; /* slightly darker pink */
+    }
+
+    /* Tab buttons (Patients, Employees) */
+    .tabbtn {
+      background-color: #ffb6c1;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    /* Hover for tab buttons */
+    .tabbtn:hover {
+      background-color: #ff99aa;
+    }
+
+    /* Active tab button */
+    .tabbtn.active {
+      background-color: #ff85a2;
+    }
+
+    /* Logout button */
+    .logout-btn {
+      background-color: #ffb6c1;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .logout-btn:hover {
+      background-color: #ff99aa;
+    }
   </style>
 
 </head>
@@ -43,18 +88,18 @@
       <li><button class="tabbtn" data-tab="staffs">Employees</button></li>
     </ul>
 
-     <!-- Employee Attendance Button -->
-    <a href="<?= base_url('attendance') ?>" class="ai-btn">
-    <i class="fa fa-calendar-check-o"></i> Attendance
+    <!-- Employee Attendance Button -->
+    <a href="<?= base_url('attendance') ?>">
+      <i class="fa fa-calendar-check-o"></i> Attendance
     </a>
 
-    <!-- Lab Order Button (Added) -->
-    <a href="<?= base_url('laborders/create') ?>" class="ai-btn">
+    <!-- Lab Order Button -->
+    <a href="<?= base_url('laborders/create') ?>">
       <i class="fa fa-flask"></i> Lab Order
     </a>
 
     <!-- AI Assistant Button -->
-    <a href="<?= base_url('ai-assistant') ?>" class="ai-btn">
+    <a href="<?= base_url('ai-assistant') ?>">
       <i class="fa fa-robot"></i> Dentistry Assistant
     </a>
 
@@ -105,7 +150,6 @@
     </div>
 
   </section>
-
 
   <!-- Patients Tab -->
   <section id="tab-patients" class="tab-content" style="display: none;">
@@ -202,7 +246,6 @@
           <div class="form-group">
             <label for="insurance" class="required-label">Insurance</label>
             <select id="insurance" name="insurance" required>
-
               <option value="">Select Insurance</option>
               <option value="GEN">General</option>
               <option value="NICL">NICL</option>
@@ -235,7 +278,6 @@
     </div>
 
   </section>
-
 
   <!-- Employees Tab -->
   <section id="tab-staffs" class="tab-content" style="display: none;">
@@ -317,14 +359,14 @@ window.chartLabels = <?= json_encode($chartLabels) ?>;
 window.chartData   = <?= json_encode($chartData) ?>;
 
 document.querySelectorAll('.tabbtn').forEach(btn=>{
-btn.addEventListener('click',function(){
-const tab=this.dataset.tab;
-document.querySelectorAll('.tabbtn').forEach(b=>b.classList.remove('active'));
-this.classList.add('active');
-document.querySelectorAll('.tab-content').forEach(sec=>sec.style.display='none');
-const section=document.getElementById('tab-'+tab);
-if(section) section.style.display='block';
-});
+  btn.addEventListener('click',function(){
+    const tab=this.dataset.tab;
+    document.querySelectorAll('.tabbtn').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(sec=>sec.style.display='none');
+    const section=document.getElementById('tab-'+tab);
+    if(section) section.style.display='block';
+  });
 });
 </script>
 
