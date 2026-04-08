@@ -17,7 +17,8 @@ class LabOrders extends Controller
     // Show Lab Order form
     public function create()
     {
-        return view('laborders/create');
+        $data['statusOptions'] = ['Sent', 'Received', 'Resend', 'Re-Received', 'Completed'];
+        return view('laborders/create', $data);
     }
 
     // Save Lab Order
@@ -29,13 +30,19 @@ class LabOrders extends Controller
             return redirect()->back()->with('error', 'Please enter a valid patient name.');
         }
 
+        $status = $this->request->getPost('status');
+        $validStatuses = ['Sent', 'Received', 'Resend', 'Re-Received', 'Completed'];
+        if (!in_array($status, $validStatuses)) {
+            $status = 'Sent';
+        }
+
         $data = [
             'patient_name' => $patient_name,
             'lab_name'     => $this->request->getPost('lab_name'),
             'lab_item'     => $this->request->getPost('lab_item'),
             'shade'        => $this->request->getPost('shade'),
             'comments'     => $this->request->getPost('comments'),
-            'status'       => $this->request->getPost('status') ?? 'Sent',
+            'status'       => $status,
             'order_date'   => date('Y-m-d H:i:s')
         ];
 
@@ -47,11 +54,10 @@ class LabOrders extends Controller
         }
     }
 
-    // Lab Order History with Status Filter
+    // Lab Order History
     public function history()
     {
-        $status = $this->request->getGet('status'); // Get filter from query string
-
+        $status = $this->request->getGet('status');
         $query = $this->labOrderModel;
 
         if (!empty($status)) {
@@ -59,79 +65,80 @@ class LabOrders extends Controller
         }
 
         $data['orders'] = $query->orderBy('lab_order_id', 'ASC')->findAll();
-
-        // Pass status options for dropdown
-        $data['statusOptions'] = ['Sent', 'Received', 'Completed'];
+        $data['statusOptions'] = ['Sent', 'Received', 'Resend', 'Re-Received', 'Completed'];
 
         return view('laborders/history', $data);
     }
 
-    // Update Status via dropdown
+    // AJAX: Update Status
     public function updateStatus()
     {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Invalid request']);
+        }
+
         $lab_order_id = $this->request->getPost('lab_order_id');
         $status = $this->request->getPost('status');
+        $validStatuses = ['Sent', 'Received', 'Resend', 'Re-Received', 'Completed'];
 
-        if (!$lab_order_id || !$status) {
-            return redirect()->back()->with('error', 'Invalid request.');
+        if (!$lab_order_id || !$status || !in_array($status, $validStatuses)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Invalid data']);
         }
 
         try {
             $this->labOrderModel->update($lab_order_id, ['status' => $status]);
-            return redirect()->back()->with('success', 'Status updated successfully.');
+            return $this->response->setJSON(['status' => 'success', 'message' => 'Status updated']);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to update status: ' . $e->getMessage());
+            return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
 
-    // Delete Lab Order (AJAX-supported)
+    // Delete Lab Order (AJAX)
     public function delete($id = null)
     {
-        $response = ['status' => 'error', 'message' => 'Invalid request.'];
+        $response = ['status' => 'error', 'message' => 'Invalid request'];
 
         if ($id) {
             try {
                 $this->labOrderModel->delete($id);
-                $response = ['status' => 'success', 'message' => 'Lab order deleted successfully.'];
+                $response = ['status' => 'success', 'message' => 'Lab order deleted successfully'];
             } catch (\Exception $e) {
                 $response = ['status' => 'error', 'message' => 'Failed to delete: ' . $e->getMessage()];
             }
         }
 
-        // Return JSON for AJAX
         return $this->response->setJSON($response);
     }
 
-    // Optional: Analytics Dashboard (Lab Item / Patient / Lab)
+    // -------------------------------
+    // Analytics Dashboard
+    // -------------------------------
     public function analytics()
     {
         $builder = $this->labOrderModel;
 
-        // Most ordered lab items
-        $mostOrderedItems = $builder
-            ->select('lab_item, COUNT(*) as count')
-            ->groupBy('lab_item')
-            ->orderBy('count', 'DESC')
-            ->findAll(5);
+        // Most Ordered Lab Items
+        $mostOrderedItems = $builder->select('lab_item, COUNT(*) as count')
+                                    ->groupBy('lab_item')
+                                    ->orderBy('count', 'DESC')
+                                    ->findAll();
 
-        // Most active patients
-        $mostActivePatients = $builder
-            ->select('patient_name, COUNT(*) as count')
-            ->groupBy('patient_name')
-            ->orderBy('count', 'DESC')
-            ->findAll(5);
+        // Most Active Patients
+        $mostActivePatients = $builder->select('patient_name, COUNT(*) as count')
+                                      ->groupBy('patient_name')
+                                      ->orderBy('count', 'DESC')
+                                      ->findAll();
 
-        // Orders per lab
-        $ordersPerLab = $builder
-            ->select('lab_name, COUNT(*) as count')
-            ->groupBy('lab_name')
-            ->orderBy('count', 'DESC')
-            ->findAll();
+        // Orders Per Lab
+        $ordersPerLab = $builder->select('lab_name, COUNT(*) as count')
+                                 ->groupBy('lab_name')
+                                 ->orderBy('count', 'DESC')
+                                 ->findAll();
 
         $data = [
-            'mostOrderedItems'   => $mostOrderedItems,
+            'mostOrderedItems' => $mostOrderedItems,
             'mostActivePatients' => $mostActivePatients,
-            'ordersPerLab'       => $ordersPerLab,
+            'ordersPerLab' => $ordersPerLab
         ];
 
         return view('laborders/analytics', $data);
