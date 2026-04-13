@@ -5,6 +5,9 @@ Thumbs.db
 $RECYCLE.BIN/
 *~
 
+venv/
+python_script/venv/
+
 # Environment / Config sensitive files
 .env
 .env.*           # any env variant
