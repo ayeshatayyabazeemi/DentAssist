@@ -59,7 +59,12 @@
               <tr class="status-<?= $apt['status'] ?>">
                 <td><?= esc($apt['appointment_id']) ?></td>
                 <td><?= esc($apt['mr_number']) ?></td>
-                <td><?= esc($apt['patient_name']) ?></td>
+                <!-- <td><?= esc($apt['patient_name']) ?></td> -->
+                 <td>
+  <a href="<?= base_url('doctor/patient/'.$apt['patient_id']) ?>">
+    <?= esc($apt['patient_name']) ?>
+  </a>
+</td>
                 <td><?= esc($doctor_name) ?></td>
                 <td><?= esc($apt['appointment_date']) ?></td>
                 <td><?= esc($apt['slot'] ?? '-') ?></td>

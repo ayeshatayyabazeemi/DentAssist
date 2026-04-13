@@ -2,27 +2,34 @@
 
 use App\Models\AppointmentModel;
 use App\Models\PatientModel;
-use CodeIgniter\API\ResponseTrait;
+use CodeIgniter\Controller;
 
 class DoctorDashboard extends BaseController
 {
-    use ResponseTrait;
-
     protected $appointmentModel;
     protected $patientModel;
 
     public function __construct()
-    {
-        $this->appointmentModel = new AppointmentModel();
-        $this->patientModel = new PatientModel();
-    }
+{
+    $this->appointmentModel = new AppointmentModel();
+    $this->patientModel = new PatientModel();
 
-    // Dashboard homepage
+    // 🔥 ADD THIS LINE (THIS FIXES YOUR ERROR)
+    $this->db = \Config\Database::connect();
+
+    // security check
+    if (session()->get('role') !== 'doctor') {
+        header("Location: /login");
+        exit;
+    }
+}
+
+    // 🟢 DASHBOARD
     public function index()
     {
         $doctor_id = session()->get('user_id');
+        $today = date('Y-m-d');
 
-        // Counts for KPI boxes
         $pendingCount = $this->appointmentModel
             ->where('employee_id', $doctor_id)
             ->where('status !=', 'completed')
@@ -33,8 +40,6 @@ class DoctorDashboard extends BaseController
             ->where('status', 'completed')
             ->countAllResults();
 
-        // Today's appointments
-        $today = date('Y-m-d');
         $todaysAppointments = $this->appointmentModel
             ->select('appointments.*, patients.name AS patient_name, patients.mr_number')
             ->join('patients', 'patients.patient_id = appointments.patient_id')
@@ -51,50 +56,66 @@ class DoctorDashboard extends BaseController
         ]);
     }
 
-    // Appointments page (future/remaining appointments)
-    public function appointments()
+    // 🟢 PATIENT DETAIL + HISTORY
+    public function patient($patient_id)
     {
-        $doctor_id = session()->get('user_id');
-        $today = date('Y-m-d');
+        $patient = $this->patientModel->find($patient_id);
 
-        $appointments = $this->appointmentModel
-            ->select('appointments.*, patients.name AS patient_name, patients.mr_number')
-            ->join('patients', 'patients.patient_id = appointments.patient_id')
-            ->where('appointments.employee_id', $doctor_id)
-            ->where('appointments.appointment_date >=', $today)
-            ->orderBy('appointments.appointment_date', 'ASC')
-            ->orderBy('appointments.appointment_time', 'ASC')
-            ->findAll();
+        // 🟡 Patient history from invoice table
+        $history = $this->db->table('invoice')
+            ->where('patient_id', $patient_id)
+            ->get()
+            ->getResultArray();
 
-        return view('doctor/appointments', [
-            'appointments' => $appointments
+        // 🟢 Procedures list
+        $procedures = $this->db->table('procedures')->get()->getResultArray();
+
+        return view('doctor/patient_detail', [
+            'patient' => $patient,
+            'history' => $history,
+            'procedures' => $procedures
         ]);
     }
 
-    // Update status (AJAX)
+    // 🟢 SAVE TREATMENT (IMPORTANT)
+    public function saveTreatment()
+    {
+        $data = $this->request->getPost();
+
+        // get procedure name
+        $procedure = $this->db->table('procedures')
+            ->where('procedure_id', $data['procedure_id'])
+            ->get()
+            ->getRowArray();
+
+        // insert into invoice (your system style)
+        $this->db->table('invoice')->insert([
+            'invoice_id'   => rand(1000,9999),
+            'patient_id'   => $data['patient_id'],
+            'patient_name' => $data['patient_name'],
+            'mr_number'    => $data['mr_number'],
+            'description'  => $procedure['procedure_name'] . " | " . $data['notes'],
+            'paid_amount'  => 0,
+            'dues'         => $procedure['price'],
+            'advance'      => 0,
+            'payment_date' => date('Y-m-d'),
+            'payment_date_new' => date('Y-m-d'),
+            'user_name' => session()->get('username')
+        ]);
+
+        return redirect()->back()->with('success', 'Treatment Saved');
+    }
+
+    // 🟢 STATUS UPDATE (already yours but improved)
     public function updateStatus()
     {
         $data = $this->request->getJSON(true);
 
-        if (empty($data['appointment_id']) || empty($data['status'])) {
-            return $this->fail('Invalid data');
-        }
-
-        $updated = $this->appointmentModel->update(
-            $data['appointment_id'],
-            [
-                'status' => $data['status'],
-                'status_updated_at' => date('Y-m-d H:i:s')
-            ]
-        );
-
-        if (!$updated) {
-            return $this->fail('Failed to update status');
-        }
-
-        return $this->respond([
-            'status' => 'success',
-            'message' => 'Appointment status updated'
+        $this->appointmentModel->update($data['appointment_id'], [
+            'status' => $data['status'],
+            'status_updated_at' => date('Y-m-d H:i:s')
         ]);
+
+        return $this->response->setJSON(['status' => 'success']);
     }
 }

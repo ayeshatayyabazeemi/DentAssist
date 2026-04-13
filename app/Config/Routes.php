@@ -102,14 +102,29 @@ $routes->group('laborders', ['filter' => 'auth:admin'], function($routes) {
 
 // });
 
-$routes->group('doctor', ['filter' => 'auth:doctor'], function($routes) {
-    $routes->get('dashboard', 'DoctorDashboard::index');
-    $routes->get('appointments', 'DoctorDashboard::appointments');
+// $routes->group('doctor', ['filter' => 'auth:doctor'], function($routes) {
+//     $routes->get('dashboard', 'DoctorDashboard::index');
+//     $routes->get('appointments', 'DoctorDashboard::appointments');
     
-    // POST route for marking appointment as completed
-    $routes->post('updateStatus', 'DoctorDashboard::updateStatus');
-});
+//     // POST route for marking appointment as completed
+//     $routes->post('updateStatus', 'DoctorDashboard::updateStatus');
+// });
 
+$routes->group('doctor', ['filter' => 'auth:doctor'], function($routes) {
+
+    // Dashboard
+    $routes->get('dashboard', 'DoctorDashboard::index');
+
+    // Patient detail page
+    $routes->get('patient/(:num)', 'DoctorDashboard::patient/$1');
+
+    // Save treatment
+    $routes->post('saveTreatment', 'DoctorDashboard::saveTreatment');
+
+    // Update appointment status
+    $routes->post('updateStatus', 'DoctorDashboard::updateStatus');
+
+});
 
 
 // -------------------------
