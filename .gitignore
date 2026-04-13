@@ -4,7 +4,7 @@
 Thumbs.db
 $RECYCLE.BIN/
 *~
-
+/app/Config/Database.php
 # Environment / Config sensitive files
 .env
 .env.*           # any env variant
