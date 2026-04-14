@@ -9,6 +9,9 @@ $RECYCLE.BIN/
 
 
 
+venv/
+python_script/venv/
+
 # Environment / Config sensitive files
 
 venv/

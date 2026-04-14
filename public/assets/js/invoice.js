@@ -15,6 +15,7 @@ const duesInput        = document.querySelector("input[name='dues']");
 const advanceInput     = document.querySelector("input[name='advance']");
 const paymentDateInput = document.querySelector("input[name='payment_date']");
 const hiddenProcedureInput = document.getElementById('procedureIds');
+const discountInput = document.querySelector("input[name='discount']");
 
 // Custom dropdown elements
 const dropdown    = document.getElementById('procedureDropdown');
@@ -85,12 +86,18 @@ function updateProcedures() {
 // =========================
 paidAmountInput?.addEventListener('input', calculateDues);
 advanceInput?.addEventListener('input', calculateDues);
-
+discountInput?.addEventListener('input', calculateDues);
 function calculateDues() {
   const total = parseFloat(totalPriceInput.value) || 0;
   const paid  = parseFloat(paidAmountInput.value) || 0;
   const adv   = parseFloat(advanceInput.value) || 0;
-  const dues  = total - paid - adv;
+  const discount = parseFloat(discountInput.value) || 0;
+
+  // Prevent invalid discount
+  const validDiscount = Math.min(discount, total);
+
+  const dues = total - paid - adv - validDiscount;
+
   duesInput.value = dues.toFixed(2);
 }
 
@@ -104,7 +111,12 @@ invoiceForm?.addEventListener('submit', async function (e) {
     notyf.error('Please select at least one procedure');
     return;
   }
+  const discount = parseFloat(discountInput.value) || 0;
 
+if (discount < 0) {
+  notyf.error('Discount cannot be negative');
+  return;
+}
   const total = parseFloat(totalPriceInput.value) || 0;
   if (total <= 0) {
     notyf.error('Total price must be greater than zero');
@@ -133,7 +145,7 @@ invoiceForm?.addEventListener('submit', async function (e) {
 
     if (result.status === 'success') {
       notyf.success('Invoice submitted successfully');
-      setTimeout(() => window.location.reload(), 1200);
+      openInvoiceModal();
     } else {
       notyf.error(result.error || 'Invoice submission failed');
     }
