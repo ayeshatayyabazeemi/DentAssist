@@ -214,7 +214,7 @@
 <!-- SUBMIT + PRINT -->
 <div class="form-actions">
   <button type="submit" class="btn-primary">Generate Invoice</button>
-  <button type="button" class="btn-primary" onclick="printInvoice()">Print Invoice</button>
+  <!-- <button type="button" class="btn-primary" onclick="printInvoice()">Print Invoice</button> -->
 </div>
 
 </form>
