@@ -133,22 +133,117 @@
         <p class="value"><?= esc(number_format($avgMonthly ?? 0, 1)) ?></p>
       </div>
 
-      <div class="kpi-card border-success">
+      <!-- <div class="kpi-card border-success">
         <h3>Growth YoY</h3>
         <p class="value"><?= $growthPercent !== null ? esc($growthPercent) . '%' : 'N/A' ?></p>
+      </div> -->
+
+    </div>
+<div class="chart-container">
+  <h2>
+    <?php echo (ENVIRONMENT === 'development') 
+        ? "Revenue Prediction vs Actual (Development Mode)" 
+        : "Registration Trend (Last 24 Months)"; ?>
+  </h2>
+
+  <?php if (ENVIRONMENT === 'production'): ?>
+    <!-- Production: full-width chart -->
+    <div class="chart-wrapper" style="height: 350px; width: 100%;">
+      <canvas id="regChart"></canvas>
+    </div>
+
+  <?php else: ?>
+    <!-- Development: chart left, recommendations right (50/50) -->
+    <div style="display: flex; gap: 20px; height: 350px;">
+      <div style="flex: 1;">
+        <canvas id="predictionChart"></canvas>
+      </div>
+      <div id="forecastRecommendations" style="flex: 1; font-size: 14px; color: #333;">
+        <!-- JS will populate recommendations here -->
       </div>
 
     </div>
+  <?php endif; ?>
+</div>
 
-    <div class="chart-container">
-      <h2>Registration Trend (Last 24 Months)</h2>
+    
+</div>
+        </div>
+<?php if (ENVIRONMENT === 'development'): ?>
+<div class="chart-container chart-container-pie">
 
-      <div class="chart-wrapper" style="position: relative; height: 350px; width: 100%;">
-        <canvas id="regChart"></canvas>
+  <h2>Procedure Revenue Share</h2>
+
+  <div class="chart-container-pie-row">
+
+      <div class="chart-wrapper-pie">
+          <h3>Overall Procedure Revenue Share</h3>
+          <canvas id="pieChart"></canvas>
       </div>
 
+      <div class="chart-wrapper-pie">
+          <h3>Predicted Procedure Share (June 2026)</h3>
+          <canvas id="predictedPieChart"></canvas>
+      </div>
+
+  </div>
+
+</div>
+<div class="page-insight-container-pie">
+    <div class="insight-boxs-pie" ></div>
+</div>
+<?php endif; ?>
+<?php if (ENVIRONMENT === 'development'): ?>
+<div class="chart-container chart-container-bar">
+  <h2>Patient Revenue Contribution (Pareto Analysis)</h2>
+<canvas id="barChart" ></canvas>
+
+</div>
+
+
+ <?php endif; ?>
+
+ <?php if (ENVIRONMENT === 'development'): ?>
+<div class="page-insight-container">
+    <div class="insight-boxs" id="paretoInsight"></div>
+</div>
+<?php endif; ?>
+
+
+
+
+<!-- Modal backdrop -->
+<div id="paretoModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
+    background:rgba(0,0,0,0.5); z-index:2000; justify-content:center; align-items:center;">
+  
+  <!-- Modal content -->
+  <div style="background:#fff; padding:20px; border-radius:10px; width:90%; max-width:600px; max-height:80%; overflow:auto; position:relative;">
+    
+    <!-- Heading + Cross -->
+    <div style="display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; background:#fff; z-index:10; padding-bottom:10px; border-bottom:1px solid #ddd;">
+      <h3 style="margin:0;">Loyal Patients List</h3>
+      <span id="paretoModalClose" style="cursor:pointer; font-size:20px; font-weight:bold;">&times;</span>
     </div>
 
+    <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+      <thead>
+        <tr>
+          <th style="text-align:left; padding:8px; border-bottom:1px solid #ccc;">Name</th>
+          <th style="text-align:right; padding:8px; border-bottom:1px solid #ccc;">Revenue</th>
+          <th style="text-align:right; padding:8px; border-bottom:1px solid #ccc;">Visits</th>
+        </tr>
+      </thead>
+      <tbody id="paretoPatientTable">
+        <!-- Rows added dynamically -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+
+
+       
   </section>
 
   <!-- Patients Tab -->
@@ -372,6 +467,8 @@ document.querySelectorAll('.tabbtn').forEach(btn=>{
 
 <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
 <script src="assets/js/chart.js"></script>
 <script src="assets/js/admin.js"></script>
 

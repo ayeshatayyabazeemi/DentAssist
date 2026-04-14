@@ -5,6 +5,10 @@ Thumbs.db
 $RECYCLE.BIN/
 *~
 /app/Config/Database.php
+
+
+
+
 # Environment / Config sensitive files
 
 venv/

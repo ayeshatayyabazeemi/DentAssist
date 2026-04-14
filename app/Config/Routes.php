@@ -22,12 +22,16 @@ $routes->get('/api/appointments/today', 'ReceptionController::fetchTodayAppointm
 
 
 
+$routes->get('/invoice/data', 'PatientProfile::getInvoiceSummary');
+$routes->get('/invoice/procedure/data', 'PatientProfile::getProcedureRevenueSummary');
+$routes->get('procedures/list', 'PatientProfile::list');
 
 // -------------------------
 // invoice
 $routes->get('patient/invoice/(:num)', 'PatientProfile::invoiceView/$1', ['filter' => 'auth:admin,receptionist']);
 $routes->post('patient/invoice/save', 'PatientProfile::saveInvoice', ['filter' => 'auth:admin,receptionist']);
 $routes->get('patient/procedures', 'PatientProfile::getProcedures', ['filter' => 'auth:admin,receptionist']);
+$routes->get('patient/pareto', 'PatientProfile::paretoPatients', ['filter' => 'auth:admin,receptionist']);
 
 // -------------------------
 // procedures
