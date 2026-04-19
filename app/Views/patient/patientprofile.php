@@ -220,10 +220,13 @@
     <tbody>
       <?php if (!empty($invoices)): ?>
         <?php foreach ($invoices as $inv): ?>
-          <tr>
+          <tr class="invoice-row" data-id="<?= esc($inv['invoice_id']) ?>">
             <td><?= esc($inv['invoice_id'] ?? '-') ?></td>
-            <td><?= esc($inv['payment_date'] ?? '-') ?></td>
-            <td><?= esc($inv['description'] ?? '-') ?></td>
+<td>
+  <?= !empty($inv['payment_date']) 
+      ? date('d M Y', strtotime($inv['payment_date'])) 
+      : '-' ?>
+</td>            <td><?= esc($inv['description'] ?? '-') ?></td>
             <td>Rs <?= esc($inv['paid_amount'] ?? '0') ?></td>
             <td>Rs <?= esc($inv['dues'] ?? '0') ?></td>
             <td><?= esc($inv['user_name'] ?? '-') ?></td>
@@ -341,6 +344,84 @@
 <script src="<?= base_url('assets/js/patientprofile.js') ?>"></script>
 
 <script>
+
+
+function openInvoiceForEdit(invoiceId) {
+  document.getElementById('invoiceModal').style.display = 'block';
+// mark edit mode
+invoiceForm.dataset.mode = "edit";
+
+// disable dropdown
+selectedBox.style.pointerEvents = "none";
+
+// disable checkboxes
+document.querySelectorAll('.procedure-checkbox').forEach(cb => cb.disabled = true);
+  fetch(`/patient/invoice/${invoiceId}`)
+    .then(res => res.json())
+    .then(data => {
+
+      // =====================
+      // BASIC FIELDS
+      // =====================
+      document.querySelector('[name="invoice_id"]').value = data.invoice_id;
+      document.querySelector('[name="mr_number"]').value = data.mr_number;
+      document.querySelector('[name="patient_name"]').value = data.patient_name;
+
+      document.getElementById('descriptionField').value = data.description;
+
+      // =====================
+      // PAYMENT ONLY EDITABLE
+      // =====================
+document.querySelector("[name='paid_amount']").value = '';
+
+// ✅ ADD HERE
+paidAmountInput.placeholder = "Enter amount (Due: " + data.dues + ")";
+
+document.querySelector('[name="dues"]').value = data.dues;
+      // lock fields (read-only mode)
+      document.querySelector('[name="invoice_id"]').readOnly = true;
+      document.querySelector('[name="mr_number"]').readOnly = true;
+      document.querySelector('[name="patient_name"]').readOnly = true;
+      document.getElementById('descriptionField').readOnly = true;
+
+      // =====================
+      // PROCEDURES PRESELECT
+      // =====================
+      if (data.procedures && Array.isArray(data.procedures)) {
+        document.querySelectorAll('.procedure-checkbox').forEach(cb => {
+          cb.checked = data.procedures.some(p => p.id == cb.dataset.id);
+        });
+
+        // update UI + totals if you have calc function
+        // if (typeof calculateTotals === "function") {
+        //   calculateTotals();
+        // }
+      }
+    });
+}
+
+
+
+
+document.querySelectorAll('.invoice-row').forEach(row => {
+  row.addEventListener('click', function () {
+    const invoiceId = this.dataset.id;
+
+    // redirect to invoice page with invoice id
+   if (parseFloat(row.children[4].innerText.replace('Rs','')) > 0) {
+  window.open(`/patient/invoice/edit/${invoiceId}`, '_blank');
+} else {
+  alert("Invoice already fully paid");
+}
+  });
+});
+
+
+  document.addEventListener("visibilitychange", function () {
+  if (document.visibilityState === 'visible') {
+    location.reload(); // 🔄 refresh when user comes back
+  }
+});
 document.addEventListener("DOMContentLoaded", function() {
   const patientId = document.getElementById("patient_id").value;
   const generateBtn = document.querySelector(".btn-generate-id");

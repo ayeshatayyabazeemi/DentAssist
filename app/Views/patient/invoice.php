@@ -229,7 +229,7 @@
     <div id="printInvoiceSection"></div>
 
     <div style="text-align:center; margin-top:15px;">
-      <button onclick="printInvoice()">🖨 Print Invoice</button>
+      <button class="btn-primary" onclick="printInvoice()">🖨 Print Invoice</button>
     </div>
 
   </div>
@@ -240,13 +240,50 @@
 <!-- Hidden div for print -->
 <div id="printInvoiceSection"></div>
 
-<!-- PRINT FUNCTION -->
+
+
+
+
+
+
+
+
 <script>
+
+
+// let isSubmitting = false;
+
+// document.getElementById('invoiceForm').addEventListener('submit', function (e) {
+//   if (isSubmitting) {
+//     e.preventDefault(); // 🚫 block second submit
+//     return;
+//   }
+
+//   isSubmitting = true;
+
+//   const btn = this.querySelector('button[type="submit"]');
+//   btn.disabled = true;
+//   btn.innerText = "Processing...";
+// });
+
+function getKarachiTimeWithOffset(inputDate = null) {
+  let date = inputDate ? new Date(inputDate) : new Date();
+
+  // ✅ Add 5 hours
+  date.setHours(date.getHours() + 5);
+
+  return date.toLocaleString('en-PK', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+}
+
 function generateInvoiceHTML() {
   const form = document.getElementById('invoiceForm');
-
-  // ✅ Use absolute path for print safety
-  const logoPath = window.location.origin + "/public/assets/images/acha.jpeg";
 
   // =========================
   // GET PROCEDURES
@@ -274,39 +311,8 @@ function generateInvoiceHTML() {
   const invoiceId = form.invoice_id.value || '';
   const userName = form.user_name.value || '';
 
-  // =========================
-  // ✅ FIX DATE + TIME (ALWAYS KARACHI)
-  // =========================
-  let paymentDate;
-
-  if (form.payment_date.value) {
-    // Convert input date to Karachi time
-    const inputDate = new Date(form.payment_date.value);
-
-    paymentDate = inputDate.toLocaleString('en-PK', {
-      timeZone: 'Asia/Karachi',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
-
-  } else {
-    // If empty → current time Karachi
-    const now = new Date();
-
-    paymentDate = now.toLocaleString('en-PK', {
-      timeZone: 'Asia/Karachi',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
-  }
+  // ✅ TIME FIX (+5 HOURS)
+  const paymentDate = getKarachiTimeWithOffset(form.payment_date.value);
 
   // =========================
   // PROCEDURE TABLE
@@ -325,8 +331,11 @@ function generateInvoiceHTML() {
     });
   }
 
+  // ✅ IMPORTANT: absolute path
+  const logoPath = window.location.origin + "/assets/images/smile.jpg";
+
   // =========================
-  // FINAL HTML
+  // FINAL HTML (MODAL)
   // =========================
   const html = `
     <div style="text-align:center; margin-bottom:10px;">
@@ -369,7 +378,7 @@ function generateInvoiceHTML() {
 }
 
 function openInvoiceModal() {
-  generateInvoiceHTML(); // fill preview
+  generateInvoiceHTML();
   document.getElementById('invoiceModal').style.display = 'block';
 }
 
@@ -377,92 +386,37 @@ function closeInvoiceModal() {
   document.getElementById('invoiceModal').style.display = 'none';
 }
 
-
 function printInvoice() {
-  const content = document.getElementById('printInvoiceSection').innerHTML;
+  let printContent = document.getElementById('printInvoiceSection').innerHTML;
+
+  // ❌ remove date only from print
+  printContent = printContent.replace(/<p><strong>Date & Time:.*?<\/p>/, '');
 
   const win = window.open('', '', 'width=900,height=700');
+
   win.document.write(`
     <html>
-      <head><title>Invoice</title></head>
-      <body>${content}</body>
+      <head>
+        <title>Invoice</title>
+        <style>
+          body { font-family: Arial; padding: 20px; }
+        </style>
+      </head>
+      <body>${printContent}</body>
     </html>
   `);
 
   win.document.close();
-  win.print();
+
+  // ✅ wait for logo to load
+  win.onload = function () {
+    setTimeout(() => {
+      win.focus();
+      win.print();
+      win.close();
+    }, 500);
+  };
 }
-
-
-// function printInvoice() {
-//   const form = document.getElementById('invoiceForm');
-
-//   // Grab selected procedures
-//   const procedures = [];
-//   document.querySelectorAll('.procedure-checkbox:checked').forEach(cb=>{
-//       procedures.push({
-//           name: cb.dataset.name,
-//           price: cb.dataset.price
-//       });
-//   });
-
-//   const description = document.getElementById('descriptionField').value.trim();
-//   const total = document.getElementById('totalPrice').value || 0;
-//   const paid = document.getElementById('paidAmount').value || 0;
-//   const dues = document.getElementById('duesAmount').value || 0;
-//   const advance = form.advance.value || 0;
-//   const paymentDate = form.payment_date.value || '';
-//   const patientName = form.patient_name.value || '';
-//   const mrNumber = form.mr_number.value || '';
-//   const invoiceId = form.invoice_id.value || '';
-//   const userName = form.user_name.value || '';
-
-//   // Procedures table
-//   let procHtml = '';
-//   if (procedures.length === 0) {
-//       procHtml = '<tr><td colspan="2" style="text-align:center;">No procedures selected</td></tr>';
-//   } else {
-//       procedures.forEach(p=>{
-//           procHtml += `<tr><td>${p.name}</td><td>Rs ${p.price}</td></tr>`;
-//       });
-//   }
-
-//   const html = `
-//   <div class="hospital-name">
-//     <span class="black">FATIMA </span><span class="red">DENTAL HOSPITAL</span>
-//   </div>
-//   <div style="text-align:center; margin-bottom:10px;">
-//     <p>Invoice ID: ${invoiceId}</p>
-//   </div>
-//   <div style="margin-bottom:10px;">
-//     <p><strong>Patient Name:</strong> ${patientName}</p>
-//     <p><strong>MR Number:</strong> ${mrNumber}</p>
-//     <p><strong>Description:</strong> ${description}</p>
-//     <p><strong>Payment Date:</strong> ${paymentDate}</p>
-//   </div>
-//   <table style="width:100%; margin-top:10px; border:1px solid #000; border-collapse:collapse;">
-//     <thead>
-//       <tr>
-//         <th style="border:1px solid #000; padding:5px;">Procedure</th>
-//         <th style="border:1px solid #000; padding:5px;">Price (Rs)</th>
-//       </tr>
-//     </thead>
-//     <tbody>${procHtml}</tbody>
-//   </table>
-//   <div style="margin-top:10px;">
-//     <p><strong>Total:</strong> Rs ${total}</p>
-//     <p><strong>Paid:</strong> Rs ${paid}</p>
-//     <p><strong>Dues:</strong> Rs ${dues}</p>
-//     <p><strong>Advance:</strong> Rs ${advance}</p>
-//     <p><strong>Generated By:</strong> ${userName}</p>
-//   </div>`;
-
-//   const printSection = document.getElementById('printInvoiceSection');
-//   printSection.innerHTML = html;
-
-//   window.print();
-// }
-
 </script>
 
 <!-- Notyf JS -->

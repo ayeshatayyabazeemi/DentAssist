@@ -84,6 +84,8 @@ function updateProcedures() {
 // =========================
 // DUES CALCULATION
 // =========================
+  if (invoiceForm.dataset.mode === "edit") return;
+
 paidAmountInput?.addEventListener('input', calculateDues);
 advanceInput?.addEventListener('input', calculateDues);
 discountInput?.addEventListener('input', calculateDues);

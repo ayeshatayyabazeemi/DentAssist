@@ -142,7 +142,7 @@
 <div class="chart-container">
   <h2>
     <?php echo (ENVIRONMENT === 'development') 
-        ? "Revenue Prediction vs Actual (Development Mode)" 
+        ? "Revenue Prediction vs Actual " 
         : "Registration Trend (Last 24 Months)"; ?>
   </h2>
 
@@ -373,10 +373,8 @@
     </div>
 
   </section>
-
-  <!-- Employees Tab -->
+<!-- Staffs / Employees Tab Content -->
   <section id="tab-staffs" class="tab-content" style="display: none;">
-
     <div class="top-row">
       <div class="search-bar">
         <input type="text" id="employeeSearch" placeholder="Search employee..." />
@@ -385,47 +383,42 @@
     </div>
 
     <div class="form-section">
-
       <h2>Employee / Staff Details</h2>
-
       <form id="employeeForm">
-
         <div class="form-grid">
-
           <div class="form-group">
             <label for="emp_name" class="required-label">Name</label>
             <input type="text" id="emp_name" name="name" required />
           </div>
-
           <div class="form-group">
             <label for="emp_email" class="required-label">Email</label>
             <input type="email" id="emp_email" name="email" required/>
           </div>
-
           <div class="form-group">
             <label for="emp_mobile_no" class="required-label">Mobile No</label>
             <input type="text" id="emp_mobile_no" name="mobile_no" required />
           </div>
-
           <div class="form-group">
             <label for="emp_gender" class="required-label">Gender</label>
             <select id="emp_gender" name="gender" required>
               <option value="">Select Gender</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
+             
             </select>
           </div>
-
           <div class="form-group">
             <label for="emp_dob">Date of Birth</label>
             <input type="date" id="emp_dob" name="dob" />
           </div>
-
+          <div class="form-group">
+            <label for="cnic">CNIC (13 digits, no “-”)</label>
+            <input type="text" id="cnic" name="cnic" />
+          </div>
           <div class="form-group">
             <label for="emp_regdate">Registration Date</label>
             <input type="date" id="emp_regdate" name="regdate" />
           </div>
-
           <div class="form-group">
             <label for="emp_designation" class="required-label">Designation</label>
             <select id="emp_designation" name="designation" required>
@@ -436,13 +429,40 @@
               <option value="staff">Staff</option>
             </select>
           </div>
+          <div class="form-group address-field">
+            <label for="emp_address">Address</label>
+            <textarea id="emp_address" name="address" rows="2"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="emp_password" class="required-label">Password (Not for Staff)</label>
+            <input type="password" id="emp_password" name="password" />
+          </div>
+          <div class="form-group">
+            <label for="emp_c_password" class="required-label">Confirm Password</label>
+            <input type="password" id="emp_c_password" name="c_password" />
+          </div>
+        </div>
 
+        <div class="form-section" id="scheduleSection" style="display:none;">
+          <h2>Doctor Schedule</h2>
+          <table class="schedule-table">
+            <thead>
+              <tr><th>Day</th><th>Start Time</th><th>End Time</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Sunday</td><td><input type="time" name="start_time[Sun]" /></td><td><input type="time" name="end_time[Sun]" /></td></tr>
+              <tr><td>Monday</td><td><input type="time" name="start_time[Mon]" /></td><td><input type="time" name="end_time[Mon]" /></td></tr>
+              <tr><td>Tuesday</td><td><input type="time" name="start_time[Tue]" /></td><td><input type="time" name="end_time[Tue]" /></td></tr>
+              <tr><td>Wednesday</td><td><input type="time" name="start_time[Wed]" /></td><td><input type="time" name="end_time[Wed]" /></td></tr>
+              <tr><td>Thursday</td><td><input type="time" name="start_time[Thu]" /></td><td><input type="time" name="end_time[Thu]" /></td></tr>
+              <tr><td>Friday</td><td><input type="time" name="start_time[Fri]" /></td><td><input type="time" name="end_time[Fri]" /></td></tr>
+              <tr><td>Saturday</td><td><input type="time" name="start_time[Sat]" /></td><td><input type="time" name="end_time[Sat]" /></td></tr>
+            </tbody>
+          </table>
         </div>
 
         <button type="submit" class="submit-btn">Add Employee</button>
-
       </form>
-
     </div>
 
   </section>

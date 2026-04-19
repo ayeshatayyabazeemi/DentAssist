@@ -514,6 +514,33 @@ public function getInvoiceSummary()
         // pass data to view or return JSON if you want
         return view('patient/patientprofile', ['patient' => $patient, 'invoices' => $invoices]);
     }
+
+
+public function edit($invoice_id)
+{
+    $invoiceModel = new InvoiceModel();
+    $procedureModel = new ProcedureModel();
+
+    // 🔍 get invoice
+    $invoice = $invoiceModel
+        ->where('invoice_id', $invoice_id)
+        ->first();
+
+    if (!$invoice) {
+        return redirect()->back()->with('error', 'Invoice not found');
+    }
+
+    // 🔍 get procedures (if stored relationally OR JSON)
+    $procedures = $procedureModel->findAll();
+
+    return view('patient/invoice', [
+        'invoice'    => $invoice,
+        'procedures' => $procedures,
+        'mode'       => 'edit'   // 👈 VERY IMPORTANT
+    ]);
+}
+
+
  public function invoiceView($patientId)
 {
     try {
@@ -724,38 +751,126 @@ public function updateProcedure()
     }
 }
 
-    /* =========================================================
-       INSERT INVOICE (AJAX SAFE)
-    ========================================================= */
-    public function saveInvoice()
-    {
-        $invoiceModel = new InvoiceModel();
-        $data = $this->request->getPost();
+    // /* =========================================================
+    //    INSERT INVOICE (AJAX SAFE)
+    // ========================================================= */
+    // public function saveInvoice()
+    // {
+    //     $invoiceModel = new InvoiceModel();
+    //     $data = $this->request->getPost();
 
-        if (!$data) {
+    //     if (!$data) {
+    //         return $this->response->setJSON([
+    //             'status' => 'error',
+    //             'error'  => 'Invalid request'
+    //         ]);
+    //     }
+
+    //     $invoiceModel->insert([
+    //         'invoice_id'   => $data['invoice_id'],
+    //         'mr_number'    => $data['mr_number'],
+    //         'patient_id'   => $data['patient_id'],
+    //         'patient_name' => $data['patient_name'],
+    //         'description'  => $data['description'],
+    //         'paid_amount'  => $data['paid_amount'],
+    //         'dues'         => $data['dues'],
+    //         'advance'      => $data['advance'],
+    //         'payment_date' => $data['payment_date'],
+    //         'user_name'    => $data['user_name']
+    //     ]);
+
+    //     return $this->response->setJSON([
+    //         'status'     => 'success',
+    //         'invoice_id' => $invoiceModel->getInsertID()
+    //     ]);
+    // }
+
+
+
+    public function saveInvoice()
+{
+    $invoiceModel = new InvoiceModel();
+    $data = $this->request->getPost();
+
+    if (!$data) {
+        return $this->response->setJSON([
+            'status' => 'error',
+            'error'  => 'Invalid request'
+        ]);
+    }
+
+    // 🔍 Check existing invoice
+    $existing = $invoiceModel
+        ->where('invoice_id', $data['invoice_id'])
+        ->first();
+
+    // =========================
+    // ✅ EDIT EXISTING INVOICE
+    // =========================
+    if ($existing) {
+
+        $currentPaid = floatval($existing['paid_amount']);
+        $currentDue  = floatval($existing['dues']);
+        $newPayment  = floatval($data['paid_amount']);
+
+        if ($currentDue <= 0) {
             return $this->response->setJSON([
                 'status' => 'error',
-                'error'  => 'Invalid request'
+                'error'  => 'Invoice already fully paid'
             ]);
         }
 
-        $invoiceModel->insert([
-            'invoice_id'   => $data['invoice_id'],
-            'mr_number'    => $data['mr_number'],
-            'patient_id'   => $data['patient_id'],
-            'patient_name' => $data['patient_name'],
-            'description'  => $data['description'],
-            'paid_amount'  => $data['paid_amount'],
-            'dues'         => $data['dues'],
-            'advance'      => $data['advance'],
-            'payment_date' => $data['payment_date'],
+        if ($newPayment <= 0) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'error'  => 'Enter valid payment amount'
+            ]);
+        }
+
+        if ($newPayment > $currentDue) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'error'  => 'Payment exceeds remaining dues'
+            ]);
+        }
+
+        $updatedPaid = $currentPaid + $newPayment;
+        $updatedDue  = $currentDue - $newPayment;
+
+        $invoiceModel->update($existing['id'], [
+            'paid_amount'  => $updatedPaid,
+            'dues'         => $updatedDue,
+            'payment_date' => $data['payment_date'], // latest payment date
             'user_name'    => $data['user_name']
         ]);
 
         return $this->response->setJSON([
-            'status'     => 'success',
-            'invoice_id' => $invoiceModel->getInsertID()
+            'status' => 'success',
+            'type'   => 'updated'
         ]);
     }
+
+    // =========================
+    // ✅ NEW INVOICE
+    // =========================
+    $invoiceModel->insert([
+        'invoice_id'   => $data['invoice_id'],
+        'mr_number'    => $data['mr_number'],
+        'patient_id'   => $data['patient_id'],
+        'patient_name' => $data['patient_name'],
+        'description'  => $data['description'],
+        'paid_amount'  => $data['paid_amount'],
+        'dues'         => $data['dues'],
+        'advance'      => $data['advance'],
+        'payment_date' => $data['payment_date'],
+        'user_name'    => $data['user_name']
+    ]);
+
+    return $this->response->setJSON([
+        'status'     => 'success',
+        'type'       => 'created',
+        'invoice_id' => $invoiceModel->getInsertID()
+    ]);
+}
 
 }

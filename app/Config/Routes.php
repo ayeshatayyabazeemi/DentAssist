@@ -28,6 +28,9 @@ $routes->get('procedures/list', 'PatientProfile::list');
 
 // -------------------------
 // invoice
+
+$routes->get('patient/invoice/edit/(:any)', 'PatientProfile::edit/$1', ['filter' => 'auth:admin,receptionist']);
+
 $routes->get('patient/invoice/(:num)', 'PatientProfile::invoiceView/$1', ['filter' => 'auth:admin,receptionist']);
 $routes->post('patient/invoice/save', 'PatientProfile::saveInvoice', ['filter' => 'auth:admin,receptionist']);
 $routes->get('patient/procedures', 'PatientProfile::getProcedures', ['filter' => 'auth:admin,receptionist']);
@@ -143,3 +146,6 @@ $routes->post('/api/ai-assistant', 'Api\AiAssistantController::getSuggestion');
 $routes->get('attendance', 'Attendance::index');                 // Daily attendance page
 $routes->post('attendance/save', 'Attendance::save');            // Save daily attendance
 $routes->get('attendance/monthlyCalendar', 'Attendance::monthlyCalendar'); // Monthly calendar page
+
+
+
