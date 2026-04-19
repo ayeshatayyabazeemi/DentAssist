@@ -212,9 +212,10 @@
 </div>
 
 <!-- SUBMIT + PRINT -->
+<!-- SUBMIT + PRINT -->
 <div class="form-actions">
   <button type="submit" class="btn-primary">Generate Invoice</button>
-  <button type="button" class="btn-primary" onclick="printInvoice()">Print Invoice</button>
+  <!-- <button type="button" class="btn-primary" onclick="printInvoice()">Print Invoice</button> -->
 </div>
 
 </form>
@@ -229,7 +230,7 @@
     <div id="printInvoiceSection"></div>
 
     <div style="text-align:center; margin-top:15px;">
-      <button onclick="printInvoice()">🖨 Print Invoice</button>
+      <button class="btn-primary onclick="printInvoice()">🖨 Print Invoice</button>
     </div>
 
   </div>
@@ -242,11 +243,24 @@
 
 <!-- PRINT FUNCTION -->
 <script>
+function getKarachiTimeWithOffset(inputDate = null) {
+  let date = inputDate ? new Date(inputDate) : new Date();
+
+  // ✅ Add 5 hours
+  date.setHours(date.getHours() + 5);
+
+  return date.toLocaleString('en-PK', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+}
+
 function generateInvoiceHTML() {
   const form = document.getElementById('invoiceForm');
-
-  // ✅ Use absolute path for print safety
-  const logoPath = window.location.origin + "/public/assets/images/acha.jpeg";
 
   // =========================
   // GET PROCEDURES
@@ -274,39 +288,8 @@ function generateInvoiceHTML() {
   const invoiceId = form.invoice_id.value || '';
   const userName = form.user_name.value || '';
 
-  // =========================
-  // ✅ FIX DATE + TIME (ALWAYS KARACHI)
-  // =========================
-  let paymentDate;
-
-  if (form.payment_date.value) {
-    // Convert input date to Karachi time
-    const inputDate = new Date(form.payment_date.value);
-
-    paymentDate = inputDate.toLocaleString('en-PK', {
-      timeZone: 'Asia/Karachi',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
-
-  } else {
-    // If empty → current time Karachi
-    const now = new Date();
-
-    paymentDate = now.toLocaleString('en-PK', {
-      timeZone: 'Asia/Karachi',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
-  }
+  // ✅ TIME FIX (+5 HOURS)
+  const paymentDate = getKarachiTimeWithOffset(form.payment_date.value);
 
   // =========================
   // PROCEDURE TABLE
@@ -325,8 +308,11 @@ function generateInvoiceHTML() {
     });
   }
 
+  // ✅ IMPORTANT: absolute path
+  const logoPath = window.location.origin + "/assets/images/smile.jpg";
+
   // =========================
-  // FINAL HTML
+  // FINAL HTML (MODAL)
   // =========================
   const html = `
     <div style="text-align:center; margin-bottom:10px;">
@@ -369,7 +355,7 @@ function generateInvoiceHTML() {
 }
 
 function openInvoiceModal() {
-  generateInvoiceHTML(); // fill preview
+  generateInvoiceHTML();
   document.getElementById('invoiceModal').style.display = 'block';
 }
 
@@ -377,21 +363,38 @@ function closeInvoiceModal() {
   document.getElementById('invoiceModal').style.display = 'none';
 }
 
-
 function printInvoice() {
-  const content = document.getElementById('printInvoiceSection').innerHTML;
+  let printContent = document.getElementById('printInvoiceSection').innerHTML;
+
+  // ❌ remove date only from print
+  printContent = printContent.replace(/<p><strong>Date & Time:.*?<\/p>/, '');
 
   const win = window.open('', '', 'width=900,height=700');
+
   win.document.write(`
     <html>
-      <head><title>Invoice</title></head>
-      <body>${content}</body>
+      <head>
+        <title>Invoice</title>
+        <style>
+          body { font-family: Arial; padding: 20px; }
+        </style>
+      </head>
+      <body>${printContent}</body>
     </html>
   `);
 
   win.document.close();
-  win.print();
+
+  // ✅ wait for logo to load
+  win.onload = function () {
+    setTimeout(() => {
+      win.focus();
+      win.print();
+      win.close();
+    }, 500);
+  };
 }
+
 
 
 // function printInvoice() {
