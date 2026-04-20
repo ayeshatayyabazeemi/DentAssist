@@ -319,7 +319,7 @@ final_model.fit(df)
 # FUTURE FORECAST
 # ===============================
 future = final_model.make_future_dataframe(
-    periods=8,
+    periods=3,
     freq='MS'
 )
 
