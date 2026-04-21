@@ -99,9 +99,9 @@
     </a>
 
     <!-- AI Assistant Button -->
-    <a href="<?= base_url('ai-assistant') ?>">
+    <!-- <a href="<?= base_url('ai-assistant') ?>">
       <i class="fa fa-robot"></i> Dentistry Assistant
-    </a>
+    </a> -->
 
     <form id="logoutForm" action="<?= base_url('logout') ?>" method="post">
       <button type="submit" class="logout-btn">Logout</button>
@@ -133,16 +133,16 @@
         <p class="value"><?= esc(number_format($avgMonthly ?? 0, 1)) ?></p>
       </div>
 
-      <div class="kpi-card border-success">
+      <!-- <div class="kpi-card border-success">
         <h3>Growth YoY</h3>
         <p class="value"><?= $growthPercent !== null ? esc($growthPercent) . '%' : 'N/A' ?></p>
-      </div>
+      </div> -->
 
     </div>
 <div class="chart-container">
   <h2>
     <?php echo (ENVIRONMENT === 'development') 
-        ? "Revenue Prediction vs Actual (Development Mode)" 
+        ? "Revenue Prediction vs Actual " 
         : "Registration Trend (Last 24 Months)"; ?>
   </h2>
 
@@ -182,7 +182,7 @@
       </div>
 
       <div class="chart-wrapper-pie">
-          <h3>Predicted Procedure Share (June 2026)</h3>
+          <h3>Predicted Procedure Share </h3>
           <canvas id="predictedPieChart"></canvas>
       </div>
 
@@ -190,7 +190,7 @@
 
 </div>
 <div class="page-insight-container-pie">
-    <div class="insight-boxs-pie" ></div>
+    <div class="insight-boxs-pie" ><h3>Inventory levels are sufficient to meet the predicted procedure demand.</h3></div>
 </div>
 <?php endif; ?>
 <?php if (ENVIRONMENT === 'development'): ?>

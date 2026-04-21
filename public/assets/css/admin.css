@@ -319,6 +319,12 @@ canvas {
   text-align: center;
   white-space: nowrap; /* prevents text wrapping */
 }
+.insight-boxs-pie h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500; /* not bold */
+  color: #2e7d32; /* green */
+}
 .insight-boxs {
   padding: 12px 24px;
   border-radius: 10px;
