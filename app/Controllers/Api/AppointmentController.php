@@ -153,6 +153,35 @@ public function getSlots()
         }
 
         $appointmentModel = new AppointmentModel();
+        
+        // Block doctor double booking
+        $doctorSlotExists = $appointmentModel
+            ->where('employee_id', $data['doctor_id'])
+            ->where('appointment_date', $data['date'])
+            ->where('appointment_time', $data['slot'])
+            ->first();
+
+        if ($doctorSlotExists) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'This slot is already booked'
+            ]);
+        }
+
+        // Block patient duplicate booking
+        $patientSlotExists = $appointmentModel
+            ->where('patient_id', $data['patient_id'])
+            ->where('appointment_date', $data['date'])
+            ->where('appointment_time', $data['slot'])
+            ->first();
+
+        if ($patientSlotExists) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Patient already has an appointment at this time'
+            ]);
+        }
+        
 
         $insertData = [
             'patient_id' => $data['patient_id'],
@@ -162,7 +191,18 @@ public function getSlots()
             'slot' => $data['slot']
         ];
 
-        $insertId = $appointmentModel->insert($insertData);
+        // $insertId = $appointmentModel->insert($insertData);
+        
+         try {
+            $insertId = $appointmentModel->insert($insertData);
+        } catch (\Exception $e) {
+            // This happens if UNIQUE constraint fails (double booking)
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'This slot was just booked by another user'
+            ]);
+        }
+
 
         if ($insertId) {
             // Return the new appointment with doctor name

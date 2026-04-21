@@ -12,27 +12,111 @@
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="assets/images/mylogo.png" />
+
+  <!-- Navbar & Buttons Style -->
+  <style>
+    /* Navbar links and buttons (Attendance, Lab Order, AI Assistant, Logout) */
+    nav a,
+    nav button {
+      background-color: #ffb6c1; /* light pink */
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 6px;
+      text-decoration: none;
+      border: none;
+      font-size: 14px;
+      margin-right: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    /* Hover effect for all navbar buttons */
+    nav a:hover,
+    nav button:hover {
+      background-color: #ff99aa; /* slightly darker pink */
+    }
+
+    /* Tab buttons (Patients, Employees) */
+    .tabbtn {
+      background-color: #ffb6c1;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    /* Hover for tab buttons */
+    .tabbtn:hover {
+      background-color: #ff99aa;
+    }
+
+    /* Active tab button */
+    .tabbtn.active {
+      background-color: #ff85a2;
+    }
+
+    /* Logout button */
+    .logout-btn {
+      background-color: #ffb6c1;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .logout-btn:hover {
+      background-color: #ff99aa;
+    }
+  </style>
+
 </head>
+
 <body>
 
 <header>
   <div class="logo-btn" id="dashboardLogo">Admin Dashboard</div>
+
   <nav>
+
     <ul class="nav-list">
       <li><button class="tabbtn" data-tab="patients">Patients</button></li>
       <li><button class="tabbtn" data-tab="staffs">Employees</button></li>
     </ul>
+
+    <!-- Employee Attendance Button -->
+    <a href="<?= base_url('attendance') ?>">
+      <i class="fa fa-calendar-check-o"></i> Attendance
+    </a>
+
+    <!-- Lab Order Button -->
+    <a href="<?= base_url('laborders/create') ?>">
+      <i class="fa fa-flask"></i> Lab Order
+    </a>
+
+    <!-- AI Assistant Button -->
+    <a href="<?= base_url('ai-assistant') ?>">
+      <i class="fa fa-robot"></i> Dentistry Assistant
+    </a>
+
     <form id="logoutForm" action="<?= base_url('logout') ?>" method="post">
       <button type="submit" class="logout-btn">Logout</button>
     </form>
+
   </nav>
 </header>
 
 <main class="main-content">
 
-  <!-- Dashboard / Home Tab Content -->
+  <!-- Dashboard Tab -->
   <section id="tab-dashboard" class="tab-content">
+
     <div class="kpi-container">
+
       <div class="kpi-card border-primary">
         <h3>Total Patients (All-Time)</h3>
         <p class="value"><?= esc(number_format($totalPatients ?? 0)) ?></p>
@@ -53,6 +137,7 @@
         <h3>Growth YoY</h3>
         <p class="value"><?= $growthPercent !== null ? esc($growthPercent) . '%' : 'N/A' ?></p>
       </div>
+
     </div>
 <div class="chart-container">
   <h2>
@@ -76,6 +161,7 @@
       <div id="forecastRecommendations" style="flex: 1; font-size: 14px; color: #333;">
         <!-- JS will populate recommendations here -->
       </div>
+
     </div>
   <?php endif; ?>
 </div>
@@ -160,8 +246,9 @@
        
   </section>
 
-  <!-- Patients Tab Content -->
+  <!-- Patients Tab -->
   <section id="tab-patients" class="tab-content" style="display: none;">
+
     <div class="top-row">
       <div class="search-bar">
         <input type="text" id="patientSearch" placeholder="Search patients..." />
@@ -170,38 +257,47 @@
     </div>
 
     <div class="form-section">
+
       <h2>Add Patient</h2>
+
       <form id="patientForm">
+
         <div class="form-grid">
+
           <div class="form-group">
             <label for="name" class="required-label">Name</label>
             <input type="text" id="name" name="name" required />
           </div>
+
           <div class="form-group">
             <label for="email">Email</label>
             <input type="email" id="email" name="email" />
           </div>
+
           <div class="form-group">
             <label for="mobile_no" class="required-label">Mobile No</label>
             <input type="text" id="mobile_no" name="mobile_no" required />
           </div>
+
           <div class="form-group">
             <label for="gender" class="required-label">Gender</label>
             <select id="gender" name="gender" required>
               <option value="">Select Gender</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
-            
             </select>
           </div>
+
           <div class="form-group">
             <label for="dob">Date of Birth</label>
             <input type="date" id="dob" name="dob" />
           </div>
+
           <div class="form-group">
             <label for="cnic">CNIC (13 digits, no “-”)</label>
             <input type="text" id="cnic" name="cnic" />
           </div>
+
           <div class="form-group">
             <label for="bloodGroup">Blood Group</label>
             <select id="bloodGroup" name="bloodGroup">
@@ -216,26 +312,32 @@
               <option value="O-">O-</option>
             </select>
           </div>
+
           <div class="form-group">
             <label for="occupation">Occupation</label>
             <input type="text" id="occupation" name="occupation" />
           </div>
+
           <div class="form-group address-field">
             <label for="address">Address</label>
             <textarea id="address" name="address" rows="2"></textarea>
           </div>
+
           <div class="form-group">
             <label for="regdate">Registration Date</label>
             <input type="date" id="regdate" name="regdate" />
           </div>
+
           <div class="form-group">
             <label for="guardianname">Guardian Name</label>
             <input type="text" id="guardianname" name="guardianname" />
           </div>
+
           <div class="form-group">
             <label for="guardianphonenumber">Guardian Phone</label>
             <input type="text" id="guardianphonenumber" name="guardianphonenumber" />
           </div>
+
           <div class="form-group">
             <label for="insurance" class="required-label">Insurance</label>
             <select id="insurance" name="insurance" required>
@@ -258,20 +360,23 @@
               <option value="PTV">PTV</option>
               <option value="KDA">KDA</option>
               <option value="NHA">NHA</option>
+              <option value="KWSC">KWSC</option>
             </select>
           </div>
-          <!-- <div class="form-group">
-            <label for="mr_number">MR Number</label>
-            <input type="text" id="mr_number" name="mr_number" readonly />
-          </div> -->
+
         </div>
+
         <button type="submit" class="submit-btn">Add Patient</button>
+
       </form>
+
     </div>
+
   </section>
 
-  <!-- Staffs / Employees Tab Content -->
+  <!-- Employees Tab -->
   <section id="tab-staffs" class="tab-content" style="display: none;">
+
     <div class="top-row">
       <div class="search-bar">
         <input type="text" id="employeeSearch" placeholder="Search employee..." />
@@ -280,42 +385,47 @@
     </div>
 
     <div class="form-section">
+
       <h2>Employee / Staff Details</h2>
+
       <form id="employeeForm">
+
         <div class="form-grid">
+
           <div class="form-group">
             <label for="emp_name" class="required-label">Name</label>
             <input type="text" id="emp_name" name="name" required />
           </div>
+
           <div class="form-group">
             <label for="emp_email" class="required-label">Email</label>
             <input type="email" id="emp_email" name="email" required/>
           </div>
+
           <div class="form-group">
             <label for="emp_mobile_no" class="required-label">Mobile No</label>
             <input type="text" id="emp_mobile_no" name="mobile_no" required />
           </div>
+
           <div class="form-group">
             <label for="emp_gender" class="required-label">Gender</label>
             <select id="emp_gender" name="gender" required>
               <option value="">Select Gender</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
-             
             </select>
           </div>
+
           <div class="form-group">
             <label for="emp_dob">Date of Birth</label>
             <input type="date" id="emp_dob" name="dob" />
           </div>
-          <div class="form-group">
-            <label for="cnic">CNIC (13 digits, no “-”)</label>
-            <input type="text" id="cnic" name="cnic" />
-          </div>
+
           <div class="form-group">
             <label for="emp_regdate">Registration Date</label>
             <input type="date" id="emp_regdate" name="regdate" />
           </div>
+
           <div class="form-group">
             <label for="emp_designation" class="required-label">Designation</label>
             <select id="emp_designation" name="designation" required>
@@ -326,41 +436,15 @@
               <option value="staff">Staff</option>
             </select>
           </div>
-          <div class="form-group address-field">
-            <label for="emp_address">Address</label>
-            <textarea id="emp_address" name="address" rows="2"></textarea>
-          </div>
-          <div class="form-group">
-            <label for="emp_password" class="required-label">Password (Not for Staff)</label>
-            <input type="password" id="emp_password" name="password" />
-          </div>
-          <div class="form-group">
-            <label for="emp_c_password" class="required-label">Confirm Password</label>
-            <input type="password" id="emp_c_password" name="c_password" />
-          </div>
-        </div>
 
-        <div class="form-section" id="scheduleSection" style="display:none;">
-          <h2>Doctor Schedule</h2>
-          <table class="schedule-table">
-            <thead>
-              <tr><th>Day</th><th>Start Time</th><th>End Time</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Sunday</td><td><input type="time" name="start_time[Sun]" /></td><td><input type="time" name="end_time[Sun]" /></td></tr>
-              <tr><td>Monday</td><td><input type="time" name="start_time[Mon]" /></td><td><input type="time" name="end_time[Mon]" /></td></tr>
-              <tr><td>Tuesday</td><td><input type="time" name="start_time[Tue]" /></td><td><input type="time" name="end_time[Tue]" /></td></tr>
-              <tr><td>Wednesday</td><td><input type="time" name="start_time[Wed]" /></td><td><input type="time" name="end_time[Wed]" /></td></tr>
-              <tr><td>Thursday</td><td><input type="time" name="start_time[Thu]" /></td><td><input type="time" name="end_time[Thu]" /></td></tr>
-              <tr><td>Friday</td><td><input type="time" name="start_time[Fri]" /></td><td><input type="time" name="end_time[Fri]" /></td></tr>
-              <tr><td>Saturday</td><td><input type="time" name="start_time[Sat]" /></td><td><input type="time" name="end_time[Sat]" /></td></tr>
-            </tbody>
-          </table>
         </div>
 
         <button type="submit" class="submit-btn">Add Employee</button>
+
       </form>
+
     </div>
+
   </section>
 
 </main>
@@ -369,15 +453,14 @@
 window.chartLabels = <?= json_encode($chartLabels) ?>;
 window.chartData   = <?= json_encode($chartData) ?>;
 
-// Tab switching logic
-document.querySelectorAll('.tabbtn').forEach(btn => {
-  btn.addEventListener('click', function() {
-    const tab = this.dataset.tab;
-    document.querySelectorAll('.tabbtn').forEach(b => b.classList.remove('active'));
+document.querySelectorAll('.tabbtn').forEach(btn=>{
+  btn.addEventListener('click',function(){
+    const tab=this.dataset.tab;
+    document.querySelectorAll('.tabbtn').forEach(b=>b.classList.remove('active'));
     this.classList.add('active');
-    document.querySelectorAll('.tab-content').forEach(sec => sec.style.display = 'none');
-    const section = document.getElementById('tab-' + tab);
-    if (section) section.style.display = 'block';
+    document.querySelectorAll('.tab-content').forEach(sec=>sec.style.display='none');
+    const section=document.getElementById('tab-'+tab);
+    if(section) section.style.display='block';
   });
 });
 </script>

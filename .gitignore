@@ -9,7 +9,11 @@ venv/
 python_script/venv/
 
 
+/app/Config/Database.php
 # Environment / Config sensitive files
+
+venv/
+python_script/venv/
 .env
 .env.*           # any env variant
 /.vagrant
