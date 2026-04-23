@@ -47,6 +47,7 @@
               <th>Appointment Date</th>
               <th>Slot</th>
               <th>Status</th>
+              <th>Action</th>
               <!-- <th>Status Updated At</th> -->
             </tr>
           </thead>

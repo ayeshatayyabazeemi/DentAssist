@@ -35,7 +35,7 @@
   <div class="card">
     <h3>Assign Procedure</h3>
 
-    <form method="post" action="<?= base_url('doctor/saveTreatment') ?>">
+    <!-- <form method="post" action="<?= base_url('doctor/saveTreatment') ?>">
 
       <input type="hidden" name="patient_id" value="<?= $patient['patient_id'] ?>">
       <input type="hidden" name="patient_name" value="<?= $patient['name'] ?>">
@@ -52,7 +52,34 @@
       <textarea name="notes"></textarea>
 
       <button type="submit">Save Treatment</button>
-    </form>
+    </form> -->
+          <form method="post" action="<?= base_url('doctor/saveTreatment') ?>">
+
+  <input type="hidden" name="patient_id" value="<?= $patient['patient_id'] ?>">
+  <input type="hidden" name="patient_name" value="<?= $patient['name'] ?>">
+  <input type="hidden" name="mr_number" value="<?= $patient['mr_number'] ?>">
+  <input type="hidden" name="appointment_id" value="<?= $appointment_id ?>">
+
+  <select name="procedure_id">
+    <?php foreach($procedures as $p): ?>
+      <option value="<?= $p['procedure_id'] ?>">
+        <?= $p['procedure_name'] ?>
+      </option>
+    <?php endforeach; ?>
+  </select>
+
+  <textarea name="notes" placeholder="Doctor notes..."></textarea>
+
+  <button type="submit" name="action" value="save">
+      💾 Save Treatment
+  </button>
+
+  <button type="submit" name="action" value="complete">
+      ✅ Complete Treatment
+  </button>
+
+</form>
+
   </div>
 
   <div class="card">

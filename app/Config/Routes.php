@@ -116,13 +116,17 @@ $routes->group('doctor', ['filter' => 'auth:doctor'], function($routes) {
     $routes->get('dashboard', 'DoctorDashboard::index');
 
     // Patient detail page
-    $routes->get('patient/(:num)', 'DoctorDashboard::patient/$1');
+    // $routes->get('patient/(:num)', 'DoctorDashboard::patient/$1');
 
     // Save treatment
     $routes->post('saveTreatment', 'DoctorDashboard::saveTreatment');
 
     // Update appointment status
     $routes->post('updateStatus', 'DoctorDashboard::updateStatus');
+
+    $routes->get('patient/(:num)/(:num)', 'DoctorDashboard::patient/$1/$2');
+
+    $routes->post('doctor/saveTreatment', 'DoctorDashboard::saveTreatment');
 
 });
 
@@ -154,3 +158,8 @@ $routes->post('/api/ai-assistant', 'Api\AiAssistantController::getSuggestion');
 $routes->get('attendance', 'Attendance::index');                 // Daily attendance page
 $routes->post('attendance/save', 'Attendance::save');            // Save daily attendance
 $routes->get('attendance/monthlyCalendar', 'Attendance::monthlyCalendar'); // Monthly calendar page
+
+
+// 🧾 Invoice
+$routes->get('invoice/(:num)/(:num)', 'InvoiceController::index/$1/$2');
+$routes->post('patient/invoice/save', 'InvoiceController::save');

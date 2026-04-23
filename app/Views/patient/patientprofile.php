@@ -165,8 +165,11 @@
     
     <span class="icon edit" id="openEditPatientModal">✏️</span>
     <span class="icon delete" id="deletePatient" data-id="<?= esc($patient['patient_id']); ?>">🗑️</span>
-        <a href="<?= base_url('patient/invoice/'.$patient['patient_id']) ?>" class="btn-generate-invoice" target="_blank">Invoice</a>
-
+        <!-- <a href="<?= base_url('patient/invoice/'.$patient['patient_id']) ?>" class="btn-generate-invoice" target="_blank">Invoice</a> -->
+    <a href="<?= base_url('invoice/'.$patient['patient_id'].'/'.$appointment_id) ?>" 
+   class="btn-generate-invoice" target="_blank">
+   Invoice
+</a>
     <a href="<?= base_url('patientcard/'.$patient['patient_id']) ?>" class="btn-generate-id" target="_blank">Generate Patient Card</a>
 
     <!-- NEW BUTTON -->

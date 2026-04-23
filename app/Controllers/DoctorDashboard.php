@@ -57,54 +57,108 @@ class DoctorDashboard extends BaseController
     }
 
     // 🟢 PATIENT DETAIL + HISTORY
-    public function patient($patient_id)
-    {
-        $patient = $this->patientModel->find($patient_id);
+    // public function patient($patient_id)
+    // {
+    //     $patient = $this->patientModel->find($patient_id);
 
-        // 🟡 Patient history from invoice table
-        $history = $this->db->table('invoice')
-            ->where('patient_id', $patient_id)
-            ->get()
-            ->getResultArray();
+    //     // 🟡 Patient history from invoice table
+    //     $history = $this->db->table('invoice')
+    //         ->where('patient_id', $patient_id)
+    //         ->get()
+    //         ->getResultArray();
 
-        // 🟢 Procedures list
-        $procedures = $this->db->table('procedures')->get()->getResultArray();
+    //     // 🟢 Procedures list
+    //     $procedures = $this->db->table('procedures')->get()->getResultArray();
 
-        return view('doctor/patient_detail', [
-            'patient' => $patient,
-            'history' => $history,
-            'procedures' => $procedures
-        ]);
-    }
+    //     return view('doctor/patient_detail', [
+    //         'patient' => $patient,
+    //         'history' => $history,
+    //         'procedures' => $procedures
+    //     ]);
+    // }
+
+
+
+    public function patient($patient_id, $appointment_id)
+{
+    $patient = $this->patientModel->find($patient_id);
+
+    $history = $this->db->table('invoice')
+        ->where('patient_id', $patient_id)
+        ->get()
+        ->getResultArray();
+
+    $procedures = $this->db->table('procedures')->get()->getResultArray();
+
+    return view('doctor/patient_detail', [
+        'patient' => $patient,
+        'history' => $history,
+        'procedures' => $procedures,
+        'appointment_id' => $appointment_id   // ✅ THIS LINE IS IMPORTANT
+    ]);
+}
 
     // 🟢 SAVE TREATMENT (IMPORTANT)
-    public function saveTreatment()
-    {
-        $data = $this->request->getPost();
+    // public function saveTreatment()
+    // {
+    //     $data = $this->request->getPost();
 
-        // get procedure name
-        $procedure = $this->db->table('procedures')
-            ->where('procedure_id', $data['procedure_id'])
-            ->get()
-            ->getRowArray();
+    //     // get procedure name
+    //     $procedure = $this->db->table('procedures')
+    //         ->where('procedure_id', $data['procedure_id'])
+    //         ->get()
+    //         ->getRowArray();
 
-        // insert into invoice (your system style)
-        $this->db->table('invoice')->insert([
-            'invoice_id'   => rand(1000,9999),
-            'patient_id'   => $data['patient_id'],
-            'patient_name' => $data['patient_name'],
-            'mr_number'    => $data['mr_number'],
-            'description'  => $procedure['procedure_name'] . " | " . $data['notes'],
-            'paid_amount'  => 0,
-            'dues'         => $procedure['price'],
-            'advance'      => 0,
-            'payment_date' => date('Y-m-d'),
-            'payment_date_new' => date('Y-m-d'),
-            'user_name' => session()->get('username')
-        ]);
+    //     // insert into invoice (your system style)
+    //     $this->db->table('invoice')->insert([
+    //         'invoice_id'   => rand(1000,9999),
+    //         'patient_id'   => $data['patient_id'],
+    //         'patient_name' => $data['patient_name'],
+    //         'mr_number'    => $data['mr_number'],
+    //         'description'  => $procedure['procedure_name'] . " | " . $data['notes'],
+    //         'paid_amount'  => 0,
+    //         'dues'         => $procedure['price'],
+    //         'advance'      => 0,
+    //         'payment_date' => date('Y-m-d'),
+    //         'payment_date_new' => date('Y-m-d'),
+    //         'user_name' => session()->get('username')
+    //     ]);
 
-        return redirect()->back()->with('success', 'Treatment Saved');
+    //     return redirect()->back()->with('success', 'Treatment Saved');
+    // }
+
+   public function saveTreatment()
+{
+    $data = $this->request->getPost();
+
+    $procedure = $this->db->table('procedures')
+        ->where('procedure_id', $data['procedure_id'])
+        ->get()
+        ->getRowArray();
+
+    // ✅ SAVE INTO TREATMENTS TABLE
+    $this->db->table('treatments')->insert([
+        'appointment_id' => $data['appointment_id'],
+        'patient_id'     => $data['patient_id'],
+        'procedure_id'   => $procedure['procedure_id'],
+        'procedure_name' => $procedure['procedure_name'],
+        'price'          => $procedure['price']
+    ]);
+
+    // ✅ ONLY mark completed if clicked
+    if ($data['action'] == 'complete') {
+        $this->db->table('appointments')
+            ->where('appointment_id', $data['appointment_id'])
+            ->update([
+                'status' => 'completed',
+                'status_updated_at' => date('Y-m-d H:i:s')
+            ]);
     }
+
+    return redirect()->back()->with('success', 'Treatment Saved');
+}
+
+
 
     // 🟢 STATUS UPDATE (already yours but improved)
     public function updateStatus()
@@ -118,4 +172,4 @@ class DoctorDashboard extends BaseController
 
         return $this->response->setJSON(['status' => 'success']);
     }
-}
+} 

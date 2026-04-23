@@ -61,7 +61,8 @@
                 <td><?= esc($apt['mr_number']) ?></td>
                 <!-- <td><?= esc($apt['patient_name']) ?></td> -->
                  <td>
-  <a href="<?= base_url('doctor/patient/'.$apt['patient_id']) ?>">
+  <!-- <a href="<?= base_url('doctor/patient/'.$apt['patient_id']) ?>"> -->
+    <a href="<?= base_url('doctor/patient/'.$apt['patient_id'].'/'.$apt['appointment_id']) ?>">
     <?= esc($apt['patient_name']) ?>
   </a>
 </td>

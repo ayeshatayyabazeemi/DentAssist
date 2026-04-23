@@ -152,6 +152,25 @@ async function fetchAppointments() {
 tdStatus.appendChild(statusSelect);
 
   tr.appendChild(tdStatus);
+
+  // 🧾 ACTION COLUMN
+const tdAction = document.createElement('td');
+
+if (apt.status === 'completed') {
+  const btn = document.createElement('button');
+  btn.textContent = "Generate Invoice";
+  btn.classList.add('invoice-btn');
+
+  btn.onclick = () => {
+    window.open(`/invoice/${apt.patient_id}/${apt.appointment_id}`, '_blank');
+  };
+
+  tdAction.appendChild(btn);
+} else {
+  tdAction.textContent = '-';
+}
+
+tr.appendChild(tdAction);
 // Status Updated At
 // const tdUpdatedAt = document.createElement('td');
 
@@ -392,4 +411,4 @@ if (patientForm) {
 //     window.location.href = `/patient/profile/${patientId}`;
 //   }
 // });
-});
+}); 

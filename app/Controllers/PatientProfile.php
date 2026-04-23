@@ -8,32 +8,70 @@ use App\Models\ProcedureModel;
 
 class PatientProfile extends Controller
 {
-    public function view($patientId = null)
-    {
-        if ($patientId === null) {
-            // invalid request
-            return redirect()->to('/adminDashboard'); // or some safe place
-        }
+//     public function view($patientId = null)
+//     {
+//         if ($patientId === null) {
+//             // invalid request
+//             return redirect()->to('/adminDashboard'); // or some safe place
+//         }
 
-        $model = new PatientModel();
-            $invoiceModel = new InvoiceModel();
+//         $model = new PatientModel();
+//             $invoiceModel = new InvoiceModel();
 
        
-  $patient = $model->find($patientId);
-         $invoices = $invoiceModel
+//   $patient = $model->find($patientId);
+//          $invoices = $invoiceModel
+//         ->where('patient_id', $patientId)
+//         ->orderBy('payment_date', 'DESC')
+//         ->findAll();
+
+
+//         if (!$patient) {
+//             // no patient found
+//             return redirect()->to('/adminDashboard')->with('error','Patient not found');
+//         }
+
+//         // pass data to view or return JSON if you want
+//         return view('patient/patientprofile', ['patient' => $patient, 'invoices' => $invoices]);
+//     }
+
+    public function view($patientId = null)
+{
+    if ($patientId === null) {
+        return redirect()->to('/adminDashboard');
+    }
+
+    $model = new PatientModel();
+    $invoiceModel = new InvoiceModel();
+    $appointmentModel = new \App\Models\AppointmentModel();
+
+    $patient = $model->find($patientId);
+
+    $invoices = $invoiceModel
         ->where('patient_id', $patientId)
         ->orderBy('payment_date', 'DESC')
         ->findAll();
 
-
-        if (!$patient) {
-            // no patient found
-            return redirect()->to('/adminDashboard')->with('error','Patient not found');
-        }
-
-        // pass data to view or return JSON if you want
-        return view('patient/patientprofile', ['patient' => $patient, 'invoices' => $invoices]);
+    if (!$patient) {
+        return redirect()->to('/adminDashboard')
+            ->with('error','Patient not found');
     }
+
+    // ✅ GET APPOINTMENT
+    $appointment = $appointmentModel
+        ->where('patient_id', $patientId)
+        ->orderBy('appointment_id', 'DESC')
+        ->first();
+
+    $appointment_id = $appointment['appointment_id'] ?? null;
+
+    return view('patient/patientprofile', [
+        'patient' => $patient,
+        'invoices' => $invoices,
+        'appointment_id' => $appointment_id
+    ]);
+}
+
  public function invoiceView($patientId)
 {
     try {
@@ -277,5 +315,4 @@ public function updateProcedure()
             'invoice_id' => $invoiceModel->getInsertID()
         ]);
     }
-
 }

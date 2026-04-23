@@ -44,6 +44,9 @@ class ReceptionController extends BaseController
 
     use ResponseTrait;
 
+
+    
+
     public function updateStatus()
     {
         $data = $this->request->getJSON(true);
@@ -77,4 +80,4 @@ class ReceptionController extends BaseController
             'message' => 'Appointment status updated'
         ]);
     }
-}
+}  
