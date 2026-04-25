@@ -30,30 +30,68 @@ class DoctorDashboard extends BaseController
         $doctor_id = session()->get('user_id');
         $today = date('Y-m-d');
 
-        $pendingCount = $this->appointmentModel
-            ->where('employee_id', $doctor_id)
-            ->where('status !=', 'completed')
-            ->countAllResults();
+        // $pendingCount = $this->appointmentModel
+        //     ->where('employee_id', $doctor_id)
+        //     ->where('status !=', 'completed')
+        //     ->countAllResults();
 
-        $completedCount = $this->appointmentModel
-            ->where('employee_id', $doctor_id)
-            ->where('status', 'completed')
-            ->countAllResults();
+        // $completedCount = $this->appointmentModel
+        //     ->where('employee_id', $doctor_id)
+        //     ->where('status', 'completed')
+        //     ->countAllResults();
+
+        $pendingCount = $this->appointmentModel
+    ->where('employee_id', $doctor_id)
+    ->where('status !=', 'completed')
+    ->where('appointment_date >=', date('Y-m-d'))
+    ->countAllResults();
+
+    
+
+    $completedCount = $this->appointmentModel
+    ->where('employee_id', $doctor_id)
+    ->where('status', 'completed')
+    ->where('appointment_date >=', date('Y-m-d', strtotime('-30 days')))
+    ->countAllResults();
+
+
+    
 
         $todaysAppointments = $this->appointmentModel
-            ->select('appointments.*, patients.name AS patient_name, patients.mr_number')
-            ->join('patients', 'patients.patient_id = appointments.patient_id')
-            ->where('appointments.employee_id', $doctor_id)
-            ->where('appointments.appointment_date', $today)
-            ->orderBy('appointments.appointment_time', 'ASC')
-            ->findAll();
+    ->select('appointments.*, patients.name AS patient_name, patients.mr_number')
+    ->join('patients', 'patients.patient_id = appointments.patient_id')
+    ->where('appointments.employee_id', $doctor_id)
+    ->where('appointments.appointment_date', $today)
+    ->orderBy('appointments.appointment_time', 'ASC')
+    ->findAll();
 
-        return view('doctor/dashboard', [
-            'doctor_name' => session()->get('username'),
-            'pendingCount' => $pendingCount,
-            'completedCount' => $completedCount,
-            'todaysAppointments' => $todaysAppointments
-        ]);
+/* ================= UPCOMING (FUTURE) ================= */
+$futureAppointments = $this->appointmentModel
+    ->select('appointments.*, patients.name AS patient_name, patients.mr_number')
+    ->join('patients', 'patients.patient_id = appointments.patient_id')
+    ->where('appointments.employee_id', $doctor_id)
+    ->where('appointments.appointment_date >', $today)
+    ->orderBy('appointments.appointment_date', 'ASC')
+    ->findAll();
+
+        /* ================= COMPLETED ================= */
+$completedAppointments = $this->appointmentModel
+    ->select('appointments.*, patients.name AS patient_name, patients.mr_number')
+    ->join('patients', 'patients.patient_id = appointments.patient_id')
+    ->where('appointments.employee_id', $doctor_id)
+    ->where('appointments.status', 'completed')
+    ->orderBy('appointments.appointment_date', 'DESC')
+    ->findAll();
+
+return view('doctor/dashboard', [
+    'doctor_name' => session()->get('username'),
+    'pendingCount' => $pendingCount,
+    'completedCount' => $completedCount,
+
+    'todaysAppointments' => $todaysAppointments,
+    'futureAppointments' => $futureAppointments,
+    'completedAppointments' => $completedAppointments
+]);
     }
 
     // 🟢 PATIENT DETAIL + HISTORY
@@ -61,14 +99,17 @@ class DoctorDashboard extends BaseController
     {
         $patient = $this->patientModel->find($patient_id);
 
-        // 🟡 Patient history from invoice table
-        $history = $this->db->table('invoice')
+       // FIXED: real treatment history
+        $history = $this->db->table('treatments')
+            ->select('treatments.*, procedures.procedure_name')
+            ->join('procedures', 'procedures.procedure_id = treatments.procedure_id')
             ->where('patient_id', $patient_id)
+            ->orderBy('created_at', 'DESC')
             ->get()
             ->getResultArray();
 
-        // 🟢 Procedures list
         $procedures = $this->db->table('procedures')->get()->getResultArray();
+
 
         return view('doctor/patient_detail', [
             'patient' => $patient,
@@ -78,33 +119,48 @@ class DoctorDashboard extends BaseController
     }
 
     // 🟢 SAVE TREATMENT (IMPORTANT)
-    public function saveTreatment()
-    {
-        $data = $this->request->getPost();
+    // 🟢 SAVE TREATMENT (IMPORTANT)
+public function saveTreatment()
+{
+    $data = $this->request->getPost();
 
-        // get procedure name
-        $procedure = $this->db->table('procedures')
-            ->where('procedure_id', $data['procedure_id'])
-            ->get()
-            ->getRowArray();
+    // CHECK if already completed
+    $appointment = $this->appointmentModel
+        ->where('appointment_id', $data['appointment_id'])
+        ->first();
 
-        // insert into invoice (your system style)
-        $this->db->table('invoice')->insert([
-            'invoice_id'   => rand(1000,9999),
-            'patient_id'   => $data['patient_id'],
-            'patient_name' => $data['patient_name'],
-            'mr_number'    => $data['mr_number'],
-            'description'  => $procedure['procedure_name'] . " | " . $data['notes'],
-            'paid_amount'  => 0,
-            'dues'         => $procedure['price'],
-            'advance'      => 0,
-            'payment_date' => date('Y-m-d'),
-            'payment_date_new' => date('Y-m-d'),
-            'user_name' => session()->get('username')
-        ]);
-
-        return redirect()->back()->with('success', 'Treatment Saved');
+    if ($appointment && $appointment['status'] === 'completed') {
+        return redirect()->back()->with('error', 'Already completed. Locked.');
     }
+
+    // Get the selected procedures (may be multiple)
+    $procedureIds = $this->request->getPost('procedure_id'); // Array of procedure IDs
+
+    // Ensure it's an array (for safety)
+    if (!is_array($procedureIds)) {
+        $procedureIds = [$procedureIds]; // Convert to an array if not already
+    }
+
+    // Insert each selected procedure into the 'treatments' table
+    foreach ($procedureIds as $procId) {
+        $this->db->table('treatments')->insert([
+            'patient_id'     => $data['patient_id'],
+            'appointment_id' => $data['appointment_id'],
+            'procedure_id'   => $procId,
+            'notes'          => $data['notes'],
+            'doctor_name'    => session()->get('username'),
+            'created_at'     => date('Y-m-d H:i:s')
+        ]);
+    }
+
+    // OPTIONAL: auto mark appointment completed
+    $this->appointmentModel->update($data['appointment_id'], [
+        'status' => 'completed',
+        'status_updated_at' => date('Y-m-d H:i:s')
+    ]);
+
+    return redirect()->to('/doctor/dashboard');
+}
 
     // 🟢 STATUS UPDATE (already yours but improved)
     public function updateStatus()
