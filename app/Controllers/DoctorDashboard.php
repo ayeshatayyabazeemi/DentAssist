@@ -18,10 +18,14 @@ class DoctorDashboard extends BaseController
     $this->db = \Config\Database::connect();
 
     // security check
-    if (session()->get('role') !== 'doctor') {
-        header("Location: /login");
-        exit;
-    }
+    // if (session()->get('role') !== 'doctor') {
+    //     header("Location: /login");
+    //     exit;
+    // }
+
+    if (!session()->has('role')) {
+    return redirect()->to('/login');
+}
 }
 
     // 🟢 DASHBOARD
@@ -95,73 +99,114 @@ return view('doctor/dashboard', [
     }
 
     // 🟢 PATIENT DETAIL + HISTORY
-    public function patient($patient_id)
-    {
-        $patient = $this->patientModel->find($patient_id);
+  public function patient($patient_id)
+{
+    $patient = $this->patientModel->find($patient_id);
 
-       // FIXED: real treatment history
-        $history = $this->db->table('treatments')
-            ->select('treatments.*, procedures.procedure_name')
-            ->join('procedures', 'procedures.procedure_id = treatments.procedure_id')
-            ->where('patient_id', $patient_id)
-            ->orderBy('created_at', 'DESC')
-            ->get()
-            ->getResultArray();
+    $appointment_id = $this->request->getGet('appointment_id');
 
-        $procedures = $this->db->table('procedures')->get()->getResultArray();
+    // ================= HISTORY =================
+    // $builder = $this->db->table('treatments t')
+    //     ->select('t.*, p.procedure_name')
+    //     ->join('procedures p', 'p.procedure_id = t.procedure_id', 'left')
+    //     ->where('t.patient_id', $patient_id);
+
+    // if (!empty($appointment_id)) {
+    //     $builder->where('t.appointment_id', $appointment_id);
+    // }
+
+    // $history = $builder
+    //     ->orderBy('t.created_at', 'DESC')
+    //     ->get()
+    //     ->getResultArray();
+
+        // ================= HISTORY =================
+$builder = $this->db->table('treatments t')
+    ->select('t.*, p.procedure_name, a.appointment_date')
+    ->join('procedures p', 'p.procedure_id = t.procedure_id', 'left')
+    ->join('appointments a', 'a.appointment_id = t.appointment_id', 'left')
+    ->where('t.patient_id', $patient_id);
+
+$history = $builder
+    ->orderBy('t.created_at', 'DESC')
+    ->get()
+    ->getResultArray();
 
 
-        return view('doctor/patient_detail', [
-            'patient' => $patient,
-            'history' => $history,
-            'procedures' => $procedures
-        ]);
+    // ================= PROCEDURES =================
+    $procedures = $this->db->table('procedures')
+        ->get()
+        ->getResultArray();
+
+    // ================= LOCK CHECK =================
+    $isLocked = false;
+
+    if (!empty($appointment_id)) {
+        $check = $this->appointmentModel
+            ->where('appointment_id', $appointment_id)
+            ->where('status', 'completed')
+            ->first();
+
+        $isLocked = !empty($check);
     }
 
-    // 🟢 SAVE TREATMENT (IMPORTANT)
-    // 🟢 SAVE TREATMENT (IMPORTANT)
+    return view('doctor/patient_detail', [
+        'patient'        => $patient,
+        'history'        => $history,
+        'procedures'     => $procedures,
+        'isLocked'       => $isLocked,
+        'appointment_id' => $appointment_id
+    ]);
+}
+  
+    // SAVE TREATMENT (IMPORTANT)
 public function saveTreatment()
 {
     $data = $this->request->getPost();
 
-    // CHECK if already completed
-    $appointment = $this->appointmentModel
-        ->where('appointment_id', $data['appointment_id'])
-        ->first();
+    $appointmentId = $data['appointment_id'];
+    $patientId     = $data['patient_id'];
+    $notes         = $data['notes'] ?? '';
+    $procedureIds  = $this->request->getPost('procedure_id');
 
-    if ($appointment && $appointment['status'] === 'completed') {
-        return redirect()->back()->with('error', 'Already completed. Locked.');
-    }
+    // ================= CASE 1: NO PROCEDURE (prescription only) =================
+    if (empty($procedureIds)) {
 
-    // Get the selected procedures (may be multiple)
-    $procedureIds = $this->request->getPost('procedure_id'); // Array of procedure IDs
-
-    // Ensure it's an array (for safety)
-    if (!is_array($procedureIds)) {
-        $procedureIds = [$procedureIds]; // Convert to an array if not already
-    }
-
-    // Insert each selected procedure into the 'treatments' table
-    foreach ($procedureIds as $procId) {
         $this->db->table('treatments')->insert([
-            'patient_id'     => $data['patient_id'],
-            'appointment_id' => $data['appointment_id'],
-            'procedure_id'   => $procId,
-            'notes'          => $data['notes'],
+            'patient_id'     => $patientId,
+            'appointment_id' => $appointmentId,
+            'procedure_id'   => null,
+            'notes'          => $notes,
             'doctor_name'    => session()->get('username'),
-            'created_at'     => date('Y-m-d H:i:s')
+            'created_at'     => date('Y-m-d H:i:s'),
+            'is_invoiced'    => 0   // ✅ ONLY ADD THIS
         ]);
+
+    } 
+    // ================= CASE 2: PROCEDURES SELECTED =================
+    else {
+
+        foreach ($procedureIds as $procId) {
+
+            $this->db->table('treatments')->insert([
+                'patient_id'     => $patientId,
+                'appointment_id' => $appointmentId,
+                'procedure_id'   => $procId,
+                'notes'          => $notes,
+                'doctor_name'    => session()->get('username'),
+                'created_at'     => date('Y-m-d H:i:s')
+            ]);
+        }
     }
 
-    // OPTIONAL: auto mark appointment completed
-    $this->appointmentModel->update($data['appointment_id'], [
+    // ================= ALWAYS MARK COMPLETED =================
+    $this->appointmentModel->update($appointmentId, [
         'status' => 'completed',
         'status_updated_at' => date('Y-m-d H:i:s')
     ]);
 
     return redirect()->to('/doctor/dashboard');
 }
-
     // 🟢 STATUS UPDATE (already yours but improved)
     public function updateStatus()
     {
@@ -174,4 +219,19 @@ public function saveTreatment()
 
         return $this->response->setJSON(['status' => 'success']);
     }
+
+    public function getProceduresByAppointment()
+{
+    $appointment_id = $this->request->getGet('appointment_id');
+
+    $data = $this->db->table('treatments t')
+        ->select('p.procedure_id, p.procedure_name, p.price')
+        ->join('procedures p', 'p.procedure_id = t.procedure_id')
+        ->where('t.appointment_id', $appointment_id)
+        ->get()
+        ->getResultArray();
+
+    return $this->response->setJSON($data);
+}
+
 }

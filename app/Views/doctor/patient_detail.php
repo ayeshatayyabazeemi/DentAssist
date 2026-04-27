@@ -12,7 +12,8 @@
 .ai-section{
     margin: 15px 0 25px 0;
     display: flex;
-    justify-content: flex-end;
+    /* justify-content: flex-end; */
+    justify-content: flex-start;
 }
 
 /* ===== PATIENT CARD THEME FIX ===== */
@@ -147,6 +148,9 @@
   <div id="selectedTags" class="tags"></div>
 
 </div>
+<p style="margin:5px 0; font-size:13px; color:#666;">
+  Prescription
+</p>
 
 
       <textarea name="notes" <?= $isLocked ? 'disabled' : '' ?>></textarea>

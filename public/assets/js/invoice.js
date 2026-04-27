@@ -1,3 +1,10 @@
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof appointmentId !== 'undefined' && appointmentId) {
+    loadDoctorProcedures();
+  }
+});
 // =========================
 // Notyf Notifications
 // =========================
@@ -20,6 +27,31 @@ const hiddenProcedureInput = document.getElementById('procedureIds');
 const dropdown    = document.getElementById('procedureDropdown');
 const selectedBox = document.getElementById('selectedProcedures');
 const items       = dropdown.querySelectorAll('.dropdown-item');
+
+// =========================
+// AUTO SELECT DOCTOR PROCEDURES
+// =========================
+if (typeof treatmentProcedures !== 'undefined' && treatmentProcedures.length > 0) {
+
+  setTimeout(() => {
+
+    treatmentProcedures.forEach(proc => {
+
+      const checkbox = document.querySelector(
+        `.procedure-checkbox[data-id="${proc.procedure_id}"]`
+      );
+
+      if (checkbox) {
+        checkbox.checked = true;
+      }
+
+    });
+
+    updateProcedures(); // recalculate total + UI
+
+  }, 300);
+
+}
 
 // =========================
 // DROPDOWN TOGGLE
@@ -341,7 +373,47 @@ function updateDropdownItem(id, field, value) {
   span.textContent = `${checkbox.dataset.name} — ${checkbox.dataset.department || ''} (Rs ${checkbox.dataset.price})`;
 }
 
+// =========================
+// AUTO SELECT DOCTOR PROCEDURES (FIXED)
+// =========================
+document.addEventListener('DOMContentLoaded', () => {
 
+  if (!treatmentProcedures || treatmentProcedures.length === 0) {
+    console.log("No doctor procedures found");
+    return;
+  }
+
+  setTimeout(() => {
+
+    let total = 0;
+    let names = [];
+    let ids = [];
+
+    treatmentProcedures.forEach(id => {
+
+      const checkbox = document.querySelector(
+        `.procedure-checkbox[data-id="${id}"]`
+      );
+
+      if (checkbox) {
+        checkbox.checked = true;
+        total += parseFloat(checkbox.dataset.price || 0);
+        names.push(checkbox.dataset.name);
+        ids.push(id);
+      }
+    });
+
+    // update UI
+    document.getElementById('totalPrice').value = total.toFixed(2);
+    document.getElementById('descriptionField').value = names.join(' + ');
+    document.getElementById('procedureIds').value = ids.join(',');
+
+    if (typeof calculateDues === 'function') {
+      calculateDues();
+    }
+
+  }, 300);
+});
 // // =========================
 // // INLINE EDIT (DOUBLE CLICK)
 // // =========================

@@ -289,3 +289,17 @@ Generate Invoice
 
 </body>
 </html>
+
+
+
+<script>
+const patientId = "<?= $patient_id ?>";
+
+// IMPORTANT FIX (safe fallback)
+const appointmentId = "<?= $appointment_id ?? '' ?>";
+
+// DOCTOR PROCEDURES (ONLY SOURCE OF TRUTH)
+const treatmentProcedures = <?= json_encode($selectedProcedures ?? []) ?>;
+
+console.log("SELECTED PROCEDURES:", treatmentProcedures);
+</script>

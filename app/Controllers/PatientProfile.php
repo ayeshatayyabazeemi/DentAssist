@@ -11,30 +11,34 @@ class PatientProfile extends Controller
     public function view($patientId = null)
     {
         if ($patientId === null) {
-            // invalid request
-            return redirect()->to('/adminDashboard'); // or some safe place
+            return redirect()->to('/adminDashboard');
         }
 
         $model = new PatientModel();
-            $invoiceModel = new InvoiceModel();
+        $invoiceModel = new InvoiceModel();
 
-       
-  $patient = $model->find($patientId);
-         $invoices = $invoiceModel
-        ->where('patient_id', $patientId)
-        ->orderBy('payment_date', 'DESC')
-        ->findAll();
+        $patient = $model->find($patientId);
 
+        $invoices = $invoiceModel
+            ->where('patient_id', $patientId)
+            ->orderBy('payment_date', 'DESC')
+            ->findAll();
+
+        // ✅ FIX: prevent undefined variable error
+        $appointment_id = $this->request->getGet('appointment_id');
 
         if (!$patient) {
-            // no patient found
             return redirect()->to('/adminDashboard')->with('error','Patient not found');
         }
 
-        // pass data to view or return JSON if you want
-        return view('patient/patientprofile', ['patient' => $patient, 'invoices' => $invoices]);
+        return view('patient/patientprofile', [
+            'patient' => $patient,
+            'invoices' => $invoices,
+            'appointment_id' => $appointment_id
+        ]);
     }
- public function invoiceView($patientId)
+
+    public function invoiceView($patientId)
 {
     try {
 
@@ -42,14 +46,13 @@ class PatientProfile extends Controller
         $invoiceModel = new InvoiceModel();
         $procedureModel = new ProcedureModel();
 
-        // Fetch patient
         $patient = $patientModel->find($patientId);
 
         if (!$patient) {
             throw new \Exception("Patient not found");
         }
 
-        // Generate invoice number
+        // invoice number
         $lastInvoice = $invoiceModel
             ->select('invoice_id')
             ->orderBy('invoice_id','DESC')
@@ -59,17 +62,32 @@ class PatientProfile extends Controller
             ? $lastInvoice['invoice_id'] + 1
             : 1001;
 
-        // Load procedures
+        // ALL procedures
         $procedures = $procedureModel
             ->orderBy('procedure_name','ASC')
             ->findAll();
 
-        return view('patient/invoice',[
-            'patient_id' => $patient['patient_id'],
-            'patient_name' => $patient['name'],
-            'mr_number' => $patient['mr_number'],
-            'invoice_id' => $nextInvoiceId,
-            'procedures' => $procedures
+        // ⭐ NEW: GET DOCTOR SELECTED PROCEDURES (IMPORTANT FIX)
+        $db = \Config\Database::connect();
+
+        $treatmentRows = $db->table('treatments')
+            ->select('procedure_id')
+            ->where('patient_id', $patientId)
+            ->where('procedure_id IS NOT NULL')
+            ->get()
+            ->getResultArray();
+
+        $selectedProcedures = array_column($treatmentRows, 'procedure_id');
+
+        return view('patient/invoice', [
+            'patient_id'        => $patient['patient_id'],
+            'patient_name'      => $patient['name'],
+            'mr_number'         => $patient['mr_number'],
+            'invoice_id'        => $nextInvoiceId,
+            'procedures'        => $procedures,
+
+            // ⭐ ADD THIS
+            'selectedProcedures'=> $selectedProcedures
         ]);
 
     } catch(\Throwable $e){
@@ -81,35 +99,31 @@ class PatientProfile extends Controller
     }
 }
 
-public function getProcedures()
-{
-    try {
+    public function getProcedures()
+    {
+        try {
 
-        $procedures = $this->procedureModel
-            ->orderBy('procedure_name','ASC')
-            ->findAll();
+            $procedures = $this->procedureModel
+                ->orderBy('procedure_name','ASC')
+                ->findAll();
 
-        return $this->response->setJSON($procedures);
+            return $this->response->setJSON($procedures);
 
-    } catch(\Throwable $e){
+        } catch(\Throwable $e){
 
-        log_message('error',$e->getMessage());
+            log_message('error',$e->getMessage());
 
-        return $this->response->setJSON([
-            'status'=>'error',
-            'error'=>'Unable to load procedures'
-        ]);
+            return $this->response->setJSON([
+                'status'=>'error',
+                'error'=>'Unable to load procedures'
+            ]);
+        }
     }
-}
 
-    /* =========================================================
-       CREATE PROCEDURE
-       JS → { name, department, price }
-    ========================================================= */
     public function createProcedure()
     {
         $data = $this->request->getJSON(true);
-             $this->procedureModel = new ProcedureModel();
+        $this->procedureModel = new ProcedureModel();
 
         if (
             empty($data['name']) ||
@@ -140,124 +154,62 @@ public function getProcedures()
             ]
         ]);
     }
-public function updateProcedure()
-{
-    try {
-        $data = $this->request->getJSON(true);
- $this->procedureModel = new ProcedureModel();
-        log_message('info', 'UpdateProcedure payload: ' . json_encode($data));
 
-        if (
-            empty($data['id']) ||
-            empty($data['field']) ||
-            !array_key_exists('value', $data)
-        ) {
-            log_message('error', 'UpdateProcedure: Invalid payload');
+    public function updateProcedure()
+    {
+        try {
+            $data = $this->request->getJSON(true);
+            $this->procedureModel = new ProcedureModel();
+
+            $map = [
+                'name'       => 'procedure_name',
+                'department' => 'department',
+                'price'      => 'price'
+            ];
+
+            if (!isset($map[$data['field']])) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'error'  => 'Invalid field'
+                ]);
+            }
+
+            $this->procedureModel->update($data['id'], [
+                $map[$data['field']] => $data['value']
+            ]);
+
+            return $this->response->setJSON(['status' => 'success']);
+
+        } catch (\Throwable $e) {
             return $this->response->setJSON([
                 'status' => 'error',
-                'error'  => 'Invalid update request'
+                'error'  => 'Server error'
             ]);
         }
-
-        $map = [
-            'name'       => 'procedure_name',
-            'department' => 'department',
-            'price'      => 'price'
-        ];
-
-        if (!isset($map[$data['field']])) {
-            log_message('error', 'UpdateProcedure: Invalid field ' . $data['field']);
-            return $this->response->setJSON([
-                'status' => 'error',
-                'error'  => 'Invalid field'
-            ]);
-        }
-
-        // Check if record exists
-        $procedure = $this->procedureModel->find($data['id']);
-        if (!$procedure) {
-            log_message('error', 'UpdateProcedure: Procedure not found ID=' . $data['id']);
-            return $this->response->setJSON([
-                'status' => 'error',
-                'error'  => 'Procedure not found'
-            ]);
-        }
-
-        $this->procedureModel->update($data['id'], [
-            $map[$data['field']] => $data['value']
-        ]);
-
-        log_message(
-            'info',
-            "Procedure updated | ID={$data['id']} | Field={$map[$data['field']]} | Value={$data['value']}"
-        );
-
-        return $this->response->setJSON(['status' => 'success']);
-
-    } catch (\Throwable $e) {
-        log_message('critical', 'UpdateProcedure exception: ' . $e->getMessage());
-
-        return $this->response->setJSON([
-            'status' => 'error',
-            'error'  => 'Server error while updating'
-        ]);
     }
-}
+
     public function deleteProcedure()
-{
-    try {
-        $data = $this->request->getJSON(true);
-     $this->procedureModel = new ProcedureModel();
-        log_message('info', 'DeleteProcedure payload: ' . json_encode($data));
+    {
+        try {
+            $data = $this->request->getJSON(true);
+            $this->procedureModel = new ProcedureModel();
 
-        if (empty($data['id'])) {
-            log_message('error', 'DeleteProcedure: Missing ID');
+            $this->procedureModel->delete($data['id']);
+
+            return $this->response->setJSON(['status' => 'success']);
+
+        } catch (\Throwable $e) {
             return $this->response->setJSON([
                 'status' => 'error',
-                'error'  => 'Invalid ID'
+                'error'  => 'Server error'
             ]);
         }
-
-        // Check if procedure exists
-        $procedure = $this->procedureModel->find($data['id']);
-        if (!$procedure) {
-            log_message('error', 'DeleteProcedure: Procedure not found ID=' . $data['id']);
-            return $this->response->setJSON([
-                'status' => 'error',
-                'error'  => 'Procedure not found'
-            ]);
-        }
-
-        $this->procedureModel->delete($data['id']);
-
-        log_message('info', 'Procedure deleted ID=' . $data['id']);
-
-        return $this->response->setJSON(['status' => 'success']);
-
-    } catch (\Throwable $e) {
-        log_message('critical', 'DeleteProcedure exception: ' . $e->getMessage());
-
-        return $this->response->setJSON([
-            'status' => 'error',
-            'error'  => 'Server error while deleting'
-        ]);
     }
-}
 
-    /* =========================================================
-       INSERT INVOICE (AJAX SAFE)
-    ========================================================= */
     public function saveInvoice()
     {
         $invoiceModel = new InvoiceModel();
         $data = $this->request->getPost();
-
-        if (!$data) {
-            return $this->response->setJSON([
-                'status' => 'error',
-                'error'  => 'Invalid request'
-            ]);
-        }
 
         $invoiceModel->insert([
             'invoice_id'   => $data['invoice_id'],
@@ -277,5 +229,4 @@ public function updateProcedure()
             'invoice_id' => $invoiceModel->getInsertID()
         ]);
     }
-
 }
