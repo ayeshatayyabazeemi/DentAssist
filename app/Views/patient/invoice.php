@@ -190,8 +190,7 @@ name="advance">
 
 <div class="form-group">
 <label>Payment Date</label>
-<input type="datetime-local"
-name="payment_date">
+<input type="date" name="payment_date" value="<?= date('Y-m-d') ?>">
 </div>
 
 </div>

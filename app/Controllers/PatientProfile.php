@@ -220,7 +220,8 @@ class PatientProfile extends Controller
             'paid_amount'  => $data['paid_amount'],
             'dues'         => $data['dues'],
             'advance'      => $data['advance'],
-            'payment_date' => $data['payment_date'],
+            // 'payment_date' => $data['payment_date'],
+            'payment_date' => date('Y-m-d', strtotime($data['payment_date'])),
             'user_name'    => $data['user_name']
         ]);
 
