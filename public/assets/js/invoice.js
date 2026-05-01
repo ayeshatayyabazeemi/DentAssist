@@ -1,10 +1,3 @@
-
-
-document.addEventListener('DOMContentLoaded', () => {
-  if (typeof appointmentId !== 'undefined' && appointmentId) {
-    loadDoctorProcedures();
-  }
-});
 // =========================
 // Notyf Notifications
 // =========================
@@ -13,7 +6,9 @@ const notyf = new Notyf({
   position: { x: 'center', y: 'top' }
 });
 
-// Form Elements
+// =========================
+// FORM ELEMENTS
+// =========================
 const invoiceForm      = document.getElementById('invoiceForm');
 const totalPriceInput  = document.getElementById('totalPrice');
 const descriptionField = document.getElementById('descriptionField');
@@ -23,22 +18,33 @@ const advanceInput     = document.querySelector("input[name='advance']");
 const paymentDateInput = document.querySelector("input[name='payment_date']");
 const hiddenProcedureInput = document.getElementById('procedureIds');
 
-// Custom dropdown elements
+// Dropdown elements
 const dropdown    = document.getElementById('procedureDropdown');
 const selectedBox = document.getElementById('selectedProcedures');
-const items       = dropdown.querySelectorAll('.dropdown-item');
+
+// =========================
+// GET ITEMS (DYNAMIC FIX)
+// =========================
+function getItems() {
+  return dropdown.querySelectorAll('.dropdown-item');
+}
 
 // =========================
 // AUTO SELECT DOCTOR PROCEDURES
 // =========================
-if (typeof treatmentProcedures !== 'undefined' && treatmentProcedures.length > 0) {
+// =========================
+// AUTO SELECT DOCTOR PROCEDURES (FIXED)
+// =========================
+document.addEventListener('DOMContentLoaded', () => {
+
+  if (!treatmentProcedures || treatmentProcedures.length === 0) return;
 
   setTimeout(() => {
 
-    treatmentProcedures.forEach(proc => {
+    treatmentProcedures.forEach(id => {
 
       const checkbox = document.querySelector(
-        `.procedure-checkbox[data-id="${proc.procedure_id}"]`
+        `.procedure-checkbox[data-id="${id}"]`
       );
 
       if (checkbox) {
@@ -47,16 +53,18 @@ if (typeof treatmentProcedures !== 'undefined' && treatmentProcedures.length > 0
 
     });
 
-    updateProcedures(); // recalculate total + UI
+    updateProcedures(); // IMPORTANT SYNC
 
   }, 300);
 
-}
+});
+
+
 
 // =========================
 // DROPDOWN TOGGLE
 // =========================
-selectedBox.addEventListener('click', (e) => {
+selectedBox.addEventListener('click', () => {
   dropdown.querySelector('.dropdown-list').classList.toggle('show');
 });
 
@@ -68,16 +76,24 @@ document.addEventListener('click', e => {
 });
 
 // =========================
-// ROW CLICK / MULTI-PROCEDURE HANDLING
+// CLICK HANDLING (FIXED)
 // =========================
-items.forEach(item => {
-  item.addEventListener('click', () => {
-    const checkbox = item.querySelector('.procedure-checkbox');
-    checkbox.checked = !checkbox.checked;
-    updateProcedures();
-  });
+dropdown.addEventListener('click', (e) => {
+
+  const item = e.target.closest('.dropdown-item');
+  if (!item) return;
+
+  const checkbox = item.querySelector('.procedure-checkbox');
+  if (!checkbox) return;
+
+  checkbox.checked = !checkbox.checked;
+  updateProcedures();
+
 });
 
+// =========================
+// UPDATE PROCEDURES (CORE)
+// =========================
 function updateProcedures() {
   let total = 0;
   let names = [];
@@ -85,8 +101,9 @@ function updateProcedures() {
 
   selectedBox.querySelectorAll('.tag').forEach(tag => tag.remove());
 
-  items.forEach(item => {
+  getItems().forEach(item => {
     const checkbox = item.querySelector('.procedure-checkbox');
+
     if (checkbox.checked) {
       total += parseFloat(checkbox.dataset.price) || 0;
       names.push(checkbox.dataset.name);
@@ -95,6 +112,7 @@ function updateProcedures() {
       const tag = document.createElement('span');
       tag.className = 'tag';
       tag.textContent = checkbox.dataset.name;
+
       selectedBox.insertBefore(tag, selectedBox.querySelector('.caret'));
     }
   });
@@ -123,6 +141,7 @@ function calculateDues() {
   const paid  = parseFloat(paidAmountInput.value) || 0;
   const adv   = parseFloat(advanceInput.value) || 0;
   const dues  = total - paid - adv;
+
   duesInput.value = dues.toFixed(2);
 }
 
@@ -161,6 +180,7 @@ invoiceForm?.addEventListener('submit', async function (e) {
       method: 'POST',
       body: formData
     });
+
     const result = await response.json();
 
     if (result.status === 'success') {
@@ -176,7 +196,6 @@ invoiceForm?.addEventListener('submit', async function (e) {
   }
 });
 
-
 // =========================
 // MODAL CONTROLS
 // =========================
@@ -187,7 +206,6 @@ const closeBtn = document.getElementById('closeProcedureModal');
 openBtn?.addEventListener('click', () => modal.style.display = 'flex');
 closeBtn?.addEventListener('click', () => modal.style.display = 'none');
 
-// Close on backdrop click
 modal?.addEventListener('click', e => {
   if (e.target === modal) modal.style.display = 'none';
 });
@@ -196,6 +214,7 @@ modal?.addEventListener('click', e => {
 // ADD NEW PROCEDURE
 // =========================
 document.getElementById('addNewProcedure')?.addEventListener('click', async () => {
+
   const name = document.getElementById('newProcName').value.trim();
   const dept = document.getElementById('newProcDepartment').value.trim();
   const price = document.getElementById('newProcPrice').value;
@@ -205,100 +224,34 @@ document.getElementById('addNewProcedure')?.addEventListener('click', async () =
     return;
   }
 
-  
-    const res = await fetch('/patient/procedures/create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, department: dept, price })
-    });
-
-    const data = await res.json();
-
-    if (data.status !== 'success') {
-      notyf.error(data.error || 'Failed to add procedure');
-      return;
-    }
-
-    notyf.success('Procedure added');
-
-    appendProcedureRow(data.procedure);
-    appendProcedureDropdown(data.procedure);
-
-    document.getElementById('newProcName').value = '';
-    document.getElementById('newProcDepartment').value = '';
-    document.getElementById('newProcPrice').value = '';
-
- 
-});
-
-
-// =========================
-// INLINE EDIT (DOUBLE CLICK)
-// =========================
-document.addEventListener('dblclick', e => {
-  const cell = e.target;
-  if (!cell.classList.contains('editable')) return;
-
-  const oldValue = cell.textContent.trim();
-  const field = cell.classList.contains('price') ? 'price'
-              : cell.classList.contains('department') ? 'department'
-              : 'name';
-
-  const input = document.createElement('input');
-  input.value = oldValue;
-  input.type = field === 'price' ? 'number' : 'text';
-
-  cell.textContent = '';
-  cell.appendChild(input);
-  input.focus();
-
-  input.addEventListener('blur', () => saveEdit(cell, field, oldValue));
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') input.blur();
-    if (e.key === 'Escape') cell.textContent = oldValue;
+  const res = await fetch('/patient/procedures/create', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, department: dept, price })
   });
-});
 
-async function saveEdit(cell, field, oldValue) {
-  const tr = cell.closest('tr');
-  const id = tr.dataset.id;
-  const value = cell.querySelector('input').value.trim();
+  const data = await res.json();
 
-  if (!value || value === oldValue) {
-    cell.textContent = oldValue;
+  if (data.status !== 'success') {
+    notyf.error(data.error || 'Failed to add procedure');
     return;
   }
 
-  try {
-    const res = await fetch('/patient/procedures/update', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, field, value })
-    });
+  notyf.success('Procedure added');
 
-    const data = await res.json();
+  appendProcedureDropdown(data.procedure);
 
-    if (data.status !== 'success') {
-      notyf.error(data.error || 'Update failed');
-      cell.textContent = oldValue;
-      return;
-    }
+  document.getElementById('newProcName').value = '';
+  document.getElementById('newProcDepartment').value = '';
+  document.getElementById('newProcPrice').value = '';
 
-    cell.textContent = value;
-    updateDropdownItem(id, field, value);
-    notyf.success('Updated');
-
-  } catch (err) {
-    console.error(err);
-    cell.textContent = oldValue;
-    notyf.error('Server error');
-  }
-}
+});
 
 // =========================
 // DELETE PROCEDURE
 // =========================
 document.addEventListener('click', async e => {
+
   if (!e.target.classList.contains('delete-btn')) return;
 
   const tr = e.target.closest('tr');
@@ -306,52 +259,35 @@ document.addEventListener('click', async e => {
 
   if (!confirm('Delete this procedure?')) return;
 
-  try {
-    const res = await fetch('/patient/procedures/delete', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id })
-    });
+  const res = await fetch('/patient/procedures/delete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id })
+  });
 
-    const data = await res.json();
+  const data = await res.json();
 
-    if (data.status !== 'success') {
-      notyf.error(data.error || 'Delete failed');
-      return;
-    }
-
-    // Remove from table and dropdown
-    tr.remove();
-    document.querySelector(`.procedure-checkbox[data-id="${id}"]`)?.closest('.dropdown-item')?.remove();
-
-    notyf.success('Procedure deleted');
-
-  } catch (err) {
-    console.error(err);
-    notyf.error('Server error');
+  if (data.status !== 'success') {
+    notyf.error(data.error || 'Delete failed');
+    return;
   }
+
+  tr.remove();
+  document.querySelector(`.procedure-checkbox[data-id="${id}"]`)?.closest('.dropdown-item')?.remove();
+
+  notyf.success('Procedure deleted');
+
 });
 
 // =========================
 // HELPER
 // =========================
-function updateDropdownItem(id, field, value) {
-  const checkbox = document.querySelector(`.procedure-checkbox[data-id="${id}"]`);
-  if (!checkbox) return;
-
-  if (field === 'price') checkbox.dataset.price = value;
-  if (field === 'name') checkbox.dataset.name = value;
-  if (field === 'department') checkbox.dataset.department = value;
-
-  const span = checkbox.nextElementSibling;
-  span.textContent = `${checkbox.dataset.name} — ${checkbox.dataset.department || ''} (Rs ${checkbox.dataset.price})`;
-}
-
 function appendProcedureDropdown(proc) {
   const list = document.querySelector('.dropdown-list');
-  const div = document.createElement('div');
 
+  const div = document.createElement('div');
   div.className = 'dropdown-item';
+
   div.innerHTML = `
     <input type="checkbox" class="procedure-checkbox"
       data-id="${proc.id}"
@@ -359,172 +295,6 @@ function appendProcedureDropdown(proc) {
       data-price="${proc.price}">
     <span>${proc.name} — ${proc.department} (Rs ${proc.price})</span>
   `;
+
   list.appendChild(div);
 }
-
-function updateDropdownItem(id, field, value) {
-  const checkbox = document.querySelector(`.procedure-checkbox[data-id="${id}"]`);
-  if (!checkbox) return;
-
-  if (field === 'price') checkbox.dataset.price = value;
-  if (field === 'name') checkbox.dataset.name = value;
-
-  const span = checkbox.nextElementSibling;
-  span.textContent = `${checkbox.dataset.name} — ${checkbox.dataset.department || ''} (Rs ${checkbox.dataset.price})`;
-}
-
-// =========================
-// AUTO SELECT DOCTOR PROCEDURES (FIXED)
-// =========================
-document.addEventListener('DOMContentLoaded', () => {
-
-  if (!treatmentProcedures || treatmentProcedures.length === 0) {
-    console.log("No doctor procedures found");
-    return;
-  }
-
-  setTimeout(() => {
-
-    let total = 0;
-    let names = [];
-    let ids = [];
-
-    treatmentProcedures.forEach(id => {
-
-      const checkbox = document.querySelector(
-        `.procedure-checkbox[data-id="${id}"]`
-      );
-
-      if (checkbox) {
-        checkbox.checked = true;
-        total += parseFloat(checkbox.dataset.price || 0);
-        names.push(checkbox.dataset.name);
-        ids.push(id);
-      }
-    });
-
-    // update UI
-    document.getElementById('totalPrice').value = total.toFixed(2);
-    document.getElementById('descriptionField').value = names.join(' + ');
-    document.getElementById('procedureIds').value = ids.join(',');
-
-    if (typeof calculateDues === 'function') {
-      calculateDues();
-    }
-
-  }, 300);
-});
-// // =========================
-// // INLINE EDIT (DOUBLE CLICK)
-// // =========================
-// document.addEventListener('dblclick', e => {
-//   const cell = e.target;
-//   if (!cell.classList.contains('editable')) return;
-
-//   const oldValue = cell.textContent.trim();
-//   const field = cell.classList.contains('price') ? 'price'
-//               : cell.classList.contains('department') ? 'department'
-//               : 'name';
-
-//   const input = document.createElement('input');
-//   input.value = oldValue;
-//   input.type = field === 'price' ? 'number' : 'text';
-
-//   cell.textContent = '';
-//   cell.appendChild(input);
-//   input.focus();
-
-//   input.addEventListener('blur', () => saveEdit(cell, field, oldValue));
-//   input.addEventListener('keydown', e => {
-//     if (e.key === 'Enter') input.blur();
-//     if (e.key === 'Escape') cell.textContent = oldValue;
-//   });
-// });
-
-// async function saveEdit(cell, field, oldValue) {
-//   const tr = cell.closest('tr');
-//   const id = tr.dataset.id;
-//   const value = cell.querySelector('input').value.trim();
-
-//   if (!value || value === oldValue) {
-//     cell.textContent = oldValue;
-//     return;
-//   }
-
-//   try {
-//     const res = await fetch('/patient/procedures/update', {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ id, field, value })
-//     });
-
-//     const data = await res.json();
-
-//     if (data.status !== 'success') {
-//       notyf.error(data.error || 'Update failed');
-//       cell.textContent = oldValue;
-//       return;
-//     }
-
-//     cell.textContent = value;
-//     updateDropdownItem(id, field, value);
-//     notyf.success('Updated');
-
-//   } catch (err) {
-//     console.error(err);
-//     cell.textContent = oldValue;
-//     notyf.error('Server error');
-//   }
-// }
-
-// // =========================
-// // DELETE PROCEDURE
-// // =========================
-// document.addEventListener('click', async e => {
-//   if (!e.target.classList.contains('delete-btn')) return;
-
-//   const tr = e.target.closest('tr');
-//   const id = tr.dataset.id;
-
-//   if (!confirm('Delete this procedure?')) return;
-
-//   try {
-//     const res = await fetch('/patient/procedures/delete', {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ id })
-//     });
-
-//     const data = await res.json();
-
-//     if (data.status !== 'success') {
-//       notyf.error(data.error || 'Delete failed');
-//       return;
-//     }
-
-//     // Remove from table and dropdown
-//     tr.remove();
-//     document.querySelector(`.procedure-checkbox[data-id="${id}"]`)?.closest('.dropdown-item')?.remove();
-
-//     notyf.success('Procedure deleted');
-
-//   } catch (err) {
-//     console.error(err);
-//     notyf.error('Server error');
-//   }
-// });
-
-// // =========================
-// // HELPER
-// // =========================
-// function updateDropdownItem(id, field, value) {
-//   const checkbox = document.querySelector(`.procedure-checkbox[data-id="${id}"]`);
-//   if (!checkbox) return;
-
-//   if (field === 'price') checkbox.dataset.price = value;
-//   if (field === 'name') checkbox.dataset.name = value;
-//   if (field === 'department') checkbox.dataset.department = value;
-
-//   const span = checkbox.nextElementSibling;
-//   span.textContent = `${checkbox.dataset.name} — ${checkbox.dataset.department || ''} (Rs ${checkbox.dataset.price})`;
-// }
