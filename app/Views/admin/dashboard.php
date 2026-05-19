@@ -195,7 +195,7 @@
 <?php endif; ?>
 <?php if (ENVIRONMENT === 'development'): ?>
 <div class="chart-container chart-container-bar">
-  <h2>Patient Revenue Contribution (Pareto Analysis)</h2>
+  <h2>Patient Revenue Contribution</h2>
 <canvas id="barChart" ></canvas>
 
 </div>

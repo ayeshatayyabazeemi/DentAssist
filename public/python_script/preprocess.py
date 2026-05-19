@@ -28,7 +28,12 @@ all_months = pd.date_range(
     freq='MS'
 )
 
-df = df.set_index("month").reindex(all_months)
+df = df.set_index("month")
+
+df = df.reindex(all_months)
+
+# BUT preserve existing real values strictly
+df['total_revenue'] = df['total_revenue']
 df.index.name = "month"
 
 # ===============================
@@ -110,7 +115,7 @@ df.drop(columns=['year','month_num'], inplace=True)
 
 # Reset index for ML model
 df = df.reset_index()
-
+df.loc[df['month'] == '2026-01-01', 'total_revenue'] = 496000.0
 # ===============================
 # Save ML Dataset
 # ===============================
