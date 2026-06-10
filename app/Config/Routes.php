@@ -157,3 +157,19 @@ $routes->get('attendance/monthlyCalendar', 'Attendance::monthlyCalendar'); // Mo
 
 
 $routes->get('patient/invoiceView/(:num)', 'PatientProfile::invoiceView/$1');
+
+
+
+$routes->get('inventory/dashboard', 'InventoryController::dashboard');
+
+$routes->get('inventory/stock-in', 'InventoryController::stockIn');
+
+$routes->get('inventory/transactions', 'InventoryController::transactions');
+
+$routes->get('inventory/reports', 'InventoryController::reports');
+
+$routes->post('inventory/add-stock', 'InventoryController::addStock');
+
+$routes->post('inventory/remove-stock', 'InventoryController::removeStock');
+
+$routes->post('inventory/add-item', 'InventoryController::addItem');

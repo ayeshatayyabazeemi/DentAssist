@@ -206,28 +206,122 @@ class PatientProfile extends Controller
         }
     }
 
+    // public function saveInvoice()
+    // {
+    //     $invoiceModel = new InvoiceModel();
+    //     $data = $this->request->getPost();
+
+    //     $invoiceModel->insert([
+    //         'invoice_id'   => $data['invoice_id'],
+    //         'mr_number'    => $data['mr_number'],
+    //         'patient_id'   => $data['patient_id'],
+    //         'patient_name' => $data['patient_name'],
+    //         'description'  => $data['description'],
+    //         'paid_amount'  => $data['paid_amount'],
+    //         'dues'         => $data['dues'],
+    //         'advance'      => $data['advance'],
+    //         // 'payment_date' => $data['payment_date'],
+    //         'payment_date' => date('Y-m-d', strtotime($data['payment_date'])),
+    //         'user_name'    => $data['user_name']
+    //     ]);
+
+    //     return $this->response->setJSON([
+    //         'status'     => 'success',
+    //         'invoice_id' => $invoiceModel->getInsertID()
+    //     ]);
+    // }
+
     public function saveInvoice()
-    {
-        $invoiceModel = new InvoiceModel();
-        $data = $this->request->getPost();
+{
+    $invoiceModel = new InvoiceModel();
+    $db = \Config\Database::connect();
 
-        $invoiceModel->insert([
-            'invoice_id'   => $data['invoice_id'],
-            'mr_number'    => $data['mr_number'],
-            'patient_id'   => $data['patient_id'],
-            'patient_name' => $data['patient_name'],
-            'description'  => $data['description'],
-            'paid_amount'  => $data['paid_amount'],
-            'dues'         => $data['dues'],
-            'advance'      => $data['advance'],
-            // 'payment_date' => $data['payment_date'],
-            'payment_date' => date('Y-m-d', strtotime($data['payment_date'])),
-            'user_name'    => $data['user_name']
-        ]);
+    $data = $this->request->getPost();
 
-        return $this->response->setJSON([
-            'status'     => 'success',
-            'invoice_id' => $invoiceModel->getInsertID()
-        ]);
+    // 1. SAVE INVOICE
+    $invoiceModel->insert([
+        'invoice_id'   => $data['invoice_id'],
+        'mr_number'    => $data['mr_number'],
+        'patient_id'   => $data['patient_id'],
+        'patient_name' => $data['patient_name'],
+        'description'  => $data['description'],
+        'paid_amount'  => $data['paid_amount'],
+        'dues'         => $data['dues'],
+        'advance'      => $data['advance'],
+        'payment_date' => date('Y-m-d', strtotime($data['payment_date'])),
+        'user_name'    => $data['user_name']
+    ]);
+
+    // 2. GET PROCEDURES FROM TREATMENTS TABLE
+    $procedures = $db->table('treatments')
+        ->select('procedure_id')
+        ->where('patient_id', $data['patient_id'])
+        ->where('procedure_id IS NOT NULL')
+        ->get()
+        ->getResultArray();
+
+    $procedureIds = array_unique(array_column($procedures, 'procedure_id'));
+
+    // 3. DEDUCT INVENTORY
+    $this->consumeInventory($procedureIds);
+
+    // 4. RESPONSE
+    return $this->response->setJSON([
+        'status'     => 'success',
+        'invoice_id' => $invoiceModel->getInsertID()
+    ]);
+}
+
+    private function consumeInventory($procedureIds)
+{
+    $db = \Config\Database::connect();
+
+    if (empty($procedureIds)) {
+        return;
     }
+
+    foreach ($procedureIds as $pid) {
+
+        // get all items linked to procedure
+        $items = $db->table('procedure_inventory')
+            ->where('procedure_id', $pid)
+            ->get()
+            ->getResult();
+
+        foreach ($items as $item) {
+
+            // current stock
+            $stockRow = $db->table('inventory_items')
+                ->where('item_id', $item->item_id)
+                ->get()
+                ->getRow();
+
+            if (!$stockRow) continue;
+
+            $currentStock = (float)$stockRow->available_qty;
+            $usedQty = (float)$item->qty_used;
+
+            // safety check
+            if ($currentStock < $usedQty) {
+                continue; // skip if not enough stock
+            }
+
+            // update stock (reduce)
+            $db->table('inventory_items')
+                ->where('item_id', $item->item_id)
+                ->set('available_qty', 'available_qty - ' . $usedQty, false)
+                ->update();
+
+            // log transaction
+            $db->table('stock_transactions')->insert([
+                'item_id'   => $item->item_id,
+                'type'      => 'OUT',
+                'quantity'  => $usedQty,
+                'note'      => 'Used in procedure ID: ' . $pid,
+                'created_at'=> date('Y-m-d H:i:s')
+            ]);
+        }
+    }
+}
+
 }

@@ -58,6 +58,10 @@
       <i class="fa fa-robot"></i> Dentistry Assistant
     </a>
 
+    <a href="<?= base_url('inventory/dashboard') ?>" class="ai-btn">
+    <i class="fa fa-boxes"></i> Inventory
+</a>
+
     <form id="logoutForm" action="<?= base_url('logout') ?>" method="post">
       <button type="submit" class="logout-btn">Logout</button>
     </form>
