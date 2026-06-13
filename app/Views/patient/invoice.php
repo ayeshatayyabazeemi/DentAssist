@@ -349,4 +349,8 @@ function printInvoice() {
 </script>
 
 </body>
+<<<<<<< HEAD
 </html> 
+=======
+</html>
+>>>>>>> final

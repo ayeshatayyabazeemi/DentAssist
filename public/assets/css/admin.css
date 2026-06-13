@@ -99,6 +99,8 @@ nav {
   --text-muted: #666666;
 }
 
+
+
 /* Base styles */
 
 
@@ -109,7 +111,58 @@ nav {
 }
 
 
+/* Recommendations container */
+#forecastRecommendations{
+  margin-top:15px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  font-size:14px;
+}
 
+/* Title */
+.rec-title{
+  margin-bottom:6px;
+  font-size:16px;
+  color:var(--text-dark);
+}
+
+/* Base card */
+.recommendation-card{
+  padding:12px 16px;
+  border-radius:8px;
+  border-left:5px solid;
+  background:#fafafa;
+  line-height:1.5;
+  box-shadow:0 2px 6px rgba(0,0,0,0.05);
+  transition:all .2s ease;
+}
+
+.recommendation-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* Decline */
+.recommendation-decline{
+  border-color:#e74c3c;
+  background:#fff5f5;
+  color:#b42318;
+}
+
+/* Growth */
+.recommendation-growth{
+  border-color:#2ecc71;
+  background:#f3fff7;
+  color:#1e7f4f;
+}
+
+/* Stable */
+.recommendation-stable{
+  border-color:#3498db;
+  background:#f4f8ff;
+  color:#1d4ed8;
+}
 
 
 /* KPI Cards */
@@ -151,7 +204,10 @@ nav {
 .border-secondary { border-left: 4px solid var(--color-peach); }
 .border-warm { border-left: 4px solid var(--color-warm); }
 .border-success { border-left: 4px solid var(--color-light); }
-
+:root {
+  --primary: hsl(220, 90%, 60%);
+  --secondary: hsl(220, 60%, 40%);
+}
 /* Chart Container */
 .chart-container {
   background: var(--card-bg);
@@ -159,7 +215,73 @@ nav {
   border-radius: 12px;
   box-shadow: 0 4px 15px var(--card-shadow);
   animation: fadeInUp 0.6s ease-out;
+   margin-bottom: 30px;
 }
+/* Bar chart container */
+.chart-container-bar {
+  height: 550px; /* fixed height to prevent infinite growth */
+  max-height: 450px;
+  position: relative;
+}
+
+/* Canvas inside container */
+#barChart {
+  width: 100% !important;
+  height: 100% !important; /* fills the container height */
+  display: block;
+}
+
+
+/* Pie Chart Container */
+.chart-container-pie {
+  background: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px var(--card-shadow);
+  animation: fadeInUp 0.6s ease-out;
+  margin-bottom: 25px;
+    overflow: hidden; /* prevents container from expanding indefinitely */
+
+}
+
+/* Heading style */
+.chart-container-pie h2 {
+  margin-bottom: 1rem;
+  font-size: 1.75rem;
+  color: var(--text-dark);
+}
+
+/* Row layout for two pie charts */
+.chart-container-pie-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: nowrap; /* keep in same row */
+}
+
+/* Individual Pie Chart wrapper */
+.chart-wrapper-pie {
+  flex: 1; /* equal width */
+    max-height: 400px; /* fixes the chart height */
+
+  min-height: 400px; /* fix height */
+  position: relative;
+  background: white;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+/* Canvas scaling */
+.chart-wrapper-pie canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
 
 .chart-container h2 {
   margin: 0 0 0.5rem;
@@ -172,20 +294,80 @@ nav {
   margin: 0;
 }
 
-/* Insight Box */
-.insight-box {
-  margin-top: 1.5rem;
-  padding: 1rem;
-  border-radius: 8px;
-  background: var(--color-peach);
-  border: 1px solid var(--color-warm);
-  color: var(--text-dark);
-  transition: background-color 0.3s;
+.page-insight-container {
+  position: static; /* remove fixed positioning */
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 30px 0; /* 30px top & bottom spacing */
+}
+.page-insight-container-pie {
+  position: static; /* remove fixed positioning */
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 30px 0; /* 30px top & bottom spacing */
+}
+.insight-boxs-pie {
+  padding: 12px 24px;
+  border-radius: 10px;
+  background: linear-gradient(135deg,#f4f891,#fad38b);
+  border-left: 5px solid #ee6a6a;
+  box-shadow: 0 4px 12px rgba(240,135,135,0.15);
+  font-size: 14px;
+  color: #333;
+  text-align: center;
+  white-space: nowrap; /* prevents text wrapping */
+}
+.insight-boxs-pie h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500; /* not bold */
+  color: #2e7d32; /* green */
+}
+.insight-boxs {
+  padding: 12px 24px;
+  border-radius: 10px;
+  background: linear-gradient(135deg,#f4f891,#fad38b);
+  border-left: 5px solid #ee6a6a;
+  box-shadow: 0 4px 12px rgba(240,135,135,0.15);
+  font-size: 14px;
+  color: #333;
+  text-align: center;
+  white-space: nowrap; /* prevents text wrapping */
 }
 
-.insight-box:hover {
-  background: var(--color-rose);
-  color: white;
+/* .insight-boxs{
+  padding:12px 18px;
+  border-radius:10px;
+  background: linear-gradient(135deg,#f4f891,#fad38b);
+  border-left:5px solid #ee6a6a;
+  box-shadow:0 4px 12px rgba(240,135,135,0.15);
+  font-size:14px;
+  color:#333;
+  text-align:center;
+} */
+.insight-boxs{
+  margin-top:24px;
+  padding:14px 18px;
+  border-radius:10px;
+
+  background: linear-gradient(
+    135deg,
+    var(--color-light),
+    var(--color-warm)
+  );
+
+  border-left:5px solid var(--color-rose);
+  box-shadow:0 4px 12px var(--card-shadow);
+
+  font-size:14px;
+  line-height:1.5;
+  color:var(--text-dark);
+}
+
+#paretoInsight{
+  font-weight:500;
 }
 
 /* Animations */

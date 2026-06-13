@@ -16,11 +16,15 @@ $routes->post('logout', 'Login::logout', ['filter' => 'auth:admin,receptionist']
 // -------------------------
 // Admin Dashboard
 $routes->get('/adminDashboard', 'AdminDashboard::index', ['filter' => 'auth:admin']);
+$routes->get('/invoice/data', 'PatientProfile::getInvoiceSummary');
+$routes->get('/invoice/procedure/data', 'PatientProfile::getProcedureRevenueSummary');
+$routes->get('procedures/list', 'PatientProfile::list');
 $routes->get('/receptionDashboard', 'ReceptionController::dashboard', ['filter' => 'auth:admin,receptionist']);
 $routes->post('/api/appointments/update-status', 'ReceptionController::updateStatus', ['filter' => 'auth:admin,receptionist']);
 $routes->get('/api/appointments/today', 'ReceptionController::fetchTodayAppointments', ['filter' => 'auth:admin,receptionist']);
+$routes->get('/adminDashboard', 'AdminDashboard::index', ['filter' => 'auth:admin']);
 
-
+$routes->get('/forecast', 'ForecastController::index');
 
 
 // -------------------------
@@ -28,6 +32,7 @@ $routes->get('/api/appointments/today', 'ReceptionController::fetchTodayAppointm
 $routes->get('patient/invoice/(:num)', 'PatientProfile::invoiceView/$1', ['filter' => 'auth:admin,receptionist']);
 $routes->post('patient/invoice/save', 'PatientProfile::saveInvoice', ['filter' => 'auth:admin,receptionist']);
 $routes->get('patient/procedures', 'PatientProfile::getProcedures', ['filter' => 'auth:admin,receptionist']);
+$routes->get('patient/pareto', 'PatientProfile::paretoPatients', ['filter' => 'auth:admin,receptionist']);
 
 // -------------------------
 // procedures

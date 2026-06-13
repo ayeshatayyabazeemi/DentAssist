@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>Lab Order History</title>
-
 <link rel="stylesheet" href="<?= base_url('assets/css/laborder.css') ?>">
 <link rel="icon" type="image/png" href="<?= base_url('assets/images/mylogo.png') ?>">
 
@@ -66,6 +65,8 @@ table tbody tr:nth-child(even){
 }
 
 .filter-container{margin-bottom:20px;}
+.delete-btn{background:#ff4d4d;color:white;border:none;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:14px;}
+.delete-btn:hover{background:#e60000;}
 
 .delete-btn{
     background:#ff4d4d;
@@ -81,7 +82,6 @@ table tbody tr:nth-child(even){
 <body>
 
 <div class="form-section">
-
 <h2>Lab Order History</h2>
 
 <!-- FILTER -->
@@ -209,8 +209,6 @@ table tbody tr:nth-child(even){
 <div style="text-align:center; margin-top:20px;">
     <a href="<?= base_url('laborders/create') ?>" class="btn-add-appt">Back to Lab Order Form</a>
     <a href="<?= base_url('laborders/analytics') ?>" class="btn-add-appt" style="margin-left:15px;">View Lab Analytics</a>
-</div>
-
 </div>
 
 <script>

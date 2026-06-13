@@ -91,36 +91,55 @@ class PatientController extends BaseController
         }
     }
 
-    /* ---------------------------------------------------------
+   /* ---------------------------------------------------------
        SEARCH PATIENT
     --------------------------------------------------------- */
     public function search()
     {
         $q = trim($this->request->getGet('q'));
         if (!$q) {
-            return $this->response->setStatusCode(400)
+            return $this->response
+                ->setStatusCode(400)
                 ->setJSON(['status'=>'error','message'=>'Search query required']);
         }
 
         $model = new PatientModel();
-        $escaped = $model->escapeLikeString($q);
+       $escaped_q = $model->escapeLikeString($q);
 
-        $results = $model
-            ->groupStart()
-                ->like('mr_number', $escaped)
-                ->orLike('name', $escaped)
-                ->orLike('mobile_no', $escaped)
-                ->orLike('email', $escaped)
-                ->orLike('cnic', $escaped)
-            ->groupEnd()
-            ->select('patient_id, mr_number, name, mobile_no, email, cnic')
-            ->orderBy('patient_id','DESC')
-            ->findAll(10);
+$order_case = "
+CASE 
+    WHEN mr_number LIKE '%{$escaped_q}%' THEN 1
+WHEN LOWER(name) LIKE LOWER('%{$escaped_q}%') THEN 2
+    WHEN mobile_no LIKE '%{$escaped_q}%' THEN 3
+    WHEN email LIKE '%{$escaped_q}%' THEN 4
+    WHEN cnic LIKE '%{$escaped_q}%' THEN 5
+    ELSE 6
+END
+";
 
-        return $this->response->setJSON([
-            'status'=>'success',
-            'data'=>$results
-        ]);
+
+$results = $model->groupStart()
+                 ->like('mr_number', $escaped_q)
+                 ->orLike('mobile_no', $escaped_q)
+                 ->orLike('email', $escaped_q)
+                 ->orLike('cnic', $escaped_q)
+                 ->orLike('name', $escaped_q)
+                 ->groupEnd()
+                 ->select('patient_id, mr_number AS id, name, mobile_no, email, cnic')
+                 ->orderBy($order_case, 'ASC')                      // MR number matches first
+                 ->orderBy('CAST(mr_number AS UNSIGNED)', 'ASC')     // numeric sort
+                 ->orderBy('patient_id', 'ASC')                     // fallback
+                 ->findAll(10);
+
+
+        foreach ($results as &$r) {
+            $r['email'] = $r['email'] ?: 'none';
+            $r['cnic']  = $r['cnic'] ?: 'none';
+        }
+
+        return $this->response
+            ->setStatusCode(200)
+            ->setJSON(['status'=>'success','data'=>$results]);
     }
 
     /* ---------------------------------------------------------
