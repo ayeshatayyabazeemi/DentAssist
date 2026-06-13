@@ -787,17 +787,17 @@ document.addEventListener('DOMContentLoaded', function () {
               backgroundColor: "transparent",
               barPercentage: 0.95,
               categoryPercentage: 0.98
-            },
-
-            {
-              type: "line",
-              data: cumulativePercent,
-              borderColor: darkPeach,
-              backgroundColor: darkPeach,
-              yAxisID: "y1",
-              tension: 0.35,
-              pointRadius: 4
             }
+
+            // {
+            //   type: "line",
+            //   data: cumulativePercent,
+            //   borderColor: darkPeach,
+            //   backgroundColor: darkPeach,
+            //   yAxisID: "y1",
+            //   tension: 0.35,
+            //   pointRadius: 4
+            // }
 
           ]
         },
@@ -1021,11 +1021,13 @@ if (document.getElementById("predictedPieChart")) {
     .then(res => res.json())
     .then(forecastData => {
 
-      const june = forecastData.future_forecast.find(
-        f => new Date(f.ds).getMonth()===5 && new Date(f.ds).getFullYear()===2026
-      );
+      const june = forecastData.validation_2025.find(f =>
+  new Date(f.ds).getMonth() === 5 &&
+  new Date(f.ds).getFullYear() === 2026
+);
 
-      const predictedRevenue = june.yhat;
+const predictedRevenue = june?.predicted;
+     
       const totalHistoricalRevenue = rawData.reduce((s,d)=>s+d.total_revenue,0);
 
       const predicted = rawData.map(p => {

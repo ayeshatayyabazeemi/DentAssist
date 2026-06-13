@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-print("📌 Starting Advanced Seasonal Preprocessing...")
+print(" Starting Advanced Seasonal Preprocessing...")
 
 # ===============================
 # Load Raw Data
@@ -121,6 +121,6 @@ df.loc[df['month'] == '2026-01-01', 'total_revenue'] = 496000.0
 # ===============================
 df.to_csv("monthly_preprocessed.csv", index=False)
 
-print("📊 Final Dataset Size:", len(df))
-print("✅ Seasonal Preprocessing Completed")
-print("💾 Saved monthly_preprocessed.csv")
+print("Final Dataset Size:", len(df))
+print(" Seasonal Preprocessing Completed")
+print(" Saved monthly_preprocessed.csv")

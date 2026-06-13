@@ -196,6 +196,7 @@
 # )
 
 # output["recommendations"] = recommendations
+
 import pandas as pd
 from prophet import Prophet
 from sklearn.metrics import mean_absolute_error, mean_squared_error
@@ -203,7 +204,7 @@ import numpy as np
 import json
 import calendar
 
-print("📌 Starting Advanced AI Forecast System...")
+print(" Starting Advanced AI Forecast System...")
 
 # ===============================
 # LOAD DATA
@@ -244,8 +245,8 @@ holidays = pd.DataFrame({
 train = df[df['ds'] < '2025-01-01']
 validate = df[df['ds'] >= '2025-01-01']
 
-print("📊 Train Size:", len(train))
-print("📊 Validation Size:", len(validate))
+print(" Train Size:", len(train))
+print(" Validation Size:", len(validate))
 
 # ===============================
 # TRAIN MODEL (VALIDATION)
@@ -254,7 +255,6 @@ model = Prophet(
     yearly_seasonality=True,
     weekly_seasonality=False,
     daily_seasonality=False,
-    holidays=holidays,
     changepoint_prior_scale=0.15,
     seasonality_prior_scale=10
 )
@@ -292,8 +292,8 @@ predicted = np.expm1(forecast_2025['yhat'])
 mae = mean_absolute_error(validate_actual, predicted)
 rmse = np.sqrt(mean_squared_error(validate_actual, predicted))
 
-print("📉 MAE:", round(mae,2))
-print("📉 RMSE:", round(rmse,2))
+print(" MAE:", round(mae,2))
+print(" RMSE:", round(rmse,2))
 
 # ===============================
 # FINAL MODEL (FULL DATA)
@@ -302,7 +302,6 @@ final_model = Prophet(
     yearly_seasonality=True,
     weekly_seasonality=False,
     daily_seasonality=False,
-    holidays=holidays,
     changepoint_prior_scale=0.15,
     seasonality_prior_scale=10
 )
@@ -319,7 +318,7 @@ final_model.fit(df)
 # FUTURE FORECAST
 # ===============================
 future = final_model.make_future_dataframe(
-    periods=3,
+    periods=6,
     freq='MS'
 )
 
@@ -334,11 +333,9 @@ forecast_future['yhat'] = np.expm1(forecast_future['yhat'])
 forecast_future['yhat_lower'] = np.expm1(forecast_future['yhat_lower'])
 forecast_future['yhat_upper'] = np.expm1(forecast_future['yhat_upper'])
 
-
 # ===============================
 # DEMAND WINDOW ANALYSIS
 # ===============================
-
 forecast_future['month'] = forecast_future['ds'].dt.month
 forecast_future['month_name'] = forecast_future['ds'].dt.strftime('%B')
 
@@ -403,7 +400,6 @@ worst_month_name = calendar.month_name[worst_month]
 # ===============================
 # SMART BUSINESS RECOMMENDATIONS
 # ===============================
-
 recommendations = []
 
 # 1️⃣ Merge consecutive windows with same demand type
@@ -428,7 +424,6 @@ for w in merged:
         msg = f"High patient demand expected from {period}. Increase dentist availability and hygiene slots."
     elif w["type"] == "Low":
         msg = f"Lower patient visits predicted from {period}. Consider promotions or preventive care campaigns."
-
     elif w["type"] in ["Normal", "Stable"]:
         msg = f"Stable demand expected from {period}. Maintain regular staffing and focus on patient retention."
 
@@ -459,12 +454,12 @@ recommendations = sorted(set(recommendations), reverse=True)
 
 # 5️⃣ Return only top insights
 recommendations = [r[1] for r in recommendations[:4]]
+
 # ===============================
 # VOLATILITY DETECTION
 # ===============================
 # volatility = forecast_future['yhat'].std()
 # mean_val = forecast_future['yhat'].mean()
-
 
 # if volatility > mean_val * 0.25:
 #     recommendations.append(
@@ -482,54 +477,31 @@ for i in range(len(validate)):
     pred = float(np.expm1(forecast_2025.iloc[i]['yhat']))
 
     validation_output.append({
-
         "ds": str(validate.iloc[i]['ds']),
         "actual": actual,
         "predicted": pred,
         "yhat_lower": float(np.expm1(forecast_2025.iloc[i]['yhat_lower'])),
         "yhat_upper": float(np.expm1(forecast_2025.iloc[i]['yhat_upper'])),
         "anomaly": abs(pred - actual) > pred * 0.15
-
     })
-
 
 # ===============================
 # SAVE JSON
 # ===============================
 output = {
-
     "metrics": {
         "MAE": float(mae),
         "RMSE": float(rmse)
     },
-
     "validation_2025": validation_output,
-
     "future_forecast": forecast_future[
         ['ds','yhat','yhat_lower','yhat_upper']
     ].to_dict(orient="records"),
-
     "recommendations": recommendations
-
 }
 
 with open("forecast_finance.json", "w") as f:
     json.dump(output, f, default=str)
 
-print("✅ Advanced Forecast Completed")
-print("💾 forecast_finance.json Saved")
-
-
-
-
-# trend_last = forecast_future['yhat'].iloc[-1]
-# trend_first = forecast_future['yhat'].iloc[0]
-
-# if trend_last > trend_first:
-#     recommendations.append(
-#         "Overall upward revenue trend detected for 2026–2027. Consider expanding services."
-#     )
-# else:
-#     recommendations.append(
-#         "Revenue slowdown predicted. Focus on patient retention and marketing."
-#     )
+print(" Advanced Forecast Completed")
+print(" forecast_finance.json Saved")

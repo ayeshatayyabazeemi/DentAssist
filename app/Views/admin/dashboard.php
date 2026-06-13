@@ -189,9 +189,9 @@
   </div>
 
 </div>
-<div class="page-insight-container-pie">
+<!-- <div class="page-insight-container-pie">
     <div class="insight-boxs-pie" ><h3>Inventory levels are sufficient to meet the predicted procedure demand.</h3></div>
-</div>
+</div> -->
 <?php endif; ?>
 <?php if (ENVIRONMENT === 'development'): ?>
 <div class="chart-container chart-container-bar">
