@@ -1,4 +1,4 @@
-cd C:\xamppp\htdocs\DentAssist<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -13,19 +13,30 @@ cd C:\xamppp\htdocs\DentAssist<!DOCTYPE html>
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="assets/images/mylogo.png" />
 
-  <!-- AI Button Style -->
+  <!-- LIGHT PINK BUTTON STYLE ONLY -->
   <style>
   .ai-btn{
-    background:#6c63ff;
-    color:white;
+    background:#f8c8dc;
+    color:#2d2d2d;
     padding:8px 14px;
     border-radius:6px;
     text-decoration:none;
     margin-right:10px;
     font-size:14px;
+    border:1px solid #f3a9c4;
+    transition:0.2s ease;
+    display:inline-flex;
+    align-items:center;
   }
+
+  .ai-btn i{
+    margin-right:6px;
+  }
+
   .ai-btn:hover{
-    background:#5848d6;
+    background:#f4a9c7;
+    color:#000;
+    border-color:#f08bb3;
   }
   </style>
 
@@ -43,17 +54,17 @@ cd C:\xamppp\htdocs\DentAssist<!DOCTYPE html>
       <li><button class="tabbtn" data-tab="staffs">Employees</button></li>
     </ul>
 
-     <!-- Employee Attendance Button -->
+    <!-- Attendance -->
     <a href="<?= base_url('attendance') ?>" class="ai-btn">
-    <i class="fa fa-calendar-check-o"></i> Attendance
+      <i class="fa fa-calendar-check-o"></i> Attendance
     </a>
 
-    <!-- Lab Order Button (Added) -->
+    <!-- Lab Order -->
     <a href="<?= base_url('laborders/create') ?>" class="ai-btn">
       <i class="fa fa-flask"></i> Lab Order
     </a>
 
-    <!-- AI Assistant Button -->
+    <!-- AI Assistant -->
     <a href="<?= base_url('ai-assistant') ?>" class="ai-btn">
       <i class="fa fa-robot"></i> Dentistry Assistant
     </a>
@@ -105,7 +116,6 @@ cd C:\xamppp\htdocs\DentAssist<!DOCTYPE html>
     </div>
 
   </section>
-
 
   <!-- Patients Tab -->
   <section id="tab-patients" class="tab-content" style="display: none;">
@@ -202,7 +212,6 @@ cd C:\xamppp\htdocs\DentAssist<!DOCTYPE html>
           <div class="form-group">
             <label for="insurance" class="required-label">Insurance</label>
             <select id="insurance" name="insurance" required>
-
               <option value="">Select Insurance</option>
               <option value="GEN">General</option>
               <option value="NICL">NICL</option>
@@ -235,7 +244,6 @@ cd C:\xamppp\htdocs\DentAssist<!DOCTYPE html>
     </div>
 
   </section>
-
 
   <!-- Employees Tab -->
   <section id="tab-staffs" class="tab-content" style="display: none;">

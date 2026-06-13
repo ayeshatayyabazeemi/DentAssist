@@ -5,6 +5,7 @@
     <title>Lab Analytics Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="<?= base_url('assets/css/laborder.css') ?>">
+    <link rel="icon" type="image/png" href="<?= base_url('assets/images/mylogo.png') ?>">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;

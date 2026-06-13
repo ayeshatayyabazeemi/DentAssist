@@ -9,6 +9,7 @@
 
     <!-- Notyf Popup CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <link rel="icon" type="image/png" href="<?= base_url('assets/images/mylogo.png') ?>">
 
     <style>
         .suggestions-box {
@@ -89,6 +90,8 @@
                     <option value="Sent" selected>Sent</option>
                     <option value="Received">Received</option>
                     <option value="Completed">Completed</option>
+                    <option value="Re-send">Re-send</option>
+                    <option value="Re-recieved">Re-recieved</option>
                 </select>
             </div>
 

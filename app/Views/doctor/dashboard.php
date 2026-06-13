@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
 <link rel="stylesheet" href="<?= base_url('assets/css/admin.css') ?>">
 <link rel="stylesheet" href="<?= base_url('assets/css/receptionistDashboard.css') ?>">
+<link rel="icon" type="image/png" href="<?= base_url('assets/images/mylogo.png') ?>">
 
 <style>
 .tab-box { margin-top: 15px; }

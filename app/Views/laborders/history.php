@@ -5,10 +5,10 @@
 <title>Lab Order History</title>
 
 <link rel="stylesheet" href="<?= base_url('assets/css/laborder.css') ?>">
+<link rel="icon" type="image/png" href="<?= base_url('assets/images/mylogo.png') ?>">
 
-<!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+<link rel="icon" type="image/png" href="<?= base_url('assets/images/mylogo.png') ?>">
 <style>
 .form-section{
     background-color:#fff;
@@ -63,12 +63,6 @@ table tbody tr:nth-child(even){
     cursor:pointer;
     font-weight:600;
     text-decoration:none;
-    transition:transform 0.2s,box-shadow 0.2s;
-}
-
-.btn-add-appt:hover{
-    transform:scale(1.05);
-    box-shadow:0 5px 12px rgba(255,189,189,0.3);
 }
 
 .filter-container{margin-bottom:20px;}
@@ -80,30 +74,37 @@ table tbody tr:nth-child(even){
     padding:6px 10px;
     border-radius:8px;
     cursor:pointer;
-    font-size:14px;
-}
-
-.delete-btn:hover{
-    background:#e60000;
 }
 </style>
 </head>
+
 <body>
 
 <div class="form-section">
 
 <h2>Lab Order History</h2>
 
-<!-- Filter by Status -->
+<!-- FILTER -->
 <div class="filter-container">
     <form method="get" action="<?= base_url('laborders/history') ?>">
-        <label for="status_filter">Filter by Status: </label>
-        <select name="status" id="status_filter" onchange="this.form.submit()">
+        <label>Filter by Status:</label>
+
+        <select name="status" onchange="this.form.submit()">
             <option value="">All</option>
-            <?php foreach(['Sent','Received','Completed'] as $filterStatus): ?>
-                <option value="<?= $filterStatus ?>" <?= (isset($_GET['status']) && $_GET['status']==$filterStatus)?'selected':'' ?>>
+
+            <?php foreach([
+                'Sent',
+                'Resend',
+                'Received',
+                'Re-Received',
+                'Completed'
+            ] as $filterStatus): ?>
+
+                <option value="<?= $filterStatus ?>"
+                    <?= (isset($_GET['status']) && $_GET['status'] == $filterStatus) ? 'selected' : '' ?>>
                     <?= $filterStatus ?>
                 </option>
+
             <?php endforeach; ?>
         </select>
     </form>
@@ -123,41 +124,85 @@ table tbody tr:nth-child(even){
 <th>Delete</th>
 </tr>
 </thead>
+
 <tbody>
+
 <?php if(!empty($orders)): ?>
-    <?php foreach($orders as $order): ?>
-    <tr id="row-<?= $order['lab_order_id'] ?>">
-        <td><?= $order['lab_order_id'] ?></td>
-        <td><?= $order['patient_name'] ?></td>
-        <td><?= $order['lab_name'] ?></td>
-        <td><?= $order['lab_item'] ?></td>
-        <td><?= $order['shade'] ?></td>
-        <td><?= $order['comments'] ?></td>
-        <td>
-            <form method="post" action="<?= base_url('laborders/updateStatus') ?>">
-                <input type="hidden" name="lab_order_id" value="<?= $order['lab_order_id'] ?>">
-                <select name="status" onchange="this.form.submit()" class="status-select"
-                style="background-color: <?= $order['status']=='Sent' ? '#FFBDBD' : ($order['status']=='Received' ? '#FFD580' : '#4CAF50') ?>;
-                       color: <?= $order['status']=='Received' ? '#333' : '#fff' ?>">
-                    <?php foreach($statusOptions as $status): ?>
-                        <option value="<?= $status ?>" <?= $order['status']==$status?'selected':'' ?>>
-                            <?= $status ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </form>
-        </td>
-        <td><?= $order['order_date'] ?></td>
-        <td>
-            <button class="delete-btn" data-id="<?= $order['lab_order_id'] ?>">🗑️</button>
-        </td>
-    </tr>
-    <?php endforeach; ?>
+<?php foreach($orders as $order): ?>
+
+<tr id="row-<?= $order['lab_order_id'] ?>">
+
+<td><?= $order['lab_order_id'] ?></td>
+<td><?= $order['patient_name'] ?></td>
+<td><?= $order['lab_name'] ?></td>
+<td><?= $order['lab_item'] ?></td>
+<td><?= $order['shade'] ?></td>
+<td><?= $order['comments'] ?></td>
+
+<!-- STATUS -->
+<td>
+<form method="post" action="<?= base_url('laborders/updateStatus') ?>">
+    <input type="hidden" name="lab_order_id" value="<?= $order['lab_order_id'] ?>">
+
+    <?php
+    $statusColors = [
+        'Sent' => '#FFBDBD',
+        'Resend' => '#FF8A80',
+        'Received' => '#FFD580',
+        'Re-Received' => '#FFB74D',
+        'Completed' => '#4CAF50'
+    ];
+
+    $textColors = [
+        'Received' => '#333',
+        'Re-Received' => '#333'
+    ];
+
+    $bg = $statusColors[$order['status']] ?? '#ccc';
+    $txt = $textColors[$order['status']] ?? '#fff';
+    ?>
+
+    <select name="status"
+            onchange="this.form.submit()"
+            class="status-select"
+            style="background-color: <?= $bg ?>; color: <?= $txt ?>;">
+
+        <?php foreach([
+            'Sent',
+            'Resend',
+            'Received',
+            'Re-Received',
+            'Completed'
+        ] as $status): ?>
+
+            <option value="<?= $status ?>"
+                <?= $order['status'] == $status ? 'selected' : '' ?>>
+                <?= $status ?>
+            </option>
+
+        <?php endforeach; ?>
+
+    </select>
+</form>
+</td>
+
+<td><?= $order['order_date'] ?></td>
+
+<td>
+<button class="delete-btn" data-id="<?= $order['lab_order_id'] ?>">🗑️</button>
+</td>
+
+</tr>
+
+<?php endforeach; ?>
 <?php else: ?>
+
 <tr>
 <td colspan="9" style="text-align:center;">No lab orders found.</td>
 </tr>
+
 <?php endif; ?>
+
 </tbody>
 </table>
 
@@ -169,40 +214,43 @@ table tbody tr:nth-child(even){
 </div>
 
 <script>
-// AJAX Delete with SweetAlert2
+// DELETE
 document.querySelectorAll('.delete-btn').forEach(btn => {
     btn.addEventListener('click', function(){
         const id = this.dataset.id;
+
         Swal.fire({
             title: 'Are you sure?',
-            text: "You won't be able to revert this!",
+            text: "This will permanently delete order!",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#4CAF50',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!',
-            reverseButtons: true
+            confirmButtonText: 'Yes, delete!'
         }).then((result) => {
             if(result.isConfirmed){
+
                 fetch(`<?= base_url('laborders/delete') ?>/${id}`, {
                     method: 'POST',
                     headers: {'X-Requested-With': 'XMLHttpRequest'}
                 })
                 .then(res => res.json())
                 .then(data => {
+
                     if(data.status === 'success'){
-                        // Remove row with fade effect
                         const row = document.getElementById('row-'+id);
-                        row.style.transition = 'opacity 0.5s';
                         row.style.opacity = 0;
-                        setTimeout(() => row.remove(), 500);
+                        setTimeout(() => row.remove(), 400);
 
                         Swal.fire('Deleted!', data.message, 'success');
                     } else {
                         Swal.fire('Error!', data.message, 'error');
                     }
+
                 })
-                .catch(err => Swal.fire('Error!', 'Something went wrong.', 'error'));
+                .catch(() => {
+                    Swal.fire('Error!', 'Something went wrong.', 'error');
+                });
             }
         });
     });

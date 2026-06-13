@@ -6,7 +6,7 @@
 
 <link rel="stylesheet" href="<?= base_url('assets/css/admin.css') ?>">
 <link rel="stylesheet" href="<?= base_url('assets/css/doctor.css') ?>">
-
+<link rel="icon" type="image/png" href="<?= base_url('assets/images/mylogo.png') ?>">
 <style>
 /* ===== AI BUTTON FIX ===== */
 .ai-section{

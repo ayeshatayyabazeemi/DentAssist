@@ -3,7 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <title>Daily Attendance</title>
+
+<!-- Favicon changed to your logo -->
+<link rel="icon" type="image/png" href="<?= base_url('assets/images/mylogo.png') ?>">
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
 <style>
 /* Card container with stronger pastel pink */
 .attendance-card { 
@@ -74,6 +79,7 @@
 }
 </style>
 </head>
+
 <body>
 <div class="container mt-5">
 <div class="attendance-card">
@@ -115,22 +121,20 @@
             <?= $emp['is_doctor']?'Doctor':($emp['is_staff']?'Staff':($emp['is_receptionist']?'Receptionist':'Other')) ?>
         </td>
         <td>
-            <input type="radio" class="status" data-emp="<?= $emp['employee_id'] ?>" value="Present"
-            name="status[<?= $emp['employee_id'] ?>][<?= $today ?>]"
-            <?= isset($attendanceData[$emp['employee_id']]['status']) && $attendanceData[$emp['employee_id']]['status']=='Present'?'checked':'' ?>>
+            <input type="radio" class="status" value="Present"
+            name="status[<?= $emp['employee_id'] ?>][<?= $today ?>]">
         </td>
         <td>
-            <input type="radio" class="status" data-emp="<?= $emp['employee_id'] ?>" value="Absent"
-            name="status[<?= $emp['employee_id'] ?>][<?= $today ?>]"
-            <?= isset($attendanceData[$emp['employee_id']]['status']) && $attendanceData[$emp['employee_id']]['status']=='Absent'?'checked':'' ?>>
+            <input type="radio" class="status" value="Absent"
+            name="status[<?= $emp['employee_id'] ?>][<?= $today ?>]">
         </td>
         <td>
-            <input type="time" class="check_in" data-emp="<?= $emp['employee_id'] ?>"
+            <input type="time" class="check_in"
             name="check_in[<?= $emp['employee_id'] ?>][<?= $today ?>]"
             value="<?= $attendanceData[$emp['employee_id']]['check_in'] ?? '' ?>">
         </td>
         <td>
-            <input type="time" class="check_out" data-emp="<?= $emp['employee_id'] ?>"
+            <input type="time" class="check_out"
             name="check_out[<?= $emp['employee_id'] ?>][<?= $today ?>]"
             value="<?= $attendanceData[$emp['employee_id']]['check_out'] ?? '' ?>">
         </td>
@@ -143,6 +147,7 @@
         <button class="btn btn-success">Save Attendance</button>
     </div>
 </form>
+
 </div>
 </div>
 </body>

@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="assets/css/admin.css"> <!-- your admin form CSS -->
 
   <link rel="stylesheet" href="assets/css/receptionistDashboard.css">
+  <link rel="icon" type="image/png" href="<?= base_url('assets/images/mylogo.png') ?>">
 </head>
 <body>
 
