@@ -11,6 +11,32 @@
 
   <link rel="stylesheet" href="assets/css/receptionistDashboard.css">
   <link rel="icon" type="image/png" href="<?= base_url('assets/images/mylogo.png') ?>">
+  <style>
+  .ai-btn{
+    background:#f8c8dc;
+    color:#2d2d2d;
+    padding:8px 14px;
+    border-radius:6px;
+    text-decoration:none;
+    margin-right:10px;
+    font-size:14px;
+    border:1px solid #f3a9c4;
+    transition:0.2s ease;
+    display:inline-flex;
+    align-items:center;
+  }
+
+  .ai-btn i{
+    margin-right:6px;
+  }
+
+  .ai-btn:hover{
+    background:#f4a9c7;
+    color:#000;
+    border-color:#f08bb3;
+  }
+  </style>
+
 </head>
 <body>
 
@@ -20,7 +46,9 @@
    <nav>
     <ul class="nav-list">
       <li><button id="reception-btn-patients" class="patient-btn">Patients</button></li>
-      
+      <a href="<?= base_url('ai-assistant') ?>" class="ai-btn">
+      <i class="fa fa-robot"></i> Dentistry Assistant
+    </a> 
     </ul>
    <form id="logoutForm" action="<?= base_url('logout') ?>" method="post">
       <button type="submit" class="logout-btn">Logout</button>

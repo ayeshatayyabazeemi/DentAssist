@@ -65,9 +65,9 @@
     </a>
 
     <!-- AI Assistant -->
-    <a href="<?= base_url('ai-assistant') ?>" class="ai-btn">
+    <!-- <a href="<?= base_url('ai-assistant') ?>" class="ai-btn">
       <i class="fa fa-robot"></i> Dentistry Assistant
-    </a> -->
+    </a>  -->
 
     <form id="logoutForm" action="<?= base_url('logout') ?>" method="post">
       <button type="submit" class="logout-btn">Logout</button>
