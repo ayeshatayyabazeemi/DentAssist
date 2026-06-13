@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+cd C:\xamppp\htdocs\DentAssist<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
