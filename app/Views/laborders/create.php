@@ -93,7 +93,7 @@
                 </select>
             </div>
 
-        <div class="form-group" style="position:relative;">
+        <!-- <div class="form-group" style="position:relative;">
             <label class="required-label">Patient Name</label>
             <input type="text" name="patient_name" id="patient_name" required autocomplete="off">
             <input type="hidden" name="patient_id" id="patient_id">
@@ -127,7 +127,7 @@
                     <option value="<?= $status ?>"><?= $status ?></option>
                 <?php endforeach; ?>
             </select>
-        </div>
+        </div> -->
 
     </div>
 
